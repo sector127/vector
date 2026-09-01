@@ -157,6 +157,15 @@ button, input, select, textarea {
   outline: none;
 }
 
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--ink-primary);
+  outline-offset: 2px;
+}
+
 button {
   cursor: pointer;
 }
@@ -585,11 +594,44 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 14px;
+  gap: 10px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--ink-hairline);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   text-transform: uppercase;
+  flex-wrap: wrap;
+}
+
+.canvas-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.canvas-header-title {
+  font-weight: 800;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  color: var(--ink-primary);
+  white-space: nowrap;
+}
+
+.canvas-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.tag-swiss-active {
+  background: var(--ink-primary) !important;
+  color: var(--ink-inverse) !important;
+  border-color: var(--ink-primary) !important;
 }
 
 .canvas-mode-pills {
@@ -766,6 +808,43 @@ button {
   transform-style: preserve-3d;
 }
 
+.cad-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid var(--ink-hairline);
+  background: var(--bg-subtle);
+  color: var(--ink-primary);
+  text-transform: uppercase;
+  transition: all var(--trans-quick);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cad-toolbar-btn:hover {
+  border-color: var(--ink-primary);
+  background: var(--bg-elevated);
+}
+
+.cad-toolbar-btn.active {
+  background: var(--ink-primary);
+  color: var(--ink-inverse);
+  border-color: var(--ink-primary);
+}
+
+.cad-toolbar-btn.export-btn:hover {
+  background: var(--ink-primary);
+  color: var(--ink-inverse);
+  border-color: var(--ink-primary);
+}
+
 .stage-cad-view {
   min-height: 320px;
   background: var(--bg-elevated);
@@ -776,6 +855,12 @@ button {
   justify-content: center;
   position: relative;
   overflow: hidden;
+  transition: background-color var(--trans-medium), border-color var(--trans-medium);
+}
+
+.stage-cad-view.night-facade {
+  background: #0f1013;
+  border-color: #2b2e36;
 }
 
 .workbench-controls-panel {
@@ -874,6 +959,131 @@ button {
   font-size: 2.2rem;
   font-weight: 800;
   line-height: 1;
+}
+
+/* CAD PDF Export Button & Spinner */
+.cad-toolbar-btn.export-pdf-btn {
+  background: var(--ink-primary);
+  color: var(--ink-inverse);
+  border-color: var(--ink-primary);
+}
+
+.cad-toolbar-btn.export-pdf-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.cad-toolbar-btn.export-pdf-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Mini Tag Badge */
+.badge-tag-mini {
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: 2px 6px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--ink-hairline);
+  color: var(--ink-primary);
+}
+
+/* SVG Vector Dropzone */
+.svg-dropzone {
+  border: 1.5px dashed var(--ink-primary);
+  background: var(--bg-elevated);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all var(--trans-quick);
+}
+
+.svg-dropzone:hover,
+.svg-dropzone.drag-over {
+  background: var(--bg-main);
+  border-color: var(--ink-primary);
+  box-shadow: 0 0 0 2px var(--ink-primary);
+}
+
+.dropzone-icon {
+  color: var(--ink-primary);
+  flex-shrink: 0;
+}
+
+.dropzone-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dropzone-text strong {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-primary);
+  word-break: break-all;
+}
+
+.dropzone-text span {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--ink-muted);
+}
+
+/* Sample Vector Presets Row */
+.presets-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.presets-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+
+.presets-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.preset-btn {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border: 1px solid var(--ink-hairline);
+  background: var(--bg-main);
+  color: var(--ink-secondary);
+  transition: all var(--trans-quick);
+  cursor: pointer;
+}
+
+.preset-btn:hover {
+  border-color: var(--ink-primary);
+  color: var(--ink-primary);
+}
+
+.preset-btn.active {
+  background: var(--ink-primary);
+  color: var(--ink-inverse);
+  border-color: var(--ink-primary);
 }
 
 /* ==========================================================================
@@ -1043,6 +1253,27 @@ button {
 .dropzone-span {
   text-decoration: underline;
   font-weight: 700;
+}
+
+.whatsapp-cta-btn {
+  background: transparent;
+  color: var(--ink-primary);
+  border: 1px solid var(--ink-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: all var(--trans-quick);
+}
+
+.whatsapp-cta-btn:hover {
+  background: #25d366 !important;
+  color: #ffffff !important;
+  border-color: #25d366 !important;
 }
 
 /* ==========================================================================

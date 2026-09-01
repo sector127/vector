@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { MapPin, Radio, Activity, Eye, ShieldCheck } from 'lucide-react';
 import { translations } from '../i18n/translations';
 
 export default function TbilisiNetwork({ lang }) {
@@ -14,7 +13,7 @@ export default function TbilisiNetwork({ lang }) {
       type: t.loc1Type,
       traffic: t.loc1Traffic,
       specs: t.loc1Specs,
-      status: lang === 'ka' ? 'მაღალი გამტარობა • აქტიური' : 'High-Density Active Hub',
+      status: lang === 'ka' ? 'მაღალი გამტარობა • აქტიური' : lang === 'ru' ? 'Высокий трафик • Активен' : 'High-Density Active Hub',
       mapPos: { x: 140, y: 180 }
     },
     {
@@ -24,7 +23,7 @@ export default function TbilisiNetwork({ lang }) {
       type: t.loc2Type,
       traffic: t.loc2Traffic,
       specs: t.loc2Specs,
-      status: lang === 'ka' ? '100% LED ქსელი აქტიურია' : '100% LED Network Live',
+      status: lang === 'ka' ? '100% LED ქსელი აქტიურია' : lang === 'ru' ? '100% LED сеть активна' : '100% LED Network Live',
       mapPos: { x: 180, y: 130 }
     },
     {
@@ -34,7 +33,7 @@ export default function TbilisiNetwork({ lang }) {
       type: t.loc3Type,
       traffic: t.loc3Traffic,
       specs: t.loc3Specs,
-      status: lang === 'ka' ? 'ცენტრალური ზონა' : 'Prime Architectural Zone',
+      status: lang === 'ka' ? 'ცენტრალური ზონა' : lang === 'ru' ? 'Центральная зона' : 'Prime Architectural Zone',
       mapPos: { x: 260, y: 220 }
     },
     {
@@ -44,7 +43,7 @@ export default function TbilisiNetwork({ lang }) {
       type: t.loc4Type,
       traffic: t.loc4Traffic,
       specs: t.loc4Specs,
-      status: lang === 'ka' ? 'ქალაქის მთავარი კვანძი' : 'Dominant Urban Landmark',
+      status: lang === 'ka' ? 'ქალაქის მთავარი კვანძი' : lang === 'ru' ? 'Главный транспортный узел' : 'Dominant Urban Landmark',
       mapPos: { x: 210, y: 170 }
     },
     {
@@ -54,7 +53,7 @@ export default function TbilisiNetwork({ lang }) {
       type: t.loc5Type,
       traffic: t.loc5Traffic,
       specs: t.loc5Specs,
-      status: lang === 'ka' ? 'ქარის სერტიფიკატი (180 კმ/სთ)' : 'Gale Wind Certified (180 km/h)',
+      status: lang === 'ka' ? 'ქარის სერტიფიკატი (180 კმ/სთ)' : lang === 'ru' ? 'Ветроустойчивость (180 км/ч)' : 'Gale Wind Certified (180 km/h)',
       mapPos: { x: 390, y: 250 }
     },
     {
@@ -64,7 +63,7 @@ export default function TbilisiNetwork({ lang }) {
       type: t.loc6Type,
       traffic: t.loc6Traffic,
       specs: t.loc6Specs,
-      status: lang === 'ka' ? 'რეგიონული დაფარვა' : 'Regional Arterial Reach',
+      status: lang === 'ka' ? 'რეგიონული დაფარვა' : lang === 'ru' ? 'Региональный охват' : 'Regional Arterial Reach',
       mapPos: { x: 100, y: 80 }
     }
   ];
@@ -106,7 +105,7 @@ export default function TbilisiNetwork({ lang }) {
                 strokeWidth="8" 
               />
               <text x="320" y="270" fill="var(--ink-muted)" fontSize="9" fontFamily="TG Square, Noto Sans Georgian, Space Mono" transform="rotate(35 320,270)" letterSpacing="0.1em">
-                {lang === 'ka' ? 'მდ. მტკვარი' : 'MTKVARI RIVER'}
+                {lang === 'ka' ? 'მდ. მტკვარი' : lang === 'ru' ? 'РЕКА КУРА (МТКВАРИ)' : 'MTKVARI RIVER'}
               </text>
 
               {/* Major Vector Arterial Highway Lines */}
@@ -185,18 +184,18 @@ export default function TbilisiNetwork({ lang }) {
             <div className="hairline-box" style={{ marginTop: '12px', background: 'var(--bg-subtle)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', fontWeight: '700' }}>
-                  {lang === 'ka' ? 'ლოკაციის მონაცემები:' : 'Site Dossier:'} {current.name}
+                  {lang === 'ka' ? 'ლოკაციის მონაცემები:' : lang === 'ru' ? 'Данные локации:' : 'Site Dossier:'} {current.name}
                 </span>
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: 'var(--ink-muted)' }}>
                   {current.district}
                 </span>
               </div>
               <p style={{ fontSize: '0.9rem', color: 'var(--ink-secondary)', marginBottom: '12px' }}>
-                <strong>{lang === 'ka' ? 'ტექნიკური მახასიათებლები:' : 'Technical Specs:'}</strong> {current.specs}
+                <strong>{lang === 'ka' ? 'ტექნიკური მახასიათებლები:' : lang === 'ru' ? 'Технические характеристики:' : 'Technical Specs:'}</strong> {current.specs}
               </p>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', borderTop: '1px solid var(--ink-hairline)', paddingTop: '8px' }}>
-                <span>{lang === 'ka' ? 'გამტარობა:' : 'Traffic Flow:'} <strong>{current.traffic}</strong></span>
-                <span>✓ {lang === 'ka' ? 'ნებართვა: თბილისის მერია' : 'Permitted: Tbilisi City Hall'}</span>
+                <span>{lang === 'ka' ? 'გამტარობა / ტრაფიკი:' : lang === 'ru' ? 'Трафик:' : 'Traffic Flow:'} <strong>{current.traffic}</strong></span>
+                <span>✓ {lang === 'ka' ? 'ნებართვა: თბილისის მერია' : lang === 'ru' ? 'Разрешение: Мэрия Тбилиси' : 'Permitted: Tbilisi City Hall'}</span>
               </div>
             </div>
           </div>

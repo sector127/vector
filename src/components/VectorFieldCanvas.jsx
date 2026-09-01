@@ -70,7 +70,6 @@ export default function VectorFieldCanvas({ theme }) {
       const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
       const strokeColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
       const activeLineColor = isDark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.22)';
-      const nodeColor = isDark ? 'rgba(255, 255, 255, 0.35)' : 'rgba(0, 0, 0, 0.25)';
 
       // Draw subtle grid points and vector direction arrows
       for (let i = 0; i < points.length; i++) {
@@ -137,14 +136,25 @@ export default function VectorFieldCanvas({ theme }) {
       }
       ctx.setLineDash([]);
 
-      animationFrameId = requestAnimationFrame(render);
+      if (!document.hidden) {
+        animationFrameId = requestAnimationFrame(render);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        render();
+      }
     };
 
     render();
 
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       cancelAnimationFrame(animationFrameId);
     };
   }, [theme]);

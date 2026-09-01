@@ -16,7 +16,7 @@ export const translations = {
     heroTitleLine2: 'სიზუსტე.',
     heroTitleLine3: 'ფიზიკური',
     heroTitleLine4: 'მასშტაბი.',
-    heroDesc: 'Vector Hub — გარე რეკლამისა და არქიტექტურული აბრების მწარმოებელი სააგენტო თბილისში. ჩვენ ვამზადებთ მონუმენტურ ციფრულ ბილბორდებს, ულტრა-თხელ LED ლაითბოქსებს, მოცულობით 3D ასოებსა და დიდი ტირაჟის ბეჭდურ მასალებს.',
+    heroDesc: 'Vector Hub — გარე რეკლამისა და არქიტექტურული აბრების მწარმოებელი სააგენტო თბილისში. ჩვენ ვამზადებთ მონუმენტურ ციფრულ ბილბორდებს, ულტრათხელ LED ლაითბოქსებს, მოცულობით 3D ასოებსა და დიდი ტირაჟის პოლიგრაფიას.',
     heroBtnStudio: 'ვექტორ სტუდიის გაშვება',
     heroBtnMedia: 'თბილისის სარეკლამო ქსელი',
     metric1Val: '450+',
@@ -33,41 +33,41 @@ export const translations = {
     modeLightbox: 'ლაითბოქსი',
     toolpathHudMode: 'რეჟიმი',
     toolpathHudPrecision: 'ვექტორული ბეზიე',
-    toolpathHudStatus: 'გადააადგილეთ წერტილები',
+    toolpathHudStatus: 'გადაადგილეთ წერტილები',
 
     // Disciplines
     disciplinesTag: '01 / მიმართულებები',
     disciplinesTitle: 'საწარმოო შესაძლებლობები და მასშტაბი',
-    disciplinesSub: 'თითოეული მედია იწარმოება ჩვენს საწარმოში მილიმეტრული სიზუსტით, დამოწმებული საინჟინრო გათვლებითა და ოპტიკური განათებით.',
+    disciplinesSub: 'თითოეული სარეკლამო კონსტრუქცია იწარმოება ჩვენს საწარმოში მილიმეტრული სიზუსტით, დამოწმებული საინჟინრო გათვლებითა და ოპტიკური განათებით.',
 
     d1Title: 'მოცულობითი 3D ასოები და ნეონი',
     d1Cat: 'მოცულობითი აბრები',
-    d1Desc: 'CNC ფრეზირებული მოცულობითი ასოები: დავარცხნილი თითბერი (Brass), უჟანგავი ფოლადი 316, აკრილის წინა განათება და თბილი 3000K-6500K ჰალო (Halo) განათების სისტემები.',
+    d1Desc: 'CNC ფრეზირებული მოცულობითი ასოები: ხაოიანი თითბერი (Brushed Brass), უჟანგავი ფოლადი AISI 316, აკრილის წინა განათება და თბილი 3000K–6500K ჰალო (Halo) სისტემები.',
     d1Specs: [
       { k: 'მასალები', v: 'თითბერი, უჟანგავი ფოლადი, ანოდირებული ალუმინი' },
       { k: 'LED მოდული', v: 'Samsung IP67 წყალგაუმტარი • 50,000 სთ' },
-      { k: 'სიღრმე (Return)', v: '30მმ - 180მმ ინდივიდუალური სიღრმე' },
-      { k: 'მონტაჟი', v: 'დისტანციური ან დამალული კარკასი' }
+      { k: 'სიღრმე (Return)', v: '30 მმ – 180 მმ ინდივიდუალური სიღრმე' },
+      { k: 'მონტაჟი', v: 'დისტანციური ან დამალული ლითონკარკასი' }
     ],
 
-    d2Title: 'ულტრა-თხელი LED ლაითბოქსები',
+    d2Title: 'ულტრათხელი LED ლაითბოქსები',
     d2Cat: 'კომერციული დისპლეი',
     d2Desc: 'თანამედროვე უჩარჩოო ლაითბოქსები სილიკონის კიდიანი ტექსტილით (SEG), ოპტიკური გამფანტველებითა და მაღალი CRI 95+ დღის სინათლის განათებით.',
     d2Specs: [
-      { k: 'პროფილის სისქე', v: 'ულტრა-თხელი 18მმ - 80მმ' },
+      { k: 'პროფილის სისქე', v: 'ულტრათხელი 18 მმ – 80 მმ' },
       { k: 'საბეჭდი მასალა', v: 'UV სუბლიმაციური ელასტიური ტექსტილი' },
       { k: 'სინათლის ნაკადი', v: '3,500 Lux ერთგვაროვანი ზედაპირი' },
-      { k: 'გამოცვლა', v: 'მარტივი 60-წამიანი SEG შეცვლა' }
+      { k: 'გამოცვლა', v: 'მარტივი, 60-წამიანი SEG შეცვლა' }
     ],
 
     d3Title: 'დიდი ტირაჟის ბეჭდვა და ფლაერები',
     d3Cat: 'პოლიგრაფია',
     d3Desc: 'ინდუსტრიული Heidelberg ოფსეტური და მაღალი სიზუსტის ციფრული ბეჭდვა: ოქროს/ვერცხლის ფოლგირება (Hot Foil), Soft-Touch მქრქალი ლამინაცია, UV ლაქი და ფორმული ჭრა.',
     d3Specs: [
-      { k: 'ქაღალდის წონა', v: '150 გრ - 450 გრ აბრეშუმისებრი მუყაო' },
+      { k: 'ქაღალდის წონა', v: '150 გ/მ² – 450 გ/მ² აბრეშუმისებრი მუყაო' },
       { k: 'დამუშავება', v: 'ფოლგირება, რელიეფური ჭედვა, UV ლაქი' },
-      { k: 'ტირაჟი', v: '500-დან 500,000+ ცალამდე' },
-      { k: 'დამზადების დრო', v: '24სთ - 48სთ ოპერატიული მიწოდება' }
+      { k: 'ტირაჟი', v: '500-დან 500,000+ ეგზემპლარამდე' },
+      { k: 'დამზადების დრო', v: '24 სთ – 48 სთ ოპერატიული მიწოდება' }
     ],
 
     d4Title: 'ციფრული და სტატიკური ბილბორდები',
@@ -76,7 +76,7 @@ export const translations = {
     d4Specs: [
       { k: 'LED პიქსელის ბიჯი', v: 'P2.5 / P3.9 / P6.0 გარე მაღალი გარჩევადობა' },
       { k: 'სიკაშკაშე', v: '8,500+ Nits ავტომატური დაბნელებით' },
-      { k: 'ქარის გამძლეობა', v: 'სერტიფიცირებული 180 კმ/სთ-მდე ქარზე' },
+      { k: 'ქარის გამძლეობა', v: 'სერტიფიცირებულია 180 კმ/სთ-მდე ქარზე' },
       { k: 'ქსელი', v: 'თბილისი, ბათუმის ტრასა და რეგიონები' }
     ],
 
@@ -84,7 +84,7 @@ export const translations = {
     d5Cat: 'საინჟინრო მონტაჟი',
     d5Desc: 'სრული მომსახურება თბილისის მერიასთან (არქიტექტურის სამსახური), საინჟინრო გათვლები, 60-მეტრიანი ავტოამწით მონტაჟი და 24/7 ტექნიკური მომსახურება.',
     d5Specs: [
-      { k: 'მერიის ნებართვა', v: '100% მომზადება და შეთანხმება' },
+      { k: 'მერიის ნებართვა', v: '100% მომზადება და ოფიციალური შეთანხმება' },
       { k: 'ავტოამწე', v: '60 მეტრამდე სიმაღლეზე მუშაობა' },
       { k: 'საინჟინრო ბეჭედი', v: 'სერტიფიცირებული კონსტრუქტორი' },
       { k: 'სერვისი (SLA)', v: '4-საათიანი ოპერატიული რეაგირება' }
@@ -102,18 +102,35 @@ export const translations = {
     step4Units: '04. ბეჭდვის ტირაჟი',
     step5Title: '05. მასალის ტიპი',
     step6Title: '06. განათების სტილი',
-    matBrass: 'დავარცხნილი თითბერი',
-    matSteel: 'ფოლადი 316',
-    matAcrylic: 'თეთრი აკრილი',
+    matBrass: 'ხაოიანი თითბერი',
+    matSteel: 'ფოლადი AISI 316',
+    matAcrylic: 'თეთრი ოპალ-აკრილი',
     matCarbon: 'მქრქალი კარბონი',
     lightHalo: 'ჰალო 3000K თბილი',
     lightFront: 'წინა 6500K ცივი',
     lightNone: 'განათების გარეშე',
     estBudgetLbl: 'გამოთვლილი წარმოების ბიუჯეტი',
     transferBtn: 'შეკვეთის ფორმაში გადატანა',
+    exportSvgBtn: 'SVG ნახაზის ექსპორტი',
+    cadViewDay: 'დღის ხედი',
+    cadViewNight: 'ღამის LED განათება',
     hudArea: 'ფართობი',
     hudToolpath: 'ჭრის სიგრძე',
     hudTolerance: 'სიზუსტე',
+    hudContours: 'კონტურები',
+    hudPiercing: 'CNC ჩაჭრის წერტილები',
+    inputModeText: 'ტექსტური რეჟიმი',
+    inputModeSvg: 'SVG ვექტორის ატვირთვა',
+    uploadSvgPrompt: 'ჩააგდეთ .SVG ფაილი ან აირჩიეთ კომპიუტერიდან',
+    uploadSvgHint: 'მხარდაჭერილია: Path, Polygon, Polyline, Circle, Rect, Ellipse',
+    samplePresets: 'სანიმუშო ვექტორები:',
+    presetMonogram: 'მონოგრამა (V)',
+    presetEmblem: 'გეომეტრიული ემბლემა',
+    presetSignage: 'არქიტექტურული აბრა',
+    exportPdfBtn: 'A4 PDF Blueprint-ის ექსპორტი',
+    pdfGenerating: 'მზადდება საინჟინრო PDF...',
+    customSvgActive: 'მორგებული SVG ვექტორი',
+    customSvgLoaded: '✓ SVG ფაილი წარმატებით დამუშავდა',
 
     // Tbilisi Network
     networkTag: '03 / თბილისის მედია',
@@ -123,7 +140,7 @@ export const translations = {
     loc1Dist: 'ვაკის რაიონი',
     loc1Type: 'პრემიუმ ლაითბოქსები და თითბერის 3D ასოები',
     loc1Traffic: '145,000 ყოველდღიური კონტაქტი',
-    loc1Specs: '22მმ SEG ლაითბოქსები • 3000K ჰალო ასოები',
+    loc1Specs: '22 მმ SEG ლაითბოქსები • 3000K Halo ასოები',
 
     loc2Name: 'საბურთალო — პეკინისა და ყაზბეგის კვეთა',
     loc2Dist: 'საბურთალოს ცენტრი',
@@ -135,19 +152,19 @@ export const translations = {
     loc3Dist: 'ქალაქის ცენტრი',
     loc3Type: 'ისტორიული არქიტექტურული აბრები და სახურავის ლოგოები',
     loc3Traffic: '310,000 ყოველდღიური კონტაქტი',
-    loc3Specs: 'უჟანგავი ფოლადი 316 • მერიასთან შეთანხმებული',
+    loc3Specs: 'უჟანგავი ფოლადი AISI 316 • მერიასთან შეთანხმებული',
 
     loc4Name: 'გმირთა მოედნის ესტაკადა',
-    loc4Dist: 'თამარ მეფის გამავალი კვანძი',
+    loc4Dist: 'გმირთა მოედნის კვანძი',
     loc4Type: 'მომრგვალებული მეგაბორდი (120 მ²)',
     loc4Traffic: '420,000 ავტომობილი დღეში',
     loc4Specs: '8,500 Nits P3.9 მომრგვალებული LED ეკრანი',
 
     loc5Name: 'კახეთის გზატკეცილი — აეროპორტის ტრასა',
-    loc5Dist: 'ისთ ფოინთი & აეროპორტის მიმართულება',
+    loc5Dist: 'East Point & აეროპორტის მიმართულება',
     loc5Type: 'ორმხრივი მაგისტრალური უნიპოლარული ბილბორდები',
     loc5Traffic: '190,000 ყოველდღიური ავტომობილი',
-    loc5Specs: '14მ × 5მ მოთუთიებული ფოლადის უნიპოლარი',
+    loc5Specs: '14 მ × 5 მ მოთუთიებული ფოლადის უნიპოლარი',
 
     loc6Name: 'დასავლეთის ტრასა — ბათუმის მიმართულება',
     loc6Dist: 'საქალაქთაშორისო მაგისტრალი',
@@ -162,12 +179,12 @@ export const translations = {
     allFilter: 'ყველა ნამუშევარი',
     inspectSpec: 'ნახაზის ნახვა →',
     blueprintModalTitle: 'პროექტის საინჟინრო ბარათი',
-    similarBuildBtn: 'მსგავსი შეკვეთა',
+    similarBuildBtn: 'მსგავსი პროექტის შეკვეთა',
 
     // Machinery
     machineryTag: '05 / საწარმოო ბაზა',
     machineryTitle: 'საკუთარი საწარმოო დანადგარები თბილისში',
-    machinerySub: 'შუამავლების გარეშე. ჩვენი 2,500 მ² საწარმო თბილისში აღჭურვილია უმაღლესი სიზუსტის ევროპული და იაპონური CNC დანადგარებით.',
+    machinerySub: 'შუამავლების გარეშე. ჩვენი 2,500 მ² საწარმოო კომპლექსი თბილისში აღჭურვილია უმაღლესი სიზუსტის ევროპული და იაპონური CNC დანადგარებით.',
 
     // Spec Inquiry Form
     inquiryTag: '06 / შეკვეთა',
@@ -185,22 +202,27 @@ export const translations = {
     dropzoneBrowse: 'აირჩიეთ კომპიუტერიდან',
     submitBtn: 'შეკვეთის გაგზავნა საწარმოში →',
     submittingBtn: 'იგზავნება საინჟინრო განყოფილებაში...',
+    whatsappBtn: 'WhatsApp-ით პირდაპირი შეკვეთა',
+    telegramSuccess: '⚡ შეკვეთა წარმატებით გადაეცა Vector Hub-ის საინჟინრო გუნდს თბილისში.',
+    telegramError: '⚠️ შეტყობინების გაგზავნა ვერ მოხერხდა. გთხოვთ სცადოთ WhatsApp-ით ან დაგვირეკოთ.',
+    draftRestoredToast: 'შენახული მონაცემები აღდგენილია',
+    svgExportSuccess: 'ვექტორული SVG ნახაზი წარმატებით ჩამოიტვირთა',
 
-    deskTitle: 'თბილისის საწარმოო დესკი',
+    deskTitle: 'თბილისის საწარმოო განყოფილება',
     deskDesc: 'დაუკავშირდით უშუალოდ ჩვენს წამყვან ინჟინრებსა და გარე რეკლამის მენეჯერებს.',
     hotlineLbl: 'ცხელი ხაზი',
     whatsappLbl: 'WHATSAPP',
     emailLbl: 'ელ-ფოსტა',
     addressLbl: 'საწარმოსა და შოურუმის მისამართი',
     addressVal: 'აკაკი წერეთლის გამზირი 88, დიდუბის რაიონი, თბილისი 0119, საქართველო.',
-    hoursVal: '● საწარმო: 24/7 • შოურუმი: ორშ - შაბ 09:00 - 19:00',
+    hoursVal: '● საწარმო: 24/7 • შოურუმი: ორშ – შაბ 09:00 – 19:00',
 
     // Footer
     footerDesc: 'არქიტექტურული აბრების, ციფრული ბილბორდების, ლაითბოქსებისა და პოლიგრაფიის მწარმოებელი სააგენტო თბილისში.',
     footerNavTitle: 'ნავიგაცია',
     footerDeskTitle: 'თბილისის ოფისი',
     rights: 'ყველა უფლება დაცულია.',
-    cert: 'ISO 9001:2015 • CE სერტიფიცირებული • თბილისის მერიის ნებართვა'
+    cert: 'ISO 9001:2015 • CE სერტიფიცირებული • თბილისის მერიის მიერ ნებადართული'
   },
 
   en: {
@@ -246,10 +268,10 @@ export const translations = {
 
     d1Title: '3D Channel Letters & Halo Neon',
     d1Cat: 'Dimensional Signage',
-    d1Desc: 'Precision CNC-milled 3D dimensional lettering engineered in brushed brass, Grade 316 stainless steel, acrylic front-lit faces, and warm 3000K-6500K halo LED arrays.',
+    d1Desc: 'Precision CNC-milled 3D dimensional lettering engineered in brushed brass, Grade 316 stainless steel, acrylic front-lit faces, and warm 3000K–6500K halo LED arrays.',
     d1Specs: [
-      { k: 'Metals', v: 'Brass, Titanium Steel, Anodized Al' },
-      { k: 'LED Module', v: 'Samsung IP67 Waterproof • 50k Hours' },
+      { k: 'Metals', v: 'Brass, Titanium Steel, Anodized Aluminum' },
+      { k: 'LED Module', v: 'Samsung IP67 Waterproof • 50,000 Hours' },
       { k: 'Extrusion Depth', v: '30mm to 180mm Custom Return' },
       { k: 'Mounting', v: 'Direct Standoff or Concealed Raceway' }
     ],
@@ -260,7 +282,7 @@ export const translations = {
     d2Specs: [
       { k: 'Profile Depth', v: 'Ultra-Slim 18mm to 80mm' },
       { k: 'Graphic Substrate', v: 'UV Sublimated Stretch Fabric' },
-      { k: 'Luminance', v: 'Up to 3,500 Lux Uniform Surface' },
+      { k: 'Luminance', v: 'Up to 3,500 Lux Uniform Illuminance' },
       { k: 'Replacement', v: 'Tool-Free 60-Second SEG Swap' }
     ],
 
@@ -271,7 +293,7 @@ export const translations = {
       { k: 'Paper Grammage', v: '150 gsm to 450 gsm Heavy Silk' },
       { k: 'Finishes', v: 'Hot Stamping, Emboss, Soft-Touch UV' },
       { k: 'Volume Capacity', v: '500 to 500,000+ Units per Run' },
-      { k: 'Dispatch Time', v: '24h - 48h Rapid Dispatch' }
+      { k: 'Dispatch Time', v: '24h – 48h Rapid Dispatch' }
     ],
 
     d4Title: 'Digital Billboards & Megaboards',
@@ -315,9 +337,26 @@ export const translations = {
     lightNone: 'Non-Illuminated',
     estBudgetLbl: 'Calculated Physical Production Budget',
     transferBtn: 'Transfer to Spec',
+    exportSvgBtn: 'Export Vector SVG',
+    cadViewDay: 'Daylight View',
+    cadViewNight: 'Night LED Glow',
     hudArea: 'Surface Area',
     hudToolpath: 'Toolpath Length',
     hudTolerance: 'CNC Tolerance',
+    hudContours: 'Contours',
+    hudPiercing: 'Piercing Points',
+    inputModeText: 'Typography Mode',
+    inputModeSvg: 'Upload SVG Vector',
+    uploadSvgPrompt: 'Drop .SVG vector or browse workstation',
+    uploadSvgHint: 'Supported: Path, Polygon, Polyline, Circle, Rect, Ellipse',
+    samplePresets: 'Sample Vector Presets:',
+    presetMonogram: 'Monogram (V)',
+    presetEmblem: 'Geometric Emblem',
+    presetSignage: 'Architectural Sign',
+    exportPdfBtn: 'Export A4 PDF Blueprint',
+    pdfGenerating: 'Generating Engineering PDF...',
+    customSvgActive: 'Custom SVG Vector',
+    customSvgLoaded: '✓ SVG Vector analyzed and loaded',
 
     // Tbilisi Network
     networkTag: '03 / Tbilisi Network',
@@ -342,7 +381,7 @@ export const translations = {
     loc3Specs: 'Stainless Grade 316 • Municipal Heritage Permitted',
 
     loc4Name: 'Heroes Square Flyover Interchange',
-    loc4Dist: 'Tamar Mepe Flyover',
+    loc4Dist: 'Heroes Square Interchange',
     loc4Type: 'Landmark Unipolar Curved Megaboard (120m²)',
     loc4Traffic: '420,000 Daily Vehicle Crossings',
     loc4Specs: '8,500 Nits High-Luminance P3.9 Curved LED',
@@ -362,7 +401,7 @@ export const translations = {
     // Archive
     archiveTag: '04 / Archive',
     archiveTitle: 'Curated Vector Works & Case Studies',
-    archiveSub: 'Engineering blueprints, dimensional installations, and high-volume media runs delivered across Georgia and Caucasus.',
+    archiveSub: 'Engineering blueprints, dimensional installations, and high-volume media runs delivered across Georgia and the Caucasus.',
     allFilter: 'All Works',
     inspectSpec: 'Inspect Spec →',
     blueprintModalTitle: 'Project Specification Sheet',
@@ -389,15 +428,20 @@ export const translations = {
     dropzoneBrowse: 'Browse Computer',
     submitBtn: 'Transmit Specification to Factory Desk →',
     submittingBtn: 'Transmitting Specification...',
+    whatsappBtn: 'Direct WhatsApp Quotation',
+    telegramSuccess: '⚡ Specification transmitted directly to Vector Hub engineering desk in Tbilisi.',
+    telegramError: '⚠️ Transmission error. Please connect directly via WhatsApp or telephone.',
+    draftRestoredToast: 'Draft restored from browser cache',
+    svgExportSuccess: 'Vector blueprint SVG exported successfully',
 
-    deskTitle: 'Tbilisi Production Desk',
+    deskTitle: 'Tbilisi Engineering Desk',
     deskDesc: 'Speak directly with our senior CAD engineers and outdoor media campaign planners.',
     hotlineLbl: 'HOTLINE',
     whatsappLbl: 'WHATSAPP',
     emailLbl: 'EMAIL',
     addressLbl: 'FACTORY & STUDIO ADDRESS',
     addressVal: '88 Akaki Tsereteli Avenue, Didube District, Tbilisi 0119, Georgia.',
-    hoursVal: '● Production: 24/7 • Showroom: Mon - Sat 09:00 - 19:00',
+    hoursVal: '● Production: 24/7 • Showroom: Mon – Sat 09:00 – 19:00',
 
     // Footer
     footerDesc: 'Architectural signage, high-visibility digital billboards, frameless lightboxes, and high-volume offset print agency based in Tbilisi, Georgia.',
@@ -405,5 +449,231 @@ export const translations = {
     footerDeskTitle: 'Tbilisi Desk',
     rights: 'ALL RIGHTS RESERVED.',
     cert: 'ISO 9001:2015 • CE CERTIFIED • TBILISI CITY HALL PERMITTED'
+  },
+
+  ru: {
+    // Header
+    brandTagline: 'Производственная студия',
+    navDisciplines: 'Направления',
+    navStudio: 'Вектор Студия',
+    navMedia: 'Медиа Тбилиси',
+    navArchive: 'Архив',
+    navFacility: 'Производство',
+    inquireBtn: 'Заказать',
+    tbsClock: 'ТБИЛИСИ',
+
+    // Hero
+    heroBadge: 'Масштабное производство • Тбилиси, Грузия',
+    heroTitleLine1: 'ВЕКТОРНАЯ',
+    heroTitleLine2: 'ТОЧНОСТЬ.',
+    heroTitleLine3: 'ФИЗИЧЕСКИЙ',
+    heroTitleLine4: 'МАСШТАБ.',
+    heroDesc: 'Vector Hub — агентство по производству наружной рекламы и архитектурных вывесок в Тбилиси. Мы изготавливаем монументальные цифровые билборды, бесшовные LED-лайтбоксы, объемные 3D-буквы и крупные тиражи полиграфии.',
+    heroBtnStudio: 'Запустить Вектор Студию',
+    heroBtnMedia: 'Рекламная сеть Тбилиси',
+    metric1Val: '450+',
+    metric1Lbl: 'Смонтированных объектов в Грузии',
+    metric2Val: '0.02 мм',
+    metric2Lbl: 'Точность собственного лазерного ЧПУ',
+    metric3Val: '48 ч',
+    metric3Lbl: 'Оперативная печать и отгрузка',
+
+    // Hero Interactive Toolpath
+    toolpathTitle: 'Интерактивная векторная траектория',
+    modeLetters: '3D-буквы',
+    modeBillboard: 'Билборд',
+    modeLightbox: 'Лайтбокс',
+    toolpathHudMode: 'Режим',
+    toolpathHudPrecision: 'Вектор Безье',
+    toolpathHudStatus: 'Перемещайте узлы',
+
+    // Disciplines
+    disciplinesTag: '01 / Направления',
+    disciplinesTitle: 'Производственные мощности и масштаб',
+    disciplinesSub: 'Каждая рекламная конструкция проектируется на нашем производстве с миллиметровой точностью, проверенными инженерными расчетами и калиброванной оптикой.',
+
+    d1Title: 'Объемные 3D-буквы и неон',
+    d1Cat: 'Объемные вывески',
+    d1Desc: 'Фрезерованные на ЧПУ объемные буквы: шлифованная латунь (Brass), нержавеющая сталь AISI 316, акриловая лицевая подсветка и теплые системы контражура 3000K–6500K Halo.',
+    d1Specs: [
+      { k: 'Материалы', v: 'Латунь, нержавеющая сталь, анодированный алюминий' },
+      { k: 'LED-модули', v: 'Samsung IP67 влагозащита • 50 000 ч' },
+      { k: 'Глубина борта', v: '30–180 мм индивидуальная глубина' },
+      { k: 'Монтаж', v: 'Дистанционный или скрытый металлокаркас' }
+    ],
+
+    d2Title: 'Ультратонкие LED-лайтбоксы',
+    d2Cat: 'Коммерческие дисплеи',
+    d2Desc: 'Современные бесшовные лайтбоксы с силиконовым краем полотна (SEG), оптическими диффузорами и высоким индексом цветопередачи CRI 95+.',
+    d2Specs: [
+      { k: 'Толщина профиля', v: 'Ультратонкий 18–80 мм' },
+      { k: 'Материал печати', v: 'UV-сублимационный эластичный текстиль' },
+      { k: 'Освещенность', v: 'До 3 500 Lux равномерная поверхность' },
+      { k: 'Замена полотна', v: 'Быстрая замена ткани SEG за 60 секунд' }
+    ],
+
+    d3Title: 'Крупные тиражи печати и флаеры',
+    d3Cat: 'Полиграфия',
+    d3Desc: 'Промышленная офсетная печать Heidelberg и высокоточная цифровая печать: тиснение золотой/серебряной фольгой (Hot Foil), матовая ламинация Soft-Touch, выборочный УФ-лак и фигурная плоттерная высечка.',
+    d3Specs: [
+      { k: 'Плотность бумаги', v: '150–450 г/м² плотный шелковистый картон' },
+      { k: 'Отделка', v: 'Фольгирование, конгрев, Soft-Touch, УФ-лак' },
+      { k: 'Объем тиража', v: 'От 500 до 500 000+ экземпляров' },
+      { k: 'Срок печати', v: '24–48 ч оперативная отгрузка' }
+    ],
+
+    d4Title: 'Цифровые и статичные билборды',
+    d4Cat: 'Наружная реклама & LED',
+    d4Desc: 'Магистральные юниполы, радиусные архитектурные цифровые LED-фасады и высококонтрастные виниловые билборды с повышенной ветроустойчивостью.',
+    d4Specs: [
+      { k: 'Шаг пикселя LED', v: 'P2.5 / P3.9 / P6.0 уличный высокого разрешения' },
+      { k: 'Яркость', v: '8 500+ нит с автоматическим диммированием' },
+      { k: 'Ветроустойчивость', v: 'Сертификация на порывы ветра до 180 км/ч' },
+      { k: 'Сеть локаций', v: 'Тбилиси, трасса Батуми и регионы' }
+    ],
+
+    d5Title: 'Согласования и высотный монтаж',
+    d5Cat: 'Инженерный монтаж',
+    d5Desc: 'Полный комплекс согласований с Мэрией Тбилиси (Служба архитектуры), инженерно-конструкторские расчеты, монтаж автовышками до 60 метров и сервис 24/7.',
+    d5Specs: [
+      { k: 'Разрешение Мэрии', v: '100% подготовка и официальное согласование' },
+      { k: 'Автовышка / Кран', v: 'Работы на высоте до 60 метров' },
+      { k: 'Инженерная печать', v: 'Печать сертифицированного инженера' },
+      { k: 'Сервисный SLA', v: 'Оперативное реагирование за 4 часа' }
+    ],
+
+    // Vector Studio Workbench
+    workbenchTag: '02 / Вектор Студия',
+    workbenchTitle: 'Интерактивный CAD-калькулятор',
+    workbenchSub: 'Рассчитайте длину векторных линий реза, объем материалов и стоимость производства в лари (₾), долларах ($) или евро (€).',
+    step1Title: '01. Выбор валюты',
+    step1Sub: 'Официальный курс',
+    step2Title: '02. Тип продукции',
+    step3Title: '03. Название бренда / Текст',
+    step4Title: '04. Размеры и масштаб',
+    step4Units: '04. Тираж печати',
+    step5Title: '05. Марка материала',
+    step6Title: '06. Стиль подсветки',
+    matBrass: 'Шлифованная латунь',
+    matSteel: 'Сталь AISI 316',
+    matAcrylic: 'Белый опаловый акрил',
+    matCarbon: 'Матовый карбон',
+    lightHalo: 'Контражур 3000K теплый',
+    lightFront: 'Лицевая 6500K холодная',
+    lightNone: 'Без подсветки',
+    estBudgetLbl: 'Расчетный бюджет производства',
+    transferBtn: 'Перенести в форму заказа',
+    exportSvgBtn: 'Экспорт чертежа SVG',
+    cadViewDay: 'Дневной вид',
+    cadViewNight: 'Ночная LED подсветка',
+    hudArea: 'Площадь',
+    hudToolpath: 'Длина реза',
+    hudTolerance: 'Точность',
+    hudContours: 'Контуры',
+    hudPiercing: 'Точки врезки',
+    inputModeText: 'Текстовый режим',
+    inputModeSvg: 'Загрузка SVG вектора',
+    uploadSvgPrompt: 'Перетащите .SVG файл или выберите',
+    uploadSvgHint: 'Поддерживается: Path, Polygon, Polyline, Circle, Rect, Ellipse',
+    samplePresets: 'Готовые пресеты:',
+    presetMonogram: 'Монограмма (V)',
+    presetEmblem: 'Геометрическая эмблема',
+    presetSignage: 'Архитектурная вывеска',
+    exportPdfBtn: 'Экспорт A4 PDF чертежа',
+    pdfGenerating: 'Формирование инженерного PDF...',
+    customSvgActive: 'Пользовательский SVG вектор',
+    customSvgLoaded: '✓ SVG вектор успешно обработан',
+
+    // Tbilisi Network
+    networkTag: '03 / Медиа Тбилиси',
+    networkTitle: 'Рекламная сеть Тбилиси и регионов',
+    networkSub: 'Стратегические локации с высоким трафиком в столице Грузии. Полное соответствие нормативам Мэрии Тбилиси.',
+    loc1Name: 'Ваке — Проспект Ильи Чавчавадзе',
+    loc1Dist: 'Район Ваке',
+    loc1Type: 'Премиум-лайтбоксы и латунные 3D-буквы',
+    loc1Traffic: '145 000 контактов в сутки',
+    loc1Specs: '22 мм SEG-лайтбоксы • 3000K Halo буквы',
+
+    loc2Name: 'Сабуртало — Пересечение Пекини и Казбеги',
+    loc2Dist: 'Центр Сабуртало',
+    loc2Type: 'Цифровой LED-экран высокого разрешения и ситилайты',
+    loc2Traffic: '220 000 пассажиропоток в сутки',
+    loc2Specs: 'P3.9 уличный LED • Двусторонние ситилайты',
+
+    loc3Name: 'Проспект Руставели и Площадь Свободы',
+    loc3Dist: 'Центр столицы',
+    loc3Type: 'Исторические архитектурные вывески и крышные логотипы',
+    loc3Traffic: '310 000 контактов в сутки',
+    loc3Specs: 'Нержавеющая сталь AISI 316 • Согласовано с Мэрией',
+
+    loc4Name: 'Эстакада на Площади Героев',
+    loc4Dist: 'Развязка Площади Героев',
+    loc4Type: 'Радиусный мегаборд (120 м²)',
+    loc4Traffic: '420 000 автомобилей в сутки',
+    loc4Specs: '8 500 нит P3.9 радиусный LED-экран',
+
+    loc5Name: 'Кахетинское шоссе — Трасса в аэропорт',
+    loc5Dist: 'East Point и направление аэропорта',
+    loc5Type: 'Двусторонние магистральные юниполы',
+    loc5Traffic: '190 000 автомобилей в сутки',
+    loc5Specs: '14 м × 5 м оцинкованный стальной юнипол',
+
+    loc6Name: 'Западная трасса — Направление Батуми',
+    loc6Dist: 'Междугородняя автомагистраль',
+    loc6Type: 'Сеть магистральных билбордов',
+    loc6Traffic: '160 000 автомобилей в сутки',
+    loc6Specs: 'Виниловый баннер с LED-подсветкой • Солнечные панели',
+
+    // Archive
+    archiveTag: '04 / Архив',
+    archiveTitle: 'Реализованные проекты и кейсы',
+    archiveSub: 'Изготовленные и установленные нами архитектурные вывески, билборды и тиражи полиграфии в Грузии.',
+    allFilter: 'Все работы',
+    inspectSpec: 'Смотреть чертеж →',
+    blueprintModalTitle: 'Инженерная карта проекта',
+    similarBuildBtn: 'Заказать подобный проект',
+
+    // Machinery
+    machineryTag: '05 / Производственная база',
+    machineryTitle: 'Собственный станочный парк в Тбилиси',
+    machinerySub: 'Без посредников. Наш производственный комплекс площадью 2 500 м² в Тбилиси оснащен высокоточными европейскими и японскими станками с ЧПУ.',
+
+    // Spec Inquiry Form
+    inquiryTag: '06 / Заказ',
+    inquiryTitle: 'Расчет проекта и официальный заказ',
+    inquirySub: 'Отправьте векторный файл, логотип или чертеж. Наш инженерный отдел подготовит полный CAD-расчет и смету за 2 рабочих часа.',
+    formName: '01. Контактное лицо',
+    formCompany: '02. Компания / Агентство',
+    formEmail: '03. Корпоративный Email',
+    formPhone: '04. Телефон / WhatsApp (+995...)',
+    formMedium: '05. Рекламный продукт',
+    formCity: '06. Город монтажа / Локация',
+    formFiles: '07. Векторные файлы (.AI, .DXF, .PDF, .EPS)',
+    formNotes: '08. Дополнительные технические детали',
+    dropzoneText: 'Перетащите векторный файл сюда или ',
+    dropzoneBrowse: 'выберите с устройства',
+    submitBtn: 'Отправить спецификацию на производство →',
+    submittingBtn: 'Передача в инженерный отдел...',
+    whatsappBtn: 'Прямой заказ через WhatsApp',
+    telegramSuccess: '⚡ Спецификация успешно передана инженерному отделу Vector Hub в Тбилиси.',
+    telegramError: '⚠️ Ошибка отправки. Пожалуйста, свяжитесь с нами через WhatsApp или по телефону.',
+    draftRestoredToast: 'Черновик восстановлен из памяти браузера',
+    svgExportSuccess: 'Векторный чертеж SVG успешно экспортирован',
+
+    deskTitle: 'Инженерно-производственный отдел',
+    deskDesc: 'Свяжитесь напрямую с нашими ведущими инженерами и экспертами наружной рекламы.',
+    hotlineLbl: 'ГОРЯЧАЯ ЛИНИЯ',
+    whatsappLbl: 'WHATSAPP',
+    emailLbl: 'EMAIL',
+    addressLbl: 'АДРЕС ПРОИЗВОДСТВА И ШОУРУМА',
+    addressVal: 'Проспект Акакия Церетели 88, район Дидубе, Тбилиси 0119, Грузия.',
+    hoursVal: '● Производство: 24/7 • Шоурум: Пн – Сб 09:00 – 19:00',
+
+    // Footer
+    footerDesc: 'Производство архитектурных вывесок, цифровых билбордов, лайтбоксов и офсетной полиграфии в Тбилиси, Грузия.',
+    footerNavTitle: 'Навигация',
+    footerDeskTitle: 'Офис в Тбилиси',
+    rights: 'ВСЕ ПРАВА ЗАЩИЩЕНЫ.',
+    cert: 'ISO 9001:2015 • CE СЕРТИФИЦИРОВАНО • РАЗРЕШЕНО МЭРИЕЙ ТБИЛИСИ'
   }
 };

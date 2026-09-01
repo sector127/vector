@@ -7,8 +7,23 @@ export default function VectorCursor() {
   const [isClicked, setIsClicked] = useState(false);
   const [hoverText, setHoverText] = useState('');
   const [visible, setVisible] = useState(false);
+  const [isPointerFine, setIsPointerFine] = useState(() => {
+    return typeof window !== 'undefined' && window.matchMedia 
+      ? window.matchMedia('(pointer: fine)').matches 
+      : true;
+  });
 
   useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mediaQuery = window.matchMedia('(pointer: fine)');
+    const handler = (e) => setIsPointerFine(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
+  useEffect(() => {
+    if (!isPointerFine) return;
+
     const handleMouseMove = (e) => {
       setPos({ x: e.clientX, y: e.clientY });
       if (!visible) setVisible(true);
@@ -40,7 +55,7 @@ export default function VectorCursor() {
       window.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [visible]);
+  }, [visible, isPointerFine]);
 
   // Smooth lerp for outer reticle
   useEffect(() => {
@@ -56,7 +71,7 @@ export default function VectorCursor() {
     return () => cancelAnimationFrame(animationFrame);
   }, [pos]);
 
-  if (!visible) return null;
+  if (!visible || !isPointerFine) return null;
 
   return (
     <div className="vector-cursor-container" style={{ pointerEvents: 'none' }}>

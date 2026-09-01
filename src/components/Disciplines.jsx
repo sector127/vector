@@ -1,8 +1,7 @@
 import React from 'react';
-import { ArrowUpRight } from 'lucide-react';
 import { translations } from '../i18n/translations';
 
-export default function Disciplines({ lang, onSelectDiscipline }) {
+export default function Disciplines({ lang }) {
   const t = translations[lang] || translations.ka;
 
   const disciplines = [
@@ -135,7 +134,7 @@ export default function Disciplines({ lang, onSelectDiscipline }) {
             >
               <div className="discipline-card-header">
                 <div>
-                  <span className="d-code">{disc.num} / {lang === 'ka' ? 'წარმოება' : 'PRODUCTION'}</span>
+                  <span className="d-code">{disc.num} / {lang === 'ka' ? 'წარმოება' : lang === 'ru' ? 'ПРОИЗВОДСТВО' : 'PRODUCTION'}</span>
                   <h3 className="d-title">{disc.title}</h3>
                 </div>
                 <span className="tag-swiss">{disc.category}</span>

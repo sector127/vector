@@ -61,15 +61,15 @@ export default function Header({ theme, toggleTheme, gridActive, toggleGrid, lan
 
         {/* Right HUD Controls */}
         <div className="header-hud">
-          {/* Language Switcher (Georgian Default) */}
+          {/* Language Switcher (Georgian / English / Russian) */}
           <button 
             className="lang-toggle-btn"
-            onClick={toggleLang}
-            title={lang === 'ka' ? 'Switch to English' : 'გადართვა ქართულ ენაზე'}
-            data-cursor-text={lang === 'ka' ? 'ENGLISH' : 'ქართული'}
+            onClick={() => toggleLang()}
+            title={lang === 'ka' ? 'Switch to English' : lang === 'en' ? 'Переключить на русский' : 'გადართვა ქართულ ენაზე'}
+            data-cursor-text={lang === 'ka' ? 'ENGLISH' : lang === 'en' ? 'РУССКИЙ' : 'ქართული'}
           >
             <Globe size={14} />
-            <span>{lang === 'ka' ? 'KA' : 'EN'}</span>
+            <span>{lang.toUpperCase()}</span>
           </button>
 
           {/* Live Tbilisi Time (Hidden on small mobile) */}
@@ -147,6 +147,20 @@ export default function Header({ theme, toggleTheme, gridActive, toggleGrid, lan
         </div>
 
         <div className="mobile-drawer-footer">
+          {/* Mobile Direct Language Selector */}
+          <div style={{ display: 'flex', gap: '8px', width: '100%', marginBottom: '12px' }}>
+            {['ka', 'en', 'ru'].map((l) => (
+              <button
+                key={l}
+                onClick={() => { toggleLang(l); closeMenu(); }}
+                className={`btn-swiss btn-swiss-sm ${lang === l ? 'btn-swiss-solid' : ''}`}
+                style={{ flex: 1, justifyContent: 'center', fontFamily: 'var(--font-mono)', fontWeight: '700' }}
+              >
+                {l.toUpperCase()}
+              </button>
+            ))}
+          </div>
+
           <div className="tbilisi-time-badge" style={{ width: '100%', justifyContent: 'center' }}>
             <div className="pulse-dot"></div>
             <span className="time-badge-city">{t.tbsClock}</span>

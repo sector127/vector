@@ -50,13 +50,13 @@ export default function Footer({ lang }) {
             <div className="footer-list">
               <span>+995 32 200 80 80</span>
               <span>desk@vectorhub.ge</span>
-              <span>{lang === 'ka' ? 'წერეთლის გამზ. 88, თბილისი' : 'Tsereteli Ave 88, Tbilisi'}</span>
+              <span>{lang === 'ka' ? 'წერეთლის გამზ. 88, თბილისი' : lang === 'ru' ? 'пр. Церетели 88, Тбилиси' : 'Tsereteli Ave 88, Tbilisi'}</span>
               <button 
                 onClick={scrollToTop} 
                 style={{ textAlign: 'left', marginTop: '12px', fontFamily: 'var(--font-mono)', fontWeight: '700', textDecoration: 'underline' }}
                 data-cursor-text="TOP"
               >
-                {lang === 'ka' ? '↑ გვერდის დასაწყისი' : '↑ Top of Page'}
+                {lang === 'ka' ? '↑ გვერდის დასაწყისი' : lang === 'ru' ? '↑ В начало страницы' : '↑ Top of Page'}
               </button>
             </div>
           </div>

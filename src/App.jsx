@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Disciplines from './components/Disciplines';
@@ -22,19 +22,43 @@ export default function App() {
     const nextTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(nextTheme);
     document.documentElement.setAttribute('data-theme', nextTheme);
-    showToast(lang === 'ka' ? `თემა შეიცვალა: ${nextTheme === 'dark' ? 'მუქი' : 'ნათელი'}` : `Theme switched to ${nextTheme.toUpperCase()}`);
+    showToast(
+      lang === 'ka' 
+        ? `თემა შეიცვალა: ${nextTheme === 'dark' ? 'მუქი' : 'ნათელი'}` 
+        : lang === 'ru'
+          ? `Тема изменена: ${nextTheme === 'dark' ? 'ТЕМНАЯ' : 'СВЕТЛАЯ'}`
+          : `Theme switched to ${nextTheme.toUpperCase()}`
+    );
   };
 
-  const toggleLang = () => {
-    const nextLang = lang === 'ka' ? 'en' : 'ka';
+  const toggleLang = (targetLang) => {
+    let nextLang;
+    if (typeof targetLang === 'string') {
+      nextLang = targetLang;
+    } else {
+      if (lang === 'ka') nextLang = 'en';
+      else if (lang === 'en') nextLang = 'ru';
+      else nextLang = 'ka';
+    }
     setLang(nextLang);
     document.documentElement.setAttribute('lang', nextLang);
-    showToast(nextLang === 'ka' ? 'ენა გადაირთო: ქართული' : 'Language switched to: ENGLISH');
+    const toastLabel = nextLang === 'ka' 
+      ? 'ენა გადაირთო: ქართული' 
+      : nextLang === 'ru' 
+        ? 'Язык переключен: РУССКИЙ' 
+        : 'Language switched to: ENGLISH';
+    showToast(toastLabel);
   };
 
   const toggleGrid = () => {
     setGridActive(!gridActive);
-    showToast(lang === 'ka' ? `ვექტორული ბადე: ${!gridActive ? 'ჩართულია' : 'გამორთულია'}` : `Vector grid ${!gridActive ? 'ENABLED' : 'DISABLED'}`);
+    showToast(
+      lang === 'ka' 
+        ? `ვექტორული ბადე: ${!gridActive ? 'ჩართულია' : 'გამორთულია'}` 
+        : lang === 'ru'
+          ? `Векторная сетка: ${!gridActive ? 'ВКЛЮЧЕНА' : 'ВЫКЛЮЧЕНА'}`
+          : `Vector grid ${!gridActive ? 'ENABLED' : 'DISABLED'}`
+    );
   };
 
   const showToast = (msg) => {
@@ -46,7 +70,13 @@ export default function App() {
 
   const handleTransferSpec = (spec) => {
     setTransferredSpec(spec);
-    showToast(lang === 'ka' ? '✨ CAD პარამეტრები გადატანილია შეკვეთის ფორმაში.' : '✨ CAD Specification transferred to Inquiry Form.');
+    showToast(
+      lang === 'ka' 
+        ? '✨ CAD პარამეტრები გადატანილია შეკვეთის ფორმაში.' 
+        : lang === 'ru'
+          ? '✨ Параметры CAD перенесены в форму заказа.'
+          : '✨ CAD Specification transferred to Inquiry Form.'
+    );
     const el = document.getElementById('inquiry');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
@@ -73,19 +103,9 @@ export default function App() {
 
       {/* Main Content Sections */}
       <main>
-        <Hero 
-          lang={lang}
-          onOpenInquiry={() => {
-            document.getElementById('inquiry')?.scrollIntoView({ behavior: 'smooth' });
-          }} 
-        />
+        <Hero lang={lang} />
 
-        <Disciplines 
-          lang={lang}
-          onSelectDiscipline={(discCode) => {
-            document.getElementById('workbench')?.scrollIntoView({ behavior: 'smooth' });
-          }} 
-        />
+        <Disciplines lang={lang} />
 
         <VectorWorkbench 
           lang={lang}

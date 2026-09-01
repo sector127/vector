@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { ArrowDownRight, Compass, Sparkles, Sliders } from 'lucide-react';
+import { ArrowDownRight } from 'lucide-react';
 import { translations } from '../i18n/translations';
 
-export default function Hero({ lang, onOpenInquiry }) {
+export default function Hero({ lang }) {
   const t = translations[lang] || translations.ka;
 
   // Interactive Vector Node State for live Bezier manipulation

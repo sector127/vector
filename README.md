@@ -10,12 +10,40 @@ Vector Hub is an interactive platform showcasing architectural signage productio
 ## ⚡ Features
 
 - **Interactive CAD Vector Workbench**: Live font outline extraction, bezier anchor visualization, kerning, extrusion, and CNC/Laser export simulation.
+- **Custom SVG Vector Ingestion**: Upload custom `.svg` vector logos and blueprints with real-time cutting toolpath (mm) and contour calculations.
+- **Official A4 Engineering PDF Blueprint**: Instant client-side export of ISO/DIN compliant technical specification sheets with engineering seals.
+- **Telegram Bot Instant Alerts**: Automated real-time quote transmission directly to the engineering and sales team Telegram group.
 - **Dynamic Mathematical Vector Field**: Interactive physics-inspired background canvas responding to cursor movements.
 - **Precision Vector Cursor**: Dynamic crosshair and coordinate HUD.
-- **Bilingual Support (ქართული / English)**: Full Georgian localization with custom typography (`TG Square Regular`) and English fallback.
+- **Trilingual Support (ქართული / English / Русский)**: Full Georgian localization with custom typography (`TG Square Regular`), English, and Russian language support.
 - **Theme Switching**: Light & Dark mode engineered for high-contrast precision.
 - **Interactive Spec Transfer**: Direct handoff from CAD workbench simulator to technical inquiry quote form.
 - **Modern Responsive Design**: Fluid layouts optimized for desktop workstations, tablets, and mobile devices.
+
+---
+
+## 🤖 Telegram Bot Configuration
+
+To receive live quote notifications and CAD parameters directly in your Telegram group or channel:
+
+1. **Create a Telegram Bot**:
+   - Open Telegram and message [@BotFather](https://t.me/BotFather).
+   - Type `/newbot` and follow instructions to get your `API Token` (e.g. `789123456:AAFl...`).
+
+2. **Get your Chat ID**:
+   - Create a Telegram group for your team, add your newly created bot to the group as an admin.
+   - Send a test message in the group.
+   - Visit `https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates` to find the `"id"` under `"chat"` (e.g. `-1001234567890`).
+
+3. **Set Environment Variables**:
+   - For local development, create `.env.local`:
+     ```bash
+     VITE_TELEGRAM_BOT_TOKEN=your_bot_token
+     VITE_TELEGRAM_CHAT_ID=your_chat_id
+     ```
+   - For **Vercel** deployment:
+     - Go to your Project Dashboard -> **Settings** -> **Environment Variables**.
+     - Add `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`.
 
 ---
 
