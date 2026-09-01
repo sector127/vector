@@ -48,8 +48,8 @@ export default function Header({ theme, toggleTheme, gridActive, toggleGrid, lan
           <a href="#workbench" className="header-nav-item" data-cursor-text={t.navStudio.toUpperCase()}>
             {t.navStudio}
           </a>
-          <a href="#tbilisi-network" className="header-nav-item" data-cursor-text={t.navMedia.toUpperCase()}>
-            {t.navMedia}
+          <a href="#mockup-studio" className="header-nav-item" data-cursor-text={t.navMockup.toUpperCase()}>
+            {t.navMockup}
           </a>
           <a href="#archive" className="header-nav-item" data-cursor-text={t.navArchive.toUpperCase()}>
             {t.navArchive}
@@ -128,9 +128,9 @@ export default function Header({ theme, toggleTheme, gridActive, toggleGrid, lan
             <span>02</span>
             <span>{t.navStudio}</span>
           </a>
-          <a href="#tbilisi-network" className="mobile-nav-link" onClick={closeMenu}>
+          <a href="#mockup-studio" className="mobile-nav-link" onClick={closeMenu}>
             <span>03</span>
-            <span>{t.navMedia}</span>
+            <span>{t.navMockup}</span>
           </a>
           <a href="#archive" className="mobile-nav-link" onClick={closeMenu}>
             <span>04</span>

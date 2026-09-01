@@ -3,7 +3,7 @@ import Header from './components/Header';
 import Hero from './components/Hero';
 import Disciplines from './components/Disciplines';
 import VectorWorkbench from './components/VectorWorkbench';
-import TbilisiNetwork from './components/TbilisiNetwork';
+import BillboardMockup from './components/BillboardMockup';
 import Archive from './components/Archive';
 import Machinery from './components/Machinery';
 import SpecInquiry from './components/SpecInquiry';
@@ -112,7 +112,10 @@ export default function App() {
           onTransferSpec={handleTransferSpec} 
         />
 
-        <TbilisiNetwork lang={lang} />
+        <BillboardMockup 
+          lang={lang} 
+          onBookBillboard={handleTransferSpec} 
+        />
 
         <Archive lang={lang} />
 
