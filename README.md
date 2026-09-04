@@ -38,8 +38,8 @@ To receive live quote notifications and CAD parameters directly in your Telegram
 3. **Set Environment Variables**:
    - For local development, create `.env.local`:
      ```bash
-     VITE_TELEGRAM_BOT_TOKEN=your_bot_token
-     VITE_TELEGRAM_CHAT_ID=your_chat_id
+     TELEGRAM_BOT_TOKEN=your_bot_token
+     TELEGRAM_CHAT_ID=your_chat_id
      ```
    - For **Vercel** deployment:
      - Go to your Project Dashboard -> **Settings** -> **Environment Variables**.
@@ -51,9 +51,10 @@ To receive live quote notifications and CAD parameters directly in your Telegram
 
 - **Framework**: [React 19](https://react.dev/) + [Vite 8](https://vite.dev/)
 - **Icons**: [Lucide React](https://lucide.dev/)
-- **Typography & Font Parsing**: [opentype.js](https://opentype.js.org/) for vector glyph extraction
+- **Vector & Blueprint Engines**: Custom SVG geometric contour analyzer & [jsPDF](https://github.com/parallax/jsPDF) (dynamically code-split)
+- **High-Res Visualizer Capture**: [html2canvas](https://html2canvas.hertzen.com/) (dynamically code-split)
 - **Styling**: Modern CSS variables, glassmorphism, mathematical grids, responsive design
-- **Deployment**: [Vercel](https://vercel.com/) ready
+- **Deployment**: [Vercel](https://vercel.com/) ready with Serverless API functions
 
 ---
 

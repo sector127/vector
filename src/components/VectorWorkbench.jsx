@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { ArrowRight, Download, Sun, Moon, Upload, FileCode, RefreshCw } from 'lucide-react';
-import { jsPDF } from 'jspdf';
-import { translations } from '../i18n/translations';
+import { getTranslation } from '../i18n/translations';
 
 // Sample Built-in Vector Presets
 const SAMPLE_PRESETS = {
@@ -158,7 +157,7 @@ function parseSvgString(svgText) {
 }
 
 export default function VectorWorkbench({ lang, onTransferSpec }) {
-  const t = translations[lang] || translations.ka;
+  const t = getTranslation(lang);
 
   // Mode: 'text' (typography) vs 'svg' (custom upload / preset)
   const [inputMode, setInputMode] = useState('text');
@@ -171,7 +170,7 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
   // General Spec State
   const [productType, setProductType] = useState('letters'); // 'letters', 'lightbox', 'billboard', 'print'
   const [currency, setCurrency] = useState('GEL'); // 'GEL', 'USD', 'EUR'
-  const [brandText, setBrandText] = useState(lang === 'ka' ? 'თბილისი' : lang === 'ru' ? 'ТБИЛИСИ' : 'TBILISI');
+  const [brandText, setBrandText] = useState(t.brandTextDefault || 'თბილისი');
   const [width, setWidth] = useState(3.6); // meters
   const [height, setHeight] = useState(1.2); // meters
   const [material, setMaterial] = useState('brass'); // 'brass', 'stainless', 'acrylic', 'carbon'
@@ -240,11 +239,7 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
   }
 
   const convertedPrice = Math.round(totalCostGEL * rates[currency]);
-  const estDays = lang === 'ka' 
-    ? (productType === 'billboard' ? '12 – 16 სამუშაო დღე' : (productType === 'letters' ? '5 – 7 სამუშაო დღე' : (productType === 'print' ? '2 სამუშაო დღე' : '4 – 6 სამუშაო დღე')))
-    : lang === 'ru'
-      ? (productType === 'billboard' ? '12–16 рабочих дней' : (productType === 'letters' ? '5–7 рабочих дней' : (productType === 'print' ? '2 рабочих дня' : '4–6 рабочих дней')))
-      : (productType === 'billboard' ? '12–16 Business Days' : (productType === 'letters' ? '5–7 Business Days' : (productType === 'print' ? '2 Business Days' : '4–6 Business Days')));
+  const estDays = productType === 'billboard' ? t.estDaysBillboard : (productType === 'letters' ? t.estDaysLetters : (productType === 'print' ? t.estDaysPrint : t.estDaysLightbox));
 
   // Material finish colors for SVG rendering
   const getMaterialStroke = (isNight) => {
@@ -294,7 +289,7 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
   const handleFileProcess = (file) => {
     if (!file) return;
     if (!file.name.endsWith('.svg') && file.type !== 'image/svg+xml') {
-      alert(lang === 'ka' ? 'გთხოვთ ატვირთოთ ვალიდური .svg ვექტორული ფაილი' : 'Please upload a valid .svg vector file');
+      alert(t.alertInvalidSvg);
       return;
     }
 
@@ -308,7 +303,7 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
         setActivePresetKey(null);
         setInputMode('svg');
       } else {
-        alert(lang === 'ka' ? 'ვერ მოხერხდა SVG ფაილის გეომეტრიის წაკითხვა' : 'Could not parse SVG geometry');
+        alert(t.alertSvgParseError);
       }
     };
     reader.readAsText(file);
@@ -409,10 +404,25 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
     URL.revokeObjectURL(url);
   };
 
+  // Helper to ensure ASCII compatibility for standard ISO/DIN PDF Helvetica
+  const toAsciiSafe = (str) => {
+    if (!str) return '';
+    const kaMap = {
+      'ა':'a','ბ':'b','გ':'g','დ':'d','ე':'e','ვ':'v','ზ':'z','თ':'t','ი':'i','კ':'k','ლ':'l','მ':'m',
+      'ნ':'n','ო':'o','პ':'p','ჟ':'zh','რ':'r','ს':'s','ტ':'t','უ':'u','ფ':'p','ქ':'k','ღ':'gh','ყ':'q',
+      'შ':'sh','ჩ':'ch','ც':'ts','ძ':'dz','წ':'ts','ჭ':'ch','ხ':'kh','ჯ':'j','ჰ':'h',
+      'Ა':'A','Ბ':'B','Გ':'G','Დ':'D','Ე':'E','Ვ':'V','Ზ':'Z','Თ':'T','Ი':'I','Კ':'K','Ლ':'L','Მ':'M',
+      'Ნ':'N','Ო':'O','Პ':'P','Ჟ':'ZH','Რ':'R','Ს':'S','Ტ':'T','Უ':'U','Ფ':'P','Ქ':'K','Ღ':'GH','Ყ':'Q',
+      'Შ':'SH','Ჩ':'CH','Ც':'TS','Ძ':'DZ','Წ':'TS','Ჭ':'CH','Ხ':'KH','Ჯ':'J','Ჰ':'H'
+    };
+    return str.split('').map(c => kaMap[c] || c).join('');
+  };
+
   // Export High-Precision Official A4 Engineering Blueprint PDF
   const handleExportPdfBlueprint = async () => {
     setIsGeneratingPdf(true);
     try {
+      const { jsPDF } = await import('jspdf');
       // 297mm × 210mm Landscape A4 format
       const doc = new jsPDF({
         orientation: 'landscape',
@@ -420,7 +430,7 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
         format: 'a4'
       });
 
-      const title = (inputMode === 'svg' ? (svgFileName ? svgFileName.replace('.svg', '') : activePresetKey) : (brandText || 'VECTOR_SIGN')).toUpperCase();
+      const title = toAsciiSafe((inputMode === 'svg' ? (svgFileName ? svgFileName.replace('.svg', '') : activePresetKey) : (brandText || 'VECTOR_SIGN')).toUpperCase());
       const docNum = `VH-CAD-2026-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
       const dateStr = new Date().toISOString().split('T')[0];
 
@@ -534,13 +544,14 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
         doc.rect(offsetX, offsetY, customSvg.vbWidth * scale, customSvg.vbHeight * scale);
       } else {
         // Render 3D Channel Letters
+        const brandDisplay = toAsciiSafe(brandText || 'VECTOR HUB').toUpperCase();
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(26);
         doc.setTextColor(150, 160, 175);
-        doc.text(brandText || 'VECTOR HUB', 104, 104, { align: 'center' }); // Extrusion shadow
+        doc.text(brandDisplay, 104, 104, { align: 'center' }); // Extrusion shadow
 
         doc.setTextColor(15, 23, 42);
-        doc.text(brandText || 'VECTOR HUB', 102.5, 102.5, { align: 'center' }); // Face
+        doc.text(brandDisplay, 102.5, 102.5, { align: 'center' }); // Face
       }
 
       // Right Side: Technical Specifications Matrix
@@ -554,9 +565,11 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
       doc.setLineWidth(0.3);
       doc.line(200, 41, 282, 41);
 
+      const slaBlueprint = productType === 'billboard' ? '12-16 Work Days' : (productType === 'letters' ? '5-7 Work Days' : (productType === 'print' ? '2 Work Days' : '4-6 Work Days'));
+
       const specsList = [
         ['Medium Type', productType.toUpperCase()],
-        ['Object / Identity', (inputMode === 'svg' ? 'Custom SVG Vector' : brandText).substring(0, 18)],
+        ['Object / Identity', (inputMode === 'svg' ? 'Custom SVG Vector' : toAsciiSafe(brandText)).substring(0, 18)],
         ['Dimensions (W × H)', `${width}m × ${height}m`],
         ['Total Surface Area', `${areaSqM} m²`],
         ['CNC Cutting Path', `${toolpathMm.toLocaleString()} mm`],
@@ -565,7 +578,7 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
         ['Illumination Tech', lighting === 'halo3000' ? '3000K Halo Warm LED' : (lighting === 'front6500' ? '6500K Front Cool LED' : 'Non-Illuminated')],
         ['LED IP Rating', 'IP67 Waterproof (50,000h)'],
         ['Wind Load Rating', 'Certified up to 160 km/h'],
-        ['Est. Production SLA', estDays],
+        ['Est. Production SLA', slaBlueprint],
         ['Calculated Budget', `${currencySymbols[currency]} ${convertedPrice.toLocaleString()}`]
       ];
 
@@ -750,14 +763,14 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                 <line x1="60" y1="30" x2="60" y2="40" stroke={nightPreview ? "#ffffff" : "var(--ink-primary)"} strokeWidth="1" />
                 <line x1="400" y1="30" x2="400" y2="40" stroke={nightPreview ? "#ffffff" : "var(--ink-primary)"} strokeWidth="1" />
                 <text x="230" y="28" fill={nightPreview ? "#ffffff" : "var(--ink-primary)"} fontSize="10" fontFamily="Space Mono" textAnchor="middle" fontWeight="700">
-                  {lang === 'ka' ? 'სიგანე' : lang === 'ru' ? 'ШИРИНА' : 'WIDTH'}: {width} m
+                  {t.widthLabelUpper}: {width} m
                 </text>
 
                 <line x1="420" y1="55" x2="420" y2="245" stroke={nightPreview ? "#ffffff" : "var(--ink-primary)"} strokeWidth="1" />
                 <line x1="415" y1="55" x2="425" y2="55" stroke={nightPreview ? "#ffffff" : "var(--ink-primary)"} strokeWidth="1" />
                 <line x1="415" y1="245" x2="425" y2="245" stroke={nightPreview ? "#ffffff" : "var(--ink-primary)"} strokeWidth="1" />
                 <text x="440" y="150" fill={nightPreview ? "#ffffff" : "var(--ink-primary)"} fontSize="10" fontFamily="Space Mono" transform="rotate(90 440,150)" textAnchor="middle" fontWeight="700">
-                  {lang === 'ka' ? 'სიმაღლე' : lang === 'ru' ? 'ВЫСОТА' : 'HEIGHT'}: {height} m
+                  {t.heightLabelUpper}: {height} m
                 </text>
 
                 {/* Render Custom Vector SVG Mode */}
@@ -906,7 +919,7 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                     />
                     <rect x="80" y="70" width="300" height="150" fill="none" stroke={nightPreview ? "rgba(0,0,0,0.3)" : "var(--ink-muted)"} strokeWidth="1" strokeDasharray="4 4" />
                     <text x="230" y="155" fill={nightPreview ? "#000000" : "var(--ink-primary)"} fontSize="26" fontFamily="TG Square, Noto Sans Georgian, Syne" fontWeight="800" textAnchor="middle">
-                      {brandText || (lang === 'ka' ? 'ლაითბოქსი' : lang === 'ru' ? 'ЛАЙТБОКС' : 'LIGHTBOX')}
+                      {brandText || t.fallbackLightbox}
                     </text>
                   </g>
                 )}
@@ -934,7 +947,7 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                       textAnchor="middle"
                       filter={nightPreview ? "url(#haloGlowCool)" : undefined}
                     >
-                      {brandText || (lang === 'ka' ? 'LED ბილბორდი' : lang === 'ru' ? 'LED БИЛБОРД' : 'HIGHWAY LED')}
+                      {brandText || t.fallbackBillboard}
                     </text>
                   </g>
                 )}
@@ -944,7 +957,7 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                     <rect x="110" y="60" width="240" height="170" fill="var(--bg-main)" stroke="var(--ink-primary)" strokeWidth="1.5" />
                     <rect x="100" y="50" width="260" height="190" fill="none" stroke="var(--ink-hairline)" strokeWidth="1" strokeDasharray="2 2" />
                     <text x="230" y="150" fill="var(--ink-primary)" fontSize="20" fontFamily="TG Square, Noto Sans Georgian, Space Grotesk" fontWeight="700" textAnchor="middle">
-                      {printUnits.toLocaleString()} {lang === 'ka' ? 'ცალი ფლაერი' : lang === 'ru' ? 'экз. полиграфии' : 'Units • Flyers'}
+                      {t('flyerUnitsCount', { count: printUnits.toLocaleString() })}
                     </text>
                   </g>
                 )}
@@ -974,21 +987,21 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                   onClick={() => setCurrency('GEL')}
                   data-cursor-text="GEL"
                 >
-                  ₾ GEL ({lang === 'ka' ? 'საქართველო' : lang === 'ru' ? 'Грузия' : 'Georgia'})
+                  ₾ GEL ({t.currencyGeo})
                 </button>
                 <button 
                   className={`segment-btn ${currency === 'USD' ? 'active' : ''}`}
                   onClick={() => setCurrency('USD')}
                   data-cursor-text="USD"
                 >
-                  $ USD ({lang === 'ka' ? 'საერთაშორისო' : lang === 'ru' ? 'Междунар.' : 'Intl'})
+                  $ USD ({t.currencyIntl})
                 </button>
                 <button 
                   className={`segment-btn ${currency === 'EUR' ? 'active' : ''}`}
                   onClick={() => setCurrency('EUR')}
                   data-cursor-text="EUR"
                 >
-                  € EUR ({lang === 'ka' ? 'ევროპა' : lang === 'ru' ? 'Европа' : 'Europe'})
+                  € EUR ({t.currencyEur})
                 </button>
               </div>
             </div>
@@ -1023,7 +1036,7 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                   onClick={() => setProductType('print')}
                   data-cursor-text="PRINT"
                 >
-                  {lang === 'ka' ? 'პოლიგრაფია' : lang === 'ru' ? 'Полиграфия' : 'Print / Flyers'}
+                  {t.modePrint}
                 </button>
               </div>
             </div>
@@ -1057,7 +1070,7 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                   className="swiss-input" 
                   value={brandText} 
                   onChange={(e) => setBrandText(e.target.value)}
-                  placeholder={lang === 'ka' ? 'ჩაწერეთ ბრენდის ან აბრის სახელი...' : lang === 'ru' ? 'Введите название бренда или вывески...' : 'TYPE BRAND OR SIGNAGE NAME...'}
+                  placeholder={t.brandPlaceholder}
                   maxLength={24}
                   style={{ marginTop: '10px' }}
                 />
@@ -1110,12 +1123,12 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
               <div className="control-block">
                 <div className="control-title">
                   <span>{t.step4Title}</span>
-                  <span>{width}m ({lang === 'ka' ? 'სიგანე' : lang === 'ru' ? 'Шიрина' : 'Width'}) × {height}m ({lang === 'ka' ? 'სიმაღლე' : lang === 'ru' ? 'Высота' : 'Height'})</span>
+                  <span>{width}m ({t.widthLabel}) × {height}m ({t.heightLabel})</span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <div>
                     <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--ink-muted)' }}>
-                      {lang === 'ka' ? 'სიგანე' : lang === 'ru' ? 'ШИРИНА' : 'WIDTH'}: {width}m
+                      {t.widthLabelUpper}: {width}m
                     </label>
                     <input 
                       type="range" 
@@ -1129,7 +1142,7 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                   </div>
                   <div>
                     <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--ink-muted)' }}>
-                      {lang === 'ka' ? 'სიმაღლე' : lang === 'ru' ? 'ВЫСОТА' : 'HEIGHT'}: {height}m
+                      {t.heightLabelUpper}: {height}m
                     </label>
                     <input 
                       type="range" 
@@ -1147,7 +1160,7 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
               <div className="control-block">
                 <div className="control-title">
                   <span>{t.step4Units}</span>
-                  <span>{printUnits.toLocaleString()} {lang === 'ka' ? 'ცალი' : lang === 'ru' ? 'экз.' : 'Units'}</span>
+                  <span>{printUnits.toLocaleString()} {t.unitsLabel}</span>
                 </div>
                 <input 
                   type="range" 

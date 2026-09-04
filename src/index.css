@@ -126,13 +126,16 @@ body {
   cursor: default;
 }
 
-/* Hide default cursor on desktop when vector cursor is active */
+/* Hide default cursor on desktop when vector cursor is active, but preserve native text carets on form fields */
 @media (pointer: fine) {
   body {
     cursor: none;
   }
-  a, button, input, select, textarea, [data-cursor-text] {
+  a, button, [data-cursor-text] {
     cursor: none !important;
+  }
+  input, textarea, select {
+    cursor: text !important;
   }
 }
 
@@ -2043,7 +2046,8 @@ button {
   white-space: nowrap;
   background-clip: text;
   -webkit-background-clip: text;
-  color: transparent;
+  -webkit-text-fill-color: transparent;
+  color: var(--letter-primary-color, #ffdf78);
   display: inline-block;
   transition: all 0.3s ease;
 }
@@ -2058,7 +2062,8 @@ button {
   white-space: nowrap;
   background-clip: text;
   -webkit-background-clip: text;
-  color: transparent;
+  -webkit-text-fill-color: transparent;
+  color: var(--letter-sub-color, #fcd34d);
   display: inline-block;
   transition: all 0.3s ease;
 }

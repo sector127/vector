@@ -18,8 +18,8 @@ export default async function handler(req, res) {
       timestamp
     } = data;
 
-    const token = process.env.TELEGRAM_BOT_TOKEN || process.env.VITE_TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID || process.env.VITE_TELEGRAM_CHAT_ID;
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+    const chatId = process.env.TELEGRAM_CHAT_ID;
 
     // If environment variables are not configured yet, return a graceful simulated response
     if (!token || !chatId) {

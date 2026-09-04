@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Phone, MessageSquare, Mail, MapPin, Send } from 'lucide-react';
-import { translations } from '../i18n/translations';
+import { getTranslation, formatTransferredNotes, formatWaMessage } from '../i18n/translations';
 import { sendInquiryNotification } from '../services/telegram';
 
 export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
-  const t = translations[lang] || translations.ka;
+  const t = getTranslation(lang);
 
   const [formData, setFormData] = useState(() => {
     try {
@@ -20,36 +20,36 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
       company: '',
       email: '',
       phone: '',
-      city: lang === 'ka' ? 'თბილისი, საქართველო' : lang === 'ru' ? 'Тбилиси, Грузия' : 'Tbilisi, Georgia',
+      city: t.defaultCity,
       medium: 'letters',
       notes: ''
     };
   });
   const [fileAttached, setFileAttached] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [prevSpec, setPrevSpec] = useState(transferredSpec);
 
-  // Sync state when transferredSpec changes without triggering cascading effect renders
-  if (transferredSpec && transferredSpec !== prevSpec) {
-    setPrevSpec(transferredSpec);
-    setFormData(prev => {
-      const updated = {
-        ...prev,
-        medium: transferredSpec.productType,
-        notes: lang === 'ka' 
-          ? `ვექტორ სტუდიიდან გადმოტანილი პარამეტრები:\n• რეჟიმი: ${transferredSpec.inputMode === 'svg' ? 'მორგებული SVG ვექტორი' : 'ტექსტური წარწერა'}\n• ობიექტი: "${transferredSpec.brandText}"\n• ზომები: ${transferredSpec.dimensions}\n• ჭრის პერიმეტრი (Toolpath): ${transferredSpec.toolpathMm ? transferredSpec.toolpathMm.toLocaleString() + ' მმ' : 'ავტომატური'}\n• კონტურები: ${transferredSpec.contourCount || 1}\n• მასალა: ${transferredSpec.material}\n• განათება: ${transferredSpec.lighting}\n• გამოთვლილი ბიუჯეტი: ${transferredSpec.estimate}\n• დამზადების ვადა: ${transferredSpec.turnaround}`
-          : lang === 'ru'
-            ? `Перенесено из Vector Studio:\n• Режим: ${transferredSpec.inputMode === 'svg' ? 'Пользовательский SVG вектор' : 'Текстовая вывеска'}\n• Объект: "${transferredSpec.brandText}"\n• Размеры: ${transferredSpec.dimensions}\n• Периметр реза (Toolpath): ${transferredSpec.toolpathMm ? transferredSpec.toolpathMm.toLocaleString() + ' мм' : 'авто'}\n• Контуры: ${transferredSpec.contourCount || 1}\n• Материал: ${transferredSpec.material}\n• Подсветка: ${transferredSpec.lighting}\n• Расчетный бюджет: ${transferredSpec.estimate}\n• Срок производства: ${transferredSpec.turnaround}`
-            : `Transferred from Vector Studio:\n• Mode: ${transferredSpec.inputMode === 'svg' ? 'Custom SVG Vector' : 'Typography Text'}\n• Object: "${transferredSpec.brandText}"\n• Scale: ${transferredSpec.dimensions}\n• Cutting Toolpath: ${transferredSpec.toolpathMm ? transferredSpec.toolpathMm.toLocaleString() + ' mm' : 'auto'}\n• Contours: ${transferredSpec.contourCount || 1}\n• Material: ${transferredSpec.material}\n• Illumination: ${transferredSpec.lighting}\n• Calculated Budget: ${transferredSpec.estimate}\n• Estimated Turnaround: ${transferredSpec.turnaround}`
-      };
-      try {
-        localStorage.setItem('vector_hub_inquiry_draft', JSON.stringify(updated));
-      } catch {
-        // ignore storage error
-      }
-      return updated;
-    });
-  }
+  // Sync state cleanly when transferredSpec changes
+  useEffect(() => {
+    if (!transferredSpec) return;
+
+    const timer = setTimeout(() => {
+      setFormData(prev => {
+        const updated = {
+          ...prev,
+          medium: transferredSpec.productType || prev.medium,
+          notes: formatTransferredNotes(lang, transferredSpec)
+        };
+        try {
+          localStorage.setItem('vector_hub_inquiry_draft', JSON.stringify(updated));
+        } catch {
+          // ignore storage error
+        }
+        return updated;
+      });
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [transferredSpec, lang]);
 
   const handleChange = (e) => {
     const updated = { ...formData, [e.target.name]: e.target.value };
@@ -65,7 +65,7 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
     const file = e.target.files[0];
     if (file) {
       setFileAttached(file.name);
-      onShowToast(lang === 'ka' ? `✓ ფაილი მიმაგრებულია: ${file.name}` : lang === 'ru' ? `✓ Файл прикреплен: ${file.name}` : `✓ Attached: ${file.name}`);
+      onShowToast(t('toastFileAttached', { name: file.name }));
     }
   };
 
@@ -82,13 +82,18 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
       const result = await sendInquiryNotification(payload);
 
       if (result.success) {
-        onShowToast(t.telegramSuccess || '⚡ შეკვეთა გადაეცა Vector Hub-ის საინჟინრო განყოფილებას თბილისში.');
+        if (result.simulated) {
+          onShowToast(t.toastOrderSimulated);
+        } else {
+          onShowToast(t.telegramSuccess || '⚡ შეკვეთა გადაეცა Vector Hub-ის საინჟინრო განყოფილებას თბილისში.');
+        }
+
         const resetForm = {
           name: '',
           company: '',
           email: '',
           phone: '',
-          city: lang === 'ka' ? 'თბილისი, საქართველო' : lang === 'ru' ? 'Тбилиси, Грузия' : 'Tbilisi, Georgia',
+          city: t.defaultCity,
           medium: 'letters',
           notes: ''
         };
@@ -111,45 +116,10 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
   };
 
   const handleWhatsAppSend = () => {
-    const message = 
-      lang === 'ka'
-        ? `*VECTOR HUB GEORGIA — შეკვეთის სპეციფიკაცია*\n` +
-          `----------------------------------------\n` +
-          `👤 *კონტაქტი*: ${formData.name || 'N/A'}\n` +
-          `🏢 *კომპანია*: ${formData.company || 'N/A'}\n` +
-          `📱 *ტელეფონი*: ${formData.phone || 'N/A'}\n` +
-          `✉️ *ელ-ფოსტა*: ${formData.email || 'N/A'}\n` +
-          `📍 *ლოკაცია*: ${formData.city || 'თბილისი'}\n` +
-          `🛠 *მიმართულება*: ${formData.medium.toUpperCase()}\n\n` +
-          `📝 *CAD პარამეტრები და შენიშვნები:*\n${formData.notes || 'შენიშვნების გარეშე'}\n` +
-          `----------------------------------------\n` +
-          `გაგზავნილია Vector Hub-ის პლატფორმიდან`
-        : lang === 'ru'
-          ? `*VECTOR HUB GEORGIA — СПЕЦИФИКАЦИЯ ЗАКАЗА*\n` +
-            `----------------------------------------\n` +
-            `👤 *Контакт*: ${formData.name || 'N/A'}\n` +
-            `🏢 *Компания*: ${formData.company || 'N/A'}\n` +
-            `📱 *Телефон*: ${formData.phone || 'N/A'}\n` +
-            `✉️ *Email*: ${formData.email || 'N/A'}\n` +
-            `📍 *Локация*: ${formData.city || 'Тбилиси'}\n` +
-            `🛠 *Направление*: ${formData.medium.toUpperCase()}\n\n` +
-            `📝 *Параметры CAD и детали:*\n${formData.notes || 'Без дополнительных пометок'}\n` +
-            `----------------------------------------\n` +
-            `Отправлено через платформу Vector Hub`
-          : `*VECTOR HUB GEORGIA — SPECIFICATION INQUIRY*\n` +
-            `----------------------------------------\n` +
-            `👤 *Contact*: ${formData.name || 'N/A'}\n` +
-            `🏢 *Company*: ${formData.company || 'N/A'}\n` +
-            `📱 *Phone*: ${formData.phone || 'N/A'}\n` +
-            `✉️ *Email*: ${formData.email || 'N/A'}\n` +
-            `📍 *Location*: ${formData.city || 'Tbilisi'}\n` +
-            `🛠 *Discipline*: ${formData.medium.toUpperCase()}\n\n` +
-            `📝 *CAD Notes & Parameters:*\n${formData.notes || 'No extra notes specified'}\n` +
-            `----------------------------------------\n` +
-            `Sent via Vector Hub Precision Platform`;
+    const message = formatWaMessage(lang, formData);
 
     window.open(`https://wa.me/995599808080?text=${encodeURIComponent(message)}`, '_blank');
-    onShowToast(lang === 'ka' ? '💬 WhatsApp დიალოგი გაიხსნა Vector Hub-ის ინჟინერთან' : lang === 'ru' ? '💬 Открыт диалог в WhatsApp с инженером Vector Hub' : '💬 WhatsApp conversation opened with Vector Hub desk');
+    onShowToast(t.toastWaOpened);
   };
 
   return (
@@ -174,25 +144,27 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
           <form className="inquiry-form" onSubmit={handleSubmit}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="form-group-block">
-                <label className="form-label-mono">{t.formName}</label>
+                <label className="form-label-mono" htmlFor="inquiry-name">{t.formName}</label>
                 <input 
+                  id="inquiry-name"
                   type="text" 
                   name="name" 
                   className="swiss-input" 
                   required 
-                  placeholder={lang === 'ka' ? 'მაგ. გიორგი ბერიძე' : lang === 'ru' ? 'напр. Александр Иванов' : 'e.g. Alex Morgan'} 
+                  placeholder={t.placeholderName} 
                   value={formData.name}
                   onChange={handleChange}
                 />
               </div>
               <div className="form-group-block">
-                <label className="form-label-mono">{t.formCompany}</label>
+                <label className="form-label-mono" htmlFor="inquiry-company">{t.formCompany}</label>
                 <input 
+                  id="inquiry-company"
                   type="text" 
                   name="company" 
                   className="swiss-input" 
                   required 
-                  placeholder={lang === 'ka' ? 'მაგ. ნექსუს ჯორჯია' : lang === 'ru' ? 'напр. Нексус Групп' : 'e.g. Nexus Global'} 
+                  placeholder={t.placeholderCompany} 
                   value={formData.company}
                   onChange={handleChange}
                 />
@@ -201,8 +173,9 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="form-group-block">
-                <label className="form-label-mono">{t.formEmail}</label>
+                <label className="form-label-mono" htmlFor="inquiry-email">{t.formEmail}</label>
                 <input 
+                  id="inquiry-email"
                   type="email" 
                   name="email" 
                   className="swiss-input" 
@@ -213,8 +186,9 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
                 />
               </div>
               <div className="form-group-block">
-                <label className="form-label-mono">{t.formPhone}</label>
+                <label className="form-label-mono" htmlFor="inquiry-phone">{t.formPhone}</label>
                 <input 
+                  id="inquiry-phone"
                   type="tel" 
                   name="phone" 
                   className="swiss-input" 
@@ -228,8 +202,9 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="form-group-block">
-                <label className="form-label-mono">{t.formMedium}</label>
+                <label className="form-label-mono" htmlFor="inquiry-medium">{t.formMedium}</label>
                 <select 
+                  id="inquiry-medium"
                   name="medium" 
                   className="swiss-input" 
                   value={formData.medium} 
@@ -239,18 +214,19 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
                   <option value="lightbox">{t.d2Title}</option>
                   <option value="billboard">{t.d4Title}</option>
                   <option value="print">{t.d3Title}</option>
-                  <option value="turnkey">{lang === 'ka' ? 'სრული სარეკლამო პაკეტი (გარე + ბეჭდვა)' : lang === 'ru' ? 'Полный рекламный пакет (наружная реклама + полиграфия)' : 'Full Turnkey Advertising Package'}</option>
+                  <option value="turnkey">{t.optionTurnkey}</option>
                 </select>
               </div>
 
               <div className="form-group-block">
-                <label className="form-label-mono">{t.formCity}</label>
+                <label className="form-label-mono" htmlFor="inquiry-city">{t.formCity}</label>
                 <input 
+                  id="inquiry-city"
                   type="text" 
                   name="city" 
                   className="swiss-input" 
                   required 
-                  placeholder={lang === 'ka' ? 'მაგ. თბილისი, ბათუმი, ქუთაისი...' : lang === 'ru' ? 'напр. Тбилиси, Батуми, Кутаиси...' : 'e.g. Tbilisi, Batumi, International'} 
+                  placeholder={t.placeholderCity} 
                   value={formData.city}
                   onChange={handleChange}
                 />
@@ -259,16 +235,17 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
 
             {/* Vector Blueprint File Attachment */}
             <div className="form-group-block">
-              <label className="form-label-mono">{t.formFiles}</label>
-              <label className="file-dropzone-minimal" data-cursor-text="UPLOAD FILE">
+              <label className="form-label-mono" htmlFor="inquiry-file-upload">{t.formFiles}</label>
+              <label className="file-dropzone-minimal" data-cursor-text="UPLOAD FILE" htmlFor="inquiry-file-upload">
                 <input 
+                  id="inquiry-file-upload"
                   type="file" 
                   accept=".ai,.dxf,.pdf,.eps,.dwg,.png,.jpg" 
                   style={{ display: 'none' }} 
                   onChange={handleFileUpload}
                 />
                 {fileAttached ? (
-                  <span style={{ fontWeight: '700' }}>✓ {lang === 'ka' ? 'მიმაგრებულია:' : lang === 'ru' ? 'Прикрепленный файл:' : 'Attached File:'} {fileAttached}</span>
+                  <span style={{ fontWeight: '700' }}>{t.fileAttachedBadge} {fileAttached}</span>
                 ) : (
                   <span>{t.dropzoneText}<span className="dropzone-span">{t.dropzoneBrowse}</span></span>
                 )}
@@ -276,12 +253,13 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
             </div>
 
             <div className="form-group-block">
-              <label className="form-label-mono">{t.formNotes}</label>
+              <label className="form-label-mono" htmlFor="inquiry-notes">{t.formNotes}</label>
               <textarea 
+                id="inquiry-notes"
                 name="notes" 
                 rows="4" 
                 className="swiss-input" 
-                placeholder={lang === 'ka' ? 'მიუთითეთ ზომები, განათების ტემპერატურა (3000K/6500K), სამონტაჟო სიმაღლე ან სასწრაფო ვადები...' : lang === 'ru' ? 'Укажите размеры, температуру подсветки (3000K/6500K), высоту монтажа или срочные сроки...' : 'Include custom dimensions, lighting kelvins, installation heights, or urgent deadlines...'}
+                placeholder={t.placeholderNotes}
                 value={formData.notes}
                 onChange={handleChange}
               ></textarea>
@@ -317,7 +295,7 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div className="hairline-box">
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', fontWeight: '700', color: 'var(--ink-muted)', marginBottom: '10px' }}>
-                {lang === 'ka' ? 'პირდაპირი კომუნიკაცია' : lang === 'ru' ? 'ПРЯМАЯ СВЯЗЬ' : 'DIRECT COMMUNICATIONS'}
+                {t.directCommTitle}
               </div>
               <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.4rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '14px' }}>
                 {t.deskTitle}

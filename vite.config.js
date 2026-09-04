@@ -23,15 +23,17 @@ export default defineConfig(({ mode }) => {
               try {
                 const data = JSON.parse(body || '{}');
                 const dynamicEnv = loadEnv(mode, process.cwd(), '');
-                const token = dynamicEnv.TELEGRAM_BOT_TOKEN || dynamicEnv.VITE_TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN;
-                const chatId = dynamicEnv.TELEGRAM_CHAT_ID || dynamicEnv.VITE_TELEGRAM_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
+                const token = dynamicEnv.TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN;
+                const chatId = dynamicEnv.TELEGRAM_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
 
                 if (!token || !chatId) {
-                  res.statusCode = 400;
+                  res.statusCode = 200;
                   res.setHeader('Content-Type', 'application/json');
                   res.end(JSON.stringify({
-                    ok: false,
-                    description: 'TELEGRAM_BOT_TOKEN ან TELEGRAM_CHAT_ID არ არის შევსებული .env.local ფაილში'
+                    ok: true,
+                    success: true,
+                    simulated: true,
+                    description: 'Inquiry received in local simulation mode. Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in .env.local to enable live Telegram alerts.'
                   }));
                   return;
                 }

@@ -1,8 +1,8 @@
 import React from 'react';
-import { translations } from '../i18n/translations';
+import { getTranslation } from '../i18n/translations';
 
 export default function Footer({ lang }) {
-  const t = translations[lang] || translations.ka;
+  const t = getTranslation(lang);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -37,7 +37,7 @@ export default function Footer({ lang }) {
             <div className="footer-col-head">{t.footerNavTitle}</div>
             <div className="footer-list">
               <a href="#workbench" data-cursor-text="STUDIO">{t.navStudio}</a>
-              <a href="#tbilisi-network" data-cursor-text="NETWORK">{t.navMedia}</a>
+              <a href="#mockup-studio" data-cursor-text="VISUALIZER">{t.navMockup}</a>
               <a href="#archive" data-cursor-text="ARCHIVE">{t.navArchive}</a>
               <a href="#machinery" data-cursor-text="FACILITY">{t.navFacility}</a>
               <a href="#inquiry" data-cursor-text="INQUIRE">{t.inquireBtn}</a>
@@ -50,13 +50,13 @@ export default function Footer({ lang }) {
             <div className="footer-list">
               <span>+995 32 200 80 80</span>
               <span>desk@vectorhub.ge</span>
-              <span>{lang === 'ka' ? 'წერეთლის გამზ. 88, თბილისი' : lang === 'ru' ? 'пр. Церетели 88, Тбилиси' : 'Tsereteli Ave 88, Tbilisi'}</span>
+              <span>{t.addressValShort}</span>
               <button 
                 onClick={scrollToTop} 
                 style={{ textAlign: 'left', marginTop: '12px', fontFamily: 'var(--font-mono)', fontWeight: '700', textDecoration: 'underline' }}
                 data-cursor-text="TOP"
               >
-                {lang === 'ka' ? '↑ გვერდის დასაწყისი' : lang === 'ru' ? '↑ В начало страницы' : '↑ Top of Page'}
+                {t.backToTop}
               </button>
             </div>
           </div>

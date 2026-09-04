@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Sun, Moon, Grid, ArrowUpRight, Globe, Menu, X } from 'lucide-react';
-import { translations } from '../i18n/translations';
+import { getTranslation } from '../i18n/translations';
 
 export default function Header({ theme, toggleTheme, gridActive, toggleGrid, lang, toggleLang }) {
   const [tbilisiTime, setTbilisiTime] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const t = translations[lang] || translations.ka;
+  const t = getTranslation(lang);
 
   useEffect(() => {
     const updateTime = () => {
@@ -65,8 +65,8 @@ export default function Header({ theme, toggleTheme, gridActive, toggleGrid, lan
           <button 
             className="lang-toggle-btn"
             onClick={() => toggleLang()}
-            title={lang === 'ka' ? 'Switch to English' : lang === 'en' ? 'Переключить на русский' : 'გადართვა ქართულ ენაზე'}
-            data-cursor-text={lang === 'ka' ? 'ENGLISH' : lang === 'en' ? 'РУССКИЙ' : 'ქართული'}
+            title={t.switchLangTooltip}
+            data-cursor-text={t.switchLangCursor}
           >
             <Globe size={14} />
             <span>{lang.toUpperCase()}</span>

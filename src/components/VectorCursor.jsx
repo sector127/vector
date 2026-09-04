@@ -1,8 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 export default function VectorCursor() {
-  const [pos, setPos] = useState({ x: -100, y: -100 });
-  const [trailingPos, setTrailingPos] = useState({ x: -100, y: -100 });
+  const dotRef = useRef(null);
+  const reticleWrapperRef = useRef(null);
+  const coordsRef = useRef(null);
+
+  const posRef = useRef({ x: -100, y: -100 });
+  const trailingPosRef = useRef({ x: -100, y: -100 });
+
   const [isHovered, setIsHovered] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const [hoverText, setHoverText] = useState('');
@@ -24,9 +29,19 @@ export default function VectorCursor() {
   useEffect(() => {
     if (!isPointerFine) return;
 
+    let isVisible = false;
+
     const handleMouseMove = (e) => {
-      setPos({ x: e.clientX, y: e.clientY });
-      if (!visible) setVisible(true);
+      posRef.current = { x: e.clientX, y: e.clientY };
+
+      if (!isVisible) {
+        isVisible = true;
+        setVisible(true);
+      }
+
+      if (dotRef.current) {
+        dotRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+      }
 
       // Check if hovering over interactive element
       const target = e.target.closest('button, a, input, [data-interactive="true"], .interactive-node');
@@ -42,9 +57,12 @@ export default function VectorCursor() {
 
     const handleMouseDown = () => setIsClicked(true);
     const handleMouseUp = () => setIsClicked(false);
-    const handleMouseLeave = () => setVisible(false);
+    const handleMouseLeave = () => {
+      isVisible = false;
+      setVisible(false);
+    };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     window.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('mouseleave', handleMouseLeave);
@@ -55,21 +73,42 @@ export default function VectorCursor() {
       window.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [visible, isPointerFine]);
+  }, [isPointerFine]);
 
-  // Smooth lerp for outer reticle
+  // Smooth lerp for outer reticle without re-rendering React
   useEffect(() => {
+    if (!isPointerFine) return;
+
     let animationFrame;
     const updateTrailing = () => {
-      setTrailingPos(prev => ({
-        x: prev.x + (pos.x - prev.x) * 0.22,
-        y: prev.y + (pos.y - prev.y) * 0.22
-      }));
+      const target = posRef.current;
+      const current = trailingPosRef.current;
+
+      const nextX = current.x + (target.x - current.x) * 0.22;
+      const nextY = current.y + (target.y - current.y) * 0.22;
+      trailingPosRef.current = { x: nextX, y: nextY };
+
+      if (reticleWrapperRef.current) {
+        reticleWrapperRef.current.style.transform = `translate3d(${nextX}px, ${nextY}px, 0)`;
+      }
+
+      if (coordsRef.current && !hoverText) {
+        coordsRef.current.textContent = `X:${Math.round(target.x)} Y:${Math.round(target.y)}`;
+      }
+
       animationFrame = requestAnimationFrame(updateTrailing);
     };
+
     animationFrame = requestAnimationFrame(updateTrailing);
     return () => cancelAnimationFrame(animationFrame);
-  }, [pos]);
+  }, [isPointerFine, hoverText]);
+
+  useEffect(() => {
+    if (dotRef.current) {
+      const { x, y } = posRef.current;
+      dotRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${isClicked ? 0.7 : 1})`;
+    }
+  }, [isClicked]);
 
   if (!visible || !isPointerFine) return null;
 
@@ -77,10 +116,9 @@ export default function VectorCursor() {
     <div className="vector-cursor-container" style={{ pointerEvents: 'none' }}>
       {/* Precision Core Crosshair Point */}
       <div 
-        className="vector-cursor-dot"
-        style={{
-          transform: `translate3d(${pos.x}px, ${pos.y}px, 0) scale(${isClicked ? 0.7 : 1})`,
-        }}
+        ref={dotRef}
+        className={`vector-cursor-dot ${isClicked ? 'clicked' : ''}`}
+        style={{ transform: 'translate3d(-100px, -100px, 0)' }}
       >
         <svg width="18" height="18" viewBox="0 0 18 18" className="cursor-cross-svg">
           <line x1="9" y1="0" x2="9" y2="18" stroke="currentColor" strokeWidth="1" />
@@ -91,10 +129,9 @@ export default function VectorCursor() {
 
       {/* Floating Geometric Vector Reticle */}
       <div 
+        ref={reticleWrapperRef}
         className="vector-cursor-reticle-wrapper"
-        style={{
-          transform: `translate3d(${trailingPos.x}px, ${trailingPos.y}px, 0)`,
-        }}
+        style={{ transform: 'translate3d(-100px, -100px, 0)' }}
       >
         <div className={`vector-cursor-reticle ${isHovered ? 'hovered' : ''} ${isClicked ? 'clicked' : ''}`}>
           <svg width="64" height="64" viewBox="0 0 64 64" className="reticle-svg">
@@ -110,11 +147,12 @@ export default function VectorCursor() {
           </svg>
 
           {/* Dynamic Coordinate Readout */}
-          <div className="cursor-coords-tag">
-            {hoverText ? hoverText : `X:${Math.round(pos.x)} Y:${Math.round(pos.y)}`}
+          <div ref={coordsRef} className="cursor-coords-tag">
+            {hoverText}
           </div>
         </div>
       </div>
     </div>
   );
 }
+

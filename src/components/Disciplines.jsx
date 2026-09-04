@@ -1,8 +1,8 @@
 import React from 'react';
-import { translations } from '../i18n/translations';
+import { getTranslation } from '../i18n/translations';
 
 export default function Disciplines({ lang }) {
-  const t = translations[lang] || translations.ka;
+  const t = getTranslation(lang);
 
   const disciplines = [
     {
@@ -134,7 +134,7 @@ export default function Disciplines({ lang }) {
             >
               <div className="discipline-card-header">
                 <div>
-                  <span className="d-code">{disc.num} / {lang === 'ka' ? 'წარმოება' : lang === 'ru' ? 'ПРОИЗВОДСТВО' : 'PRODUCTION'}</span>
+                  <span className="d-code">{disc.num} / {t.disciplineProductionLabel}</span>
                   <h3 className="d-title">{disc.title}</h3>
                 </div>
                 <span className="tag-swiss">{disc.category}</span>

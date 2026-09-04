@@ -1,10 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { Download, Sun, Moon, Upload, ArrowRight, Sparkles, Image as ImageIcon, ShieldCheck, Wrench, Layers, Loader2 } from 'lucide-react';
-import html2canvas from 'html2canvas';
-import { translations } from '../i18n/translations';
+import { getTranslation } from '../i18n/translations';
 
-export default function BillboardMockup({ lang, onBookBillboard }) {
-  const t = translations[lang] || translations.ka;
+export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) {
+  const t = getTranslation(lang);
 
   // Selected Location: 'letters', 'rustaveli', 'heroes', 'vake', 'kakheti'
   const [selectedLoc, setSelectedLoc] = useState('letters');
@@ -26,16 +25,16 @@ export default function BillboardMockup({ lang, onBookBillboard }) {
   const fileInputRef = useRef(null);
   const stageContainerRef = useRef(null);
 
-  // 5 Photorealistic Locations & Fabrication Specs
+  // 5 Photorealistic Locations & Fabrication Specs (Trilingual: KA / RU / EN)
   const LOCATIONS = {
     letters: {
       id: 'letters',
       name: t.mockupLocLetters || '3D თითბერის ასოები & Halo',
-      shortName: lang === 'ka' ? '3D თითბერის ასოები' : '3D Brass Letters',
+      shortName: t.mockupLocations?.letters?.shortName || '3D Brass Letters',
       scale: '4.5m × 0.8m',
-      spec: lang === 'ka' ? 'ხაოიანი თითბერი CuZn37 • 3000K Halo • AISI 316' : 'Brushed Brass CuZn37 • 3000K Halo',
-      standard: lang === 'ka' ? 'IP67 წყალგაუმტარი • AISI 316 ანკერები' : 'IP67 Waterproof • AISI 316',
-      leadTime: lang === 'ka' ? '7 სამუშაო დღე • 5 წელი გარანტია' : '7 Work Days • 5-Yr Warranty',
+      spec: t.mockupLocations?.letters?.spec || 'Brushed Brass CuZn37 • 3000K Halo • AISI 316',
+      standard: t.mockupLocations?.letters?.standard || 'IP67 Waterproof • AISI 316',
+      leadTime: t.mockupLocations?.letters?.leadTime || '7 Work Days • 5-Yr Warranty',
       type: '3D Dimensional Facade Lettering',
       image: '/assets/mockups/letters_facade.jpg',
       is3DLetters: true,
@@ -51,11 +50,11 @@ export default function BillboardMockup({ lang, onBookBillboard }) {
     rustaveli: {
       id: 'rustaveli',
       name: t.mockupLocRustaveli || 'სითილაითის ლაითბოქსი',
-      shortName: lang === 'ka' ? 'სითილაითის ლაითბოქსი' : 'Citylight Lightbox',
+      shortName: t.mockupLocations?.rustaveli?.shortName || 'Citylight Lightbox',
       scale: '1.8m × 1.2m (2.16 მ²)',
-      spec: lang === 'ka' ? 'ანოდირებული ალუმინი • 8მმ ნაწრთობი მინა • 6500K LED' : 'Anodized Aluminum • 8mm Glass • 6500K',
-      standard: lang === 'ka' ? 'IP65 ჰერმეტული • მერიის სტანდარტი' : 'IP65 Weatherproof • City Hall Standard',
-      leadTime: lang === 'ka' ? '5 სამუშაო დღე • მზა ნაკრები' : '5 Work Days • Turnkey Setup',
+      spec: t.mockupLocations?.rustaveli?.spec || 'Anodized Aluminum • 8mm Glass • 6500K LED',
+      standard: t.mockupLocations?.rustaveli?.standard || 'IP65 Weatherproof • City Hall Standard',
+      leadTime: t.mockupLocations?.rustaveli?.leadTime || '5 Work Days • Turnkey Setup',
       type: 'Double-Sided Citylight Lightbox',
       image: '/assets/mockups/rustaveli_citylight.jpg',
       screenBox: {
@@ -70,11 +69,11 @@ export default function BillboardMockup({ lang, onBookBillboard }) {
     heroes: {
       id: 'heroes',
       name: t.mockupLocHeroes || 'მომრგვალებული LED მეგაკონსტრუქცია',
-      shortName: lang === 'ka' ? 'მომრგვალებული LED' : 'Curved LED Screen',
+      shortName: t.mockupLocations?.heroes?.shortName || 'Curved LED Screen',
       scale: '15.0m × 8.0m (120 მ²)',
-      spec: lang === 'ka' ? 'მოთუთიებული ფოლადი S355 • P3.91 IP68 LED' : 'Galvanized Steel S355 • P3.91 IP68',
-      standard: lang === 'ka' ? 'ქარის გამძლეობა 180 კმ/სთ • ISO 9001' : 'Wind 180 km/h • ISO 9001',
-      leadTime: lang === 'ka' ? '14 სამუშაო დღე • გარანტია 5 წელი' : '14 Work Days • 5-Yr Warranty',
+      spec: t.mockupLocations?.heroes?.spec || 'Galvanized Steel S355 • P3.91 IP68 LED',
+      standard: t.mockupLocations?.heroes?.standard || 'Wind 180 km/h • ISO 9001',
+      leadTime: t.mockupLocations?.heroes?.leadTime || '14 Work Days • 5-Yr Warranty',
       type: 'Curved Flyover LED Megastructure',
       image: '/assets/mockups/heroes_square.jpg',
       isCurved: true,
@@ -90,11 +89,11 @@ export default function BillboardMockup({ lang, onBookBillboard }) {
     vake: {
       id: 'vake',
       name: t.mockupLocVake || 'ფასადის არქიტექტურული ეკრანი',
-      shortName: lang === 'ka' ? 'ფასადის ეკრანი' : 'Facade LED Display',
+      shortName: t.mockupLocations?.vake?.shortName || 'Facade LED Display',
       scale: '9.0m × 5.0m (45 მ²)',
-      spec: lang === 'ka' ? 'ბაზალტის ანკერირება • P2.5 Ultra-Black • AISI 316' : 'Basalt Rigging • P2.5 Ultra-Black',
-      standard: lang === 'ka' ? 'IP65 ფრონტალური დაცვა • 4,500 Nits' : 'IP65 Frontal Seal • 4,500 Nits',
-      leadTime: lang === 'ka' ? '10 სამუშაო დღე • გარანტია 5 წელი' : '10 Work Days • 5-Yr Warranty',
+      spec: t.mockupLocations?.vake?.spec || 'Basalt Rigging • P2.5 Ultra-Black • AISI 316',
+      standard: t.mockupLocations?.vake?.standard || 'IP65 Frontal Seal • 4,500 Nits',
+      leadTime: t.mockupLocations?.vake?.leadTime || '10 Work Days • 5-Yr Warranty',
       type: 'Architectural Facade Display & Signage',
       image: '/assets/mockups/vake_facade.jpg',
       screenBox: {
@@ -108,13 +107,13 @@ export default function BillboardMockup({ lang, onBookBillboard }) {
     },
     kakheti: {
       id: 'kakheti',
-      name: t.mockupLocKakheti || 'მაგისტრალური უნიპოლარული ბილბორდი',
-      shortName: lang === 'ka' ? 'მაგისტრალური უნიპოლარი' : 'Highway Unipole',
+      name: t.mockupLocKakheti || 'მაგისტრალური მონოპოლური ბილბორდი',
+      shortName: t.mockupLocations?.kakheti?.shortName || 'Highway Monopole',
       scale: '14.0m × 5.0m (70 მ²)',
-      spec: lang === 'ka' ? 'Ø 1200მმ ფოლადის სვეტი • ცხელი მოთუთიება HDG' : 'Ø 1200mm Steel Column • HDG',
-      standard: lang === 'ka' ? 'ქარის 180 კმ/სთ გამძლეობა • სტატიკური გათვლა' : '180 km/h Wind Load • Static Certified',
-      leadTime: lang === 'ka' ? '12 სამუშაო დღე • საინჟინრო პაკეტი' : '12 Work Days • Full Engineering',
-      type: 'Highway Unipole Steel Structure',
+      spec: t.mockupLocations?.kakheti?.spec || 'Ø 1200mm Steel Column • HDG',
+      standard: t.mockupLocations?.kakheti?.standard || '180 km/h Wind Load • Static Certified',
+      leadTime: t.mockupLocations?.kakheti?.leadTime || '12 Work Days • Full Engineering',
+      type: 'Highway Monopole Steel Structure',
       image: '/assets/mockups/highway_unipole.jpg',
       screenBox: {
         top: '8.8%',
@@ -131,7 +130,7 @@ export default function BillboardMockup({ lang, onBookBillboard }) {
   const THEMES = {
     gold: {
       id: 'gold',
-      name: lang === 'ka' ? 'ხაოიანი თითბერი 3000K' : 'Brushed Brass 3000K',
+      name: t.mockupThemes?.gold || 'Brushed Brass 3000K',
       bg: '#0c0a06',
       primary: '#ffdf78',
       sub: '#fcd34d',
@@ -144,7 +143,7 @@ export default function BillboardMockup({ lang, onBookBillboard }) {
     },
     white: {
       id: 'white',
-      name: lang === 'ka' ? 'ტიტანი / თეთრი 6500K' : 'Titanium White 6500K',
+      name: t.mockupThemes?.white || 'Titanium White 6500K',
       bg: '#080c14',
       primary: '#ffffff',
       sub: '#e2e8f0',
@@ -157,7 +156,7 @@ export default function BillboardMockup({ lang, onBookBillboard }) {
     },
     cyan: {
       id: 'cyan',
-      name: lang === 'ka' ? 'კიბერ ცისფერი' : 'Cyber Cyan',
+      name: t.mockupThemes?.cyber || 'Cyber Cyan',
       bg: '#04111f',
       primary: '#00f0ff',
       sub: '#67e8f9',
@@ -170,7 +169,7 @@ export default function BillboardMockup({ lang, onBookBillboard }) {
     },
     emerald: {
       id: 'emerald',
-      name: lang === 'ka' ? 'ზურმუხტი მინტი' : 'Emerald Mint',
+      name: t.mockupThemes?.emerald || 'Emerald Mint',
       bg: '#03140c',
       primary: '#00ff9d',
       sub: '#6ee7b7',
@@ -250,6 +249,7 @@ export default function BillboardMockup({ lang, onBookBillboard }) {
 
     return {
       textShadow: shadowLayers.join(', '),
+      color: theme.primary,
       backgroundImage: lighting === 'front' && isNight 
         ? `linear-gradient(180deg, #ffffff 0%, ${theme.primary} 100%)` 
         : theme.faceGradient
@@ -291,19 +291,70 @@ export default function BillboardMockup({ lang, onBookBillboard }) {
     }
   };
 
-  // Export High-Res PNG Mockup
   // Export High-Res PNG Mockup with Full Composite Rendering (Base + 3D Letters / Graphic + Atmosphere)
   const handleDownloadMockup = async () => {
     if (!stageContainerRef.current) return;
     setIsExporting(true);
 
     try {
+      const { default: html2canvas } = await import('html2canvas');
       const canvas = await html2canvas(stageContainerRef.current, {
         useCORS: true,
         allowTaint: true,
         scale: 2, // 2x Retina Clarity for High-Res Presentation
         backgroundColor: '#06080d',
-        logging: false
+        logging: false,
+        onclone: (clonedDoc) => {
+          // 1. Flatten 3D perspective wrapper in clone so perspective rotate doesn't distort html2canvas
+          const lettersWrapper = clonedDoc.querySelector('.letters-3d-wrapper');
+          if (lettersWrapper) {
+            lettersWrapper.style.transform = 'none';
+          }
+
+          // 2. html2canvas does not support -webkit-background-clip: text with transparent color.
+          // In the cloned DOM, explicitly fill the letter face with solid metallic theme color
+          // and apply crisp, calibrated 3D extrusion shadows.
+          const titleEl = clonedDoc.querySelector('.facade-brand-title');
+          if (titleEl) {
+            titleEl.style.color = currentTheme.primary;
+            titleEl.style.webkitTextFillColor = currentTheme.primary;
+            titleEl.style.backgroundImage = 'none';
+            titleEl.style.webkitBackgroundClip = 'initial';
+            titleEl.style.backgroundClip = 'initial';
+
+            const exportSteps = letterDepth === 100 ? 6 : letterDepth === 30 ? 2 : 4;
+            const exportShadows = ['0 -1px 0 rgba(255, 255, 255, 0.95)'];
+            for (let i = 1; i <= exportSteps; i++) {
+              let sideColor;
+              if (currentTheme.id === 'gold') {
+                sideColor = `rgb(${Math.max(40, 145 - i * 10)}, ${Math.max(25, 110 - i * 8)}, ${Math.max(5, 20 - i * 2)})`;
+              } else if (currentTheme.id === 'white') {
+                sideColor = `rgb(${Math.max(25, 150 - i * 11)}, ${Math.max(35, 165 - i * 12)}, ${Math.max(45, 185 - i * 13)})`;
+              } else if (currentTheme.id === 'cyan') {
+                sideColor = `rgb(0, ${Math.max(40, 180 - i * 13)}, ${Math.max(60, 210 - i * 14)})`;
+              } else {
+                sideColor = `rgb(0, ${Math.max(40, 170 - i * 13)}, ${Math.max(25, 100 - i * 8)})`;
+              }
+              exportShadows.push(`0 ${i}px 0 ${sideColor}`);
+            }
+            exportShadows.push(`0 ${exportSteps + 2}px 6px rgba(0, 0, 0, 0.85)`);
+            if (lightingType === 'halo' || lightingType === 'dual') {
+              exportShadows.push(`0 0 16px ${currentTheme.glowColor}`);
+            }
+            titleEl.style.textShadow = exportShadows.join(', ');
+          }
+
+          // 3. Subtext formatting in clone
+          const subEl = clonedDoc.querySelector('.facade-brand-sub');
+          if (subEl) {
+            subEl.style.color = currentTheme.sub;
+            subEl.style.webkitTextFillColor = currentTheme.sub;
+            subEl.style.backgroundImage = 'none';
+            subEl.style.webkitBackgroundClip = 'initial';
+            subEl.style.backgroundClip = 'initial';
+            subEl.style.textShadow = currentTheme.subShadow || 'none';
+          }
+        }
       });
 
       const link = document.createElement('a');
@@ -312,6 +363,10 @@ export default function BillboardMockup({ lang, onBookBillboard }) {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+
+      if (onShowToast) {
+        onShowToast(t.toastVisualizerExported);
+      }
     } catch (err) {
       console.error('Visualizer export error:', err);
     } finally {
@@ -328,7 +383,7 @@ export default function BillboardMockup({ lang, onBookBillboard }) {
       dimensions: currentLoc.scale,
       material: currentLoc.is3DLetters ? `${currentLoc.spec} • ${letterDepth}mm Return • ${lightingType}` : currentLoc.spec,
       lighting: currentLoc.is3DLetters ? lightingType : 'front6500',
-      estimate: `კონსტრუქცია: ${currentLoc.name} (${currentLoc.standard})`,
+      estimate: t('structureEstimate', { name: currentLoc.name, standard: currentLoc.standard }),
       turnaround: currentLoc.leadTime
     };
     if (onBookBillboard) {
@@ -469,6 +524,7 @@ export default function BillboardMockup({ lang, onBookBillboard }) {
                       <div 
                         className="facade-brand-sub" 
                         style={{ 
+                          color: currentTheme.sub,
                           backgroundImage: currentTheme.subGradient,
                           textShadow: currentTheme.subShadow
                         }}
@@ -595,9 +651,9 @@ export default function BillboardMockup({ lang, onBookBillboard }) {
 
             {/* Streamlined Stage Footer Metrics */}
             <div className="mockup-stage-footer">
-              <div className="stage-foot-item"><ShieldCheck size={12} className="foot-icon" /><span><strong>{lang === 'ka' ? 'სტანდარტი' : 'Standard'}:</strong> {currentLoc.standard}</span></div>
-              <div className="stage-foot-item"><Layers size={12} className="foot-icon" /><span><strong>{lang === 'ka' ? 'მასშტაბი' : 'Scale'}:</strong> {currentLoc.scale}</span></div>
-              <div className="stage-foot-item"><Wrench size={12} className="foot-icon" /><span><strong>{lang === 'ka' ? 'მასალა' : 'Material'}:</strong> {currentLoc.spec}</span></div>
+              <div className="stage-foot-item"><ShieldCheck size={12} className="foot-icon" /><span><strong>{t.footStandard}:</strong> {currentLoc.standard}</span></div>
+              <div className="stage-foot-item"><Layers size={12} className="foot-icon" /><span><strong>{t.footScale}:</strong> {currentLoc.scale}</span></div>
+              <div className="stage-foot-item"><Wrench size={12} className="foot-icon" /><span><strong>{t.footMaterial}:</strong> {currentLoc.spec}</span></div>
             </div>
           </div>
 
@@ -606,7 +662,7 @@ export default function BillboardMockup({ lang, onBookBillboard }) {
             {/* Input Mode Selector */}
             <div className="control-block">
               <div className="control-title">
-                <span>01. {lang === 'ka' ? 'დიზაინის რეჟიმი' : 'Design Mode'}</span>
+                <span>{t.designModeStep}</span>
                 <span className="badge-tag-mini">{inputMode === 'upload' ? 'LOGO UPLOAD' : 'LIVE DESIGNER'}</span>
               </div>
               <div className="segmented-control mode-selector-bar">
@@ -650,8 +706,8 @@ export default function BillboardMockup({ lang, onBookBillboard }) {
                   />
                   <ImageIcon size={20} className="dropzone-icon" />
                   <div className="dropzone-text">
-                    <strong>{uploadedImage ? (lang === 'ka' ? '✓ ფაილი ჩატვირთულია (შეცვლა)' : '✓ File Loaded (Click to change)') : t.mockupUploadPrompt}</strong>
-                    <span>{lang === 'ka' ? 'ავტომატური 3D პროექცია არქიტექტურულ ობიექტზე' : 'Auto 3D projection on architectural object'}</span>
+                    <strong>{uploadedImage ? t.fileLoadedChange : t.mockupUploadPrompt}</strong>
+                    <span>{t.autoProjectionSub}</span>
                   </div>
                 </div>
               </div>
@@ -708,14 +764,14 @@ export default function BillboardMockup({ lang, onBookBillboard }) {
                     {/* Depth Extrusion Selector */}
                     <div className="control-block">
                       <div className="control-title">
-                        <span>{lang === 'ka' ? '3D ბორტის სიღრმე' : '3D Extrusion Depth'}</span>
+                        <span>{t.depthTitle}</span>
                         <span className="badge-tag-mini">{letterDepth} MM</span>
                       </div>
                       <div className="segmented-control">
                         {[
-                          { val: 30, label: lang === 'ka' ? '30 მმ (Slim)' : '30mm Slim' },
-                          { val: 60, label: lang === 'ka' ? '60 მმ (Standard)' : '60mm Std' },
-                          { val: 100, label: lang === 'ka' ? '100 მმ (Deep 3D)' : '100mm Deep' }
+                          { val: 30, label: t.depth30 },
+                          { val: 60, label: t.depth60 },
+                          { val: 100, label: t.depth100 }
                         ].map((d) => (
                           <button
                             key={d.val}
@@ -732,13 +788,13 @@ export default function BillboardMockup({ lang, onBookBillboard }) {
                     {/* Lighting System Selector */}
                     <div className="control-block">
                       <div className="control-title">
-                        <span>{lang === 'ka' ? 'განათების ტექნოლოგია' : 'Lighting System'}</span>
+                        <span>{t.lightingTitle}</span>
                       </div>
                       <div className="segmented-control">
                         {[
-                          { val: 'halo', label: lang === 'ka' ? '3000K Halo' : 'Halo Backlit' },
-                          { val: 'front', label: lang === 'ka' ? 'წინა LED' : 'Front-Lit' },
-                          { val: 'dual', label: lang === 'ka' ? 'ორმაგი Dual' : 'Dual Lighting' }
+                          { val: 'halo', label: t.lightingHalo },
+                          { val: 'front', label: t.lightingFront },
+                          { val: 'dual', label: t.lightingDual }
                         ].map((l) => (
                           <button
                             key={l.val}

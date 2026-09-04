@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Disciplines from './components/Disciplines';
@@ -10,25 +10,74 @@ import SpecInquiry from './components/SpecInquiry';
 import Footer from './components/Footer';
 import VectorCursor from './components/VectorCursor';
 import VectorFieldCanvas from './components/VectorFieldCanvas';
+import { getTranslation } from './i18n/translations';
 
 export default function App() {
-  const [theme, setTheme] = useState('light'); // 'light' (pure crisp white default) or 'dark'
-  const [lang, setLang] = useState('ka'); // 'ka' (Georgian default) or 'en'
-  const [gridActive, setGridActive] = useState(true);
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('vector_hub_theme');
+      if (saved) return saved;
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+      }
+    }
+    return 'light';
+  });
+
+  const [lang, setLang] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('vector_hub_lang');
+      if (saved && ['ka', 'en', 'ru'].includes(saved)) return saved;
+    }
+    return 'ka';
+  });
+
+  const [gridActive, setGridActive] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('vector_hub_grid');
+      if (saved !== null) return saved !== 'false';
+    }
+    return true;
+  });
+
   const [transferredSpec, setTransferredSpec] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
+  const toastTimeoutRef = useRef(null);
+
+  const t = getTranslation(lang);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    try {
+      localStorage.setItem('vector_hub_theme', theme);
+    } catch {}
+  }, [theme]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('lang', lang);
+    try {
+      localStorage.setItem('vector_hub_lang', lang);
+    } catch {}
+  }, [lang]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('vector_hub_grid', String(gridActive));
+    } catch {}
+  }, [gridActive]);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const toggleTheme = () => {
     const nextTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(nextTheme);
-    document.documentElement.setAttribute('data-theme', nextTheme);
-    showToast(
-      lang === 'ka' 
-        ? `თემა შეიცვალა: ${nextTheme === 'dark' ? 'მუქი' : 'ნათელი'}` 
-        : lang === 'ru'
-          ? `Тема изменена: ${nextTheme === 'dark' ? 'ТЕМНАЯ' : 'СВЕТЛАЯ'}`
-          : `Theme switched to ${nextTheme.toUpperCase()}`
-    );
+    showToast(nextTheme === 'dark' ? t.toastThemeDark : t.toastThemeLight);
   };
 
   const toggleLang = (targetLang) => {
@@ -41,42 +90,30 @@ export default function App() {
       else nextLang = 'ka';
     }
     setLang(nextLang);
-    document.documentElement.setAttribute('lang', nextLang);
-    const toastLabel = nextLang === 'ka' 
-      ? 'ენა გადაირთო: ქართული' 
-      : nextLang === 'ru' 
-        ? 'Язык переключен: РУССКИЙ' 
-        : 'Language switched to: ENGLISH';
-    showToast(toastLabel);
+    const nextT = getTranslation(nextLang);
+    showToast(nextT.toastLangSwitched);
   };
 
   const toggleGrid = () => {
-    setGridActive(!gridActive);
-    showToast(
-      lang === 'ka' 
-        ? `ვექტორული ბადე: ${!gridActive ? 'ჩართულია' : 'გამორთულია'}` 
-        : lang === 'ru'
-          ? `Векторная сетка: ${!gridActive ? 'ВКЛЮЧЕНА' : 'ВЫКЛЮЧЕНА'}`
-          : `Vector grid ${!gridActive ? 'ENABLED' : 'DISABLED'}`
-    );
+    const nextGrid = !gridActive;
+    setGridActive(nextGrid);
+    showToast(nextGrid ? t.toastGridEnabled : t.toastGridDisabled);
   };
 
   const showToast = (msg) => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
     setToastMessage(msg);
-    setTimeout(() => {
+    toastTimeoutRef.current = setTimeout(() => {
       setToastMessage(null);
+      toastTimeoutRef.current = null;
     }, 4000);
   };
 
   const handleTransferSpec = (spec) => {
     setTransferredSpec(spec);
-    showToast(
-      lang === 'ka' 
-        ? '✨ CAD პარამეტრები გადატანილია შეკვეთის ფორმაში.' 
-        : lang === 'ru'
-          ? '✨ Параметры CAD перенесены в форму заказа.'
-          : '✨ CAD Specification transferred to Inquiry Form.'
-    );
+    showToast(t.toastSpecTransferred);
     const el = document.getElementById('inquiry');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
@@ -115,6 +152,7 @@ export default function App() {
         <BillboardMockup 
           lang={lang} 
           onBookBillboard={handleTransferSpec} 
+          onShowToast={showToast}
         />
 
         <Archive lang={lang} />

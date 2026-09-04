@@ -1,17 +1,10 @@
 import React from 'react';
 import { ArrowDownRight, Compass, Cpu, Sparkles, CheckCircle2 } from 'lucide-react';
-import { translations } from '../i18n/translations';
+import { getTranslation } from '../i18n/translations';
 
 export default function Hero({ lang }) {
-  const t = translations[lang] || translations.ka;
-
-  const CAPABILITIES = [
-    lang === 'ka' ? '3D მოცულობითი თითბერი (Halo 3000K)' : '3D Dimensional Brass (Halo 3000K)',
-    lang === 'ka' ? 'მძიმე ფოლადის მეგაკონსტრუქციები' : 'Heavy Steel Structural Rigging',
-    lang === 'ka' ? '22მმ ულტრათხელი SEG ლაითბოქსები' : '22mm Ultra-Slim SEG Lightboxes',
-    lang === 'ka' ? 'ინდუსტრიული UV ბეჭდვა 5 მეტრამდე' : 'Industrial UV Printing up to 5.0m',
-    lang === 'ka' ? 'სიმაღლეზე მონტაჟი 60 მეტრამდე' : 'High-Altitude Mounting up to 60m'
-  ];
+  const t = getTranslation(lang);
+  const capabilities = t.heroCapabilities || [];
 
   return (
     <section className="hero-monolithic-section" id="hero">
@@ -70,10 +63,10 @@ export default function Hero({ lang }) {
           <div className="hero-capabilities-ribbon">
             <span className="capabilities-label">
               <Cpu size={12} style={{ display: 'inline', marginRight: '4px' }} />
-              {lang === 'ka' ? 'საწარმოო მიმართულებები:' : 'Capabilities:'}
+              {t.heroCapabilitiesLabel}
             </span>
             <div className="capabilities-chips">
-              {CAPABILITIES.map((cap, i) => (
+              {capabilities.map((cap, i) => (
                 <span key={i} className="cap-chip">
                   <CheckCircle2 size={11} className="chip-icon" />
                   <span>{cap}</span>
@@ -86,20 +79,20 @@ export default function Hero({ lang }) {
         {/* Bottom: 4 Monolithic Metric Pillars */}
         <div className="hero-monolithic-metrics">
           <div className="metric-pillar">
-            <div className="pillar-val">2,500 მ²</div>
-            <div className="pillar-lbl">{lang === 'ka' ? 'საკუთარი საწარმოო კომპლექსი თბილისში' : 'Heavy Fabrication Complex in Tbilisi'}</div>
+            <div className="pillar-val">{t.metric1Val || '2,500 მ²'}</div>
+            <div className="pillar-lbl">{t.heroMetric1Lbl}</div>
           </div>
           <div className="metric-pillar">
-            <div className="pillar-val">±0.02 მმ</div>
-            <div className="pillar-lbl">{lang === 'ka' ? '5-ღერძიანი ლაზერული CNC სიზუსტე' : '5-Axis Laser CNC Accuracy'}</div>
+            <div className="pillar-val">{t.metric2Val || '±0.02 მმ'}</div>
+            <div className="pillar-lbl">{t.heroMetric2Lbl}</div>
           </div>
           <div className="metric-pillar">
-            <div className="pillar-val">180 კმ/სთ</div>
-            <div className="pillar-lbl">{lang === 'ka' ? 'ქარის გათვლილი დამოწმებული გამძლეობა' : 'Wind Load Certified Static Engineering'}</div>
+            <div className="pillar-val">{t.metric3Val || '180 კმ/სთ'}</div>
+            <div className="pillar-lbl">{t.heroMetric3Lbl}</div>
           </div>
           <div className="metric-pillar">
-            <div className="pillar-val">5 {lang === 'ka' ? 'წელი' : 'Years'}</div>
-            <div className="pillar-lbl">{lang === 'ka' ? 'სრული საინჟინრო და საგარანტიო SLA' : 'Full Engineering & Warranty SLA'}</div>
+            <div className="pillar-val">{t.heroMetric4Val}</div>
+            <div className="pillar-lbl">{t.heroMetric4Lbl}</div>
           </div>
         </div>
       </div>
