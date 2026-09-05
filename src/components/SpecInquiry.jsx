@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Phone, MessageSquare, Mail, MapPin, Send } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Phone, MessageSquare, Mail, MapPin, Send, X } from 'lucide-react';
 import { getTranslation, formatTransferredNotes, formatWaMessage } from '../i18n/translations';
 import { sendInquiryNotification } from '../services/telegram';
 
@@ -25,7 +25,8 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
       notes: ''
     };
   });
-  const [fileAttached, setFileAttached] = useState(null);
+  const fileInputRef = useRef(null);
+  const [attachedFile, setAttachedFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Sync state cleanly when transferredSpec changes
@@ -62,10 +63,41 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
   };
 
   const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFileAttached(file.name);
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    const MAX_SIZE_MB = 15;
+    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+      onShowToast(`⚠️ ${t.fileTooLarge || 'ფაილის ზომა აღემატება 15MB ლიმიტს.'}`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const fileInfo = {
+        name: file.name,
+        type: file.type || 'application/octet-stream',
+        size: file.size,
+        base64: reader.result
+      };
+      setAttachedFile(fileInfo);
       onShowToast(t('toastFileAttached', { name: file.name }));
+    };
+    reader.onerror = () => {
+      onShowToast('⚠️ ფაილის წაკითხვა ვერ მოხერხდა.');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleClearFile = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setAttachedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -76,7 +108,10 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
     try {
       const payload = {
         ...formData,
-        fileAttached
+        fileAttached: attachedFile ? attachedFile.name : null,
+        fileName: attachedFile ? attachedFile.name : null,
+        fileType: attachedFile ? attachedFile.type : null,
+        fileData: attachedFile ? attachedFile.base64 : null
       };
 
       const result = await sendInquiryNotification(payload);
@@ -98,7 +133,8 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
           notes: ''
         };
         setFormData(resetForm);
-        setFileAttached(null);
+        setAttachedFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
         try {
           localStorage.removeItem('vector_hub_inquiry_draft');
         } catch {
@@ -145,26 +181,26 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="form-group-block">
                 <label className="form-label-mono" htmlFor="inquiry-name">{t.formName}</label>
-                <input 
+                <input
                   id="inquiry-name"
-                  type="text" 
-                  name="name" 
-                  className="swiss-input" 
-                  required 
-                  placeholder={t.placeholderName} 
+                  type="text"
+                  name="name"
+                  className="swiss-input"
+                  required
+                  placeholder={t.placeholderName}
                   value={formData.name}
                   onChange={handleChange}
                 />
               </div>
               <div className="form-group-block">
                 <label className="form-label-mono" htmlFor="inquiry-company">{t.formCompany}</label>
-                <input 
+                <input
                   id="inquiry-company"
-                  type="text" 
-                  name="company" 
-                  className="swiss-input" 
-                  required 
-                  placeholder={t.placeholderCompany} 
+                  type="text"
+                  name="company"
+                  className="swiss-input"
+                  required
+                  placeholder={t.placeholderCompany}
                   value={formData.company}
                   onChange={handleChange}
                 />
@@ -174,26 +210,26 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="form-group-block">
                 <label className="form-label-mono" htmlFor="inquiry-email">{t.formEmail}</label>
-                <input 
+                <input
                   id="inquiry-email"
-                  type="email" 
-                  name="email" 
-                  className="swiss-input" 
-                  required 
-                  placeholder="info@company.ge" 
+                  type="email"
+                  name="email"
+                  className="swiss-input"
+                  required
+                  placeholder="info@company.ge"
                   value={formData.email}
                   onChange={handleChange}
                 />
               </div>
               <div className="form-group-block">
                 <label className="form-label-mono" htmlFor="inquiry-phone">{t.formPhone}</label>
-                <input 
+                <input
                   id="inquiry-phone"
-                  type="tel" 
-                  name="phone" 
-                  className="swiss-input" 
-                  required 
-                  placeholder="+995 599 00 00 00" 
+                  type="tel"
+                  name="phone"
+                  className="swiss-input"
+                  required
+                  placeholder="+995 599 00 00 00"
                   value={formData.phone}
                   onChange={handleChange}
                 />
@@ -203,11 +239,11 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="form-group-block">
                 <label className="form-label-mono" htmlFor="inquiry-medium">{t.formMedium}</label>
-                <select 
+                <select
                   id="inquiry-medium"
-                  name="medium" 
-                  className="swiss-input" 
-                  value={formData.medium} 
+                  name="medium"
+                  className="swiss-input"
+                  value={formData.medium}
                   onChange={handleChange}
                 >
                   <option value="letters">{t.d1Title}</option>
@@ -220,13 +256,13 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
 
               <div className="form-group-block">
                 <label className="form-label-mono" htmlFor="inquiry-city">{t.formCity}</label>
-                <input 
+                <input
                   id="inquiry-city"
-                  type="text" 
-                  name="city" 
-                  className="swiss-input" 
-                  required 
-                  placeholder={t.placeholderCity} 
+                  type="text"
+                  name="city"
+                  className="swiss-input"
+                  required
+                  placeholder={t.placeholderCity}
                   value={formData.city}
                   onChange={handleChange}
                 />
@@ -237,15 +273,29 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
             <div className="form-group-block">
               <label className="form-label-mono" htmlFor="inquiry-file-upload">{t.formFiles}</label>
               <label className="file-dropzone-minimal" data-cursor-text="UPLOAD FILE" htmlFor="inquiry-file-upload">
-                <input 
+                <input
                   id="inquiry-file-upload"
-                  type="file" 
-                  accept=".ai,.dxf,.pdf,.eps,.dwg,.png,.jpg" 
-                  style={{ display: 'none' }} 
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".ai,.dxf,.pdf,.eps,.dwg,.png,.jpg,.jpeg,.svg,.zip"
+                  style={{ display: 'none' }}
                   onChange={handleFileUpload}
                 />
-                {fileAttached ? (
-                  <span style={{ fontWeight: '700' }}>{t.fileAttachedBadge} {fileAttached}</span>
+                {attachedFile ? (
+                  <div className="file-attached-pill">
+                    <span style={{ fontWeight: '700' }}>
+                      {t.fileAttachedBadge} {attachedFile.name} ({(attachedFile.size / 1024).toFixed(0)} KB)
+                    </span>
+                    <button
+                      type="button"
+                      className="file-clear-btn"
+                      onClick={handleClearFile}
+                      title={t.removeFileBtn || 'Remove file'}
+                      data-cursor-text="REMOVE"
+                    >
+                      <X size={13} />
+                    </button>
+                  </div>
                 ) : (
                   <span>{t.dropzoneText}<span className="dropzone-span">{t.dropzoneBrowse}</span></span>
                 )}
@@ -254,11 +304,11 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
 
             <div className="form-group-block">
               <label className="form-label-mono" htmlFor="inquiry-notes">{t.formNotes}</label>
-              <textarea 
+              <textarea
                 id="inquiry-notes"
-                name="notes" 
-                rows="4" 
-                className="swiss-input" 
+                name="notes"
+                rows="4"
+                className="swiss-input"
                 placeholder={t.placeholderNotes}
                 value={formData.notes}
                 onChange={handleChange}
@@ -267,9 +317,9 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
 
             {/* Dual CTA: Official CAD Dispatch + Direct Instant WhatsApp */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-              <button 
-                type="submit" 
-                className="btn-swiss btn-swiss-solid" 
+              <button
+                type="submit"
+                className="btn-swiss btn-swiss-solid"
                 style={{ padding: '16px' }}
                 disabled={isSubmitting}
                 data-cursor-text="SEND SPEC"
@@ -278,9 +328,9 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
                 <span>{isSubmitting ? t.submittingBtn : t.submitBtn}</span>
               </button>
 
-              <button 
-                type="button" 
-                className="btn-swiss whatsapp-cta-btn" 
+              <button
+                type="button"
+                className="btn-swiss whatsapp-cta-btn"
                 style={{ padding: '16px' }}
                 onClick={handleWhatsAppSend}
                 data-cursor-text="WHATSAPP"

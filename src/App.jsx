@@ -7,6 +7,7 @@ import BillboardMockup from './components/BillboardMockup';
 import Archive from './components/Archive';
 import Machinery from './components/Machinery';
 import SpecInquiry from './components/SpecInquiry';
+import MobileDock from './components/MobileDock';
 import Footer from './components/Footer';
 import VectorCursor from './components/VectorCursor';
 import VectorFieldCanvas from './components/VectorFieldCanvas';
@@ -50,20 +51,20 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme);
     try {
       localStorage.setItem('vector_hub_theme', theme);
-    } catch {}
+    } catch { }
   }, [theme]);
 
   useEffect(() => {
     document.documentElement.setAttribute('lang', lang);
     try {
       localStorage.setItem('vector_hub_lang', lang);
-    } catch {}
+    } catch { }
   }, [lang]);
 
   useEffect(() => {
     try {
       localStorage.setItem('vector_hub_grid', String(gridActive));
-    } catch {}
+    } catch { }
   }, [gridActive]);
 
   useEffect(() => {
@@ -129,10 +130,10 @@ export default function App() {
       {gridActive && <VectorFieldCanvas theme={theme} />}
 
       {/* Global Header */}
-      <Header 
-        theme={theme} 
-        toggleTheme={toggleTheme} 
-        gridActive={gridActive} 
+      <Header
+        theme={theme}
+        toggleTheme={toggleTheme}
+        gridActive={gridActive}
         toggleGrid={toggleGrid}
         lang={lang}
         toggleLang={toggleLang}
@@ -144,14 +145,15 @@ export default function App() {
 
         <Disciplines lang={lang} />
 
-        <VectorWorkbench 
+        <VectorWorkbench
           lang={lang}
-          onTransferSpec={handleTransferSpec} 
+          onTransferSpec={handleTransferSpec}
+          onShowToast={showToast}
         />
 
-        <BillboardMockup 
-          lang={lang} 
-          onBookBillboard={handleTransferSpec} 
+        <BillboardMockup
+          lang={lang}
+          onBookBillboard={handleTransferSpec}
           onShowToast={showToast}
         />
 
@@ -159,15 +161,18 @@ export default function App() {
 
         <Machinery lang={lang} />
 
-        <SpecInquiry 
+        <SpecInquiry
           lang={lang}
-          transferredSpec={transferredSpec} 
-          onShowToast={showToast} 
+          transferredSpec={transferredSpec}
+          onShowToast={showToast}
         />
       </main>
 
       {/* Footer */}
       <Footer lang={lang} />
+
+      {/* Mobile Quick Action Dock */}
+      <MobileDock lang={lang} />
 
       {/* Minimalist Toast */}
       {toastMessage && (

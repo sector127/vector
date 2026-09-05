@@ -41,17 +41,17 @@ export default function Hero({ lang }) {
         {/* Primary Action Buttons & Capabilities Strip */}
         <div className="hero-action-ecosystem">
           <div className="hero-buttons-row">
-            <a 
-              href="#workbench" 
-              className="btn-swiss btn-swiss-solid hero-primary-btn" 
+            <a
+              href="#workbench"
+              className="btn-swiss btn-swiss-solid hero-primary-btn"
               data-cursor-text="CAD STUDIO"
             >
               <span>{t.heroBtnStudio}</span>
               <ArrowDownRight size={18} />
             </a>
-            <a 
-              href="#mockup-studio" 
-              className="btn-swiss hero-secondary-btn" 
+            <a
+              href="#mockup-studio"
+              className="btn-swiss hero-secondary-btn"
               data-cursor-text="3D VISUALIZER"
             >
               <Sparkles size={15} style={{ display: 'inline', marginRight: '6px' }} />

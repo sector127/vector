@@ -250,8 +250,8 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
     return {
       textShadow: shadowLayers.join(', '),
       color: theme.primary,
-      backgroundImage: lighting === 'front' && isNight 
-        ? `linear-gradient(180deg, #ffffff 0%, ${theme.primary} 100%)` 
+      backgroundImage: lighting === 'front' && isNight
+        ? `linear-gradient(180deg, #ffffff 0%, ${theme.primary} 100%)`
         : theme.faceGradient
     };
   };
@@ -358,7 +358,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
       });
 
       const link = document.createElement('a');
-      link.download = `vector_hub_${selectedLoc}_visualizer_${Date.now()}.png`;
+      link.download = getVisualizerDownloadName(selectedLoc);
       link.href = canvas.toDataURL('image/png', 1.0);
       document.body.appendChild(link);
       link.click();
@@ -499,31 +499,31 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
                   <div className="facade-letters-container">
                     {/* Layer 1: Ambient Halo Light Wash on Granite Wall */}
                     {(lightingType === 'halo' || lightingType === 'dual') && (
-                      <div 
-                        className="letters-wall-wash" 
-                        style={{ 
+                      <div
+                        className="letters-wall-wash"
+                        style={{
                           background: `radial-gradient(ellipse at 50% 50%, ${currentTheme.glowColor} 0%, transparent 70%)`,
                           opacity: nightMode ? 0.85 : 0.4
-                        }} 
+                        }}
                       />
                     )}
 
                     {/* Layer 2: True 3D Physical Extruded Letters */}
-                    <div 
+                    <div
                       className="letters-3d-wrapper"
-                      style={{ 
-                        transform: `perspective(800px) rotateX(3deg) translateZ(${letterDepth / 5}px)` 
+                      style={{
+                        transform: `perspective(800px) rotateX(3deg) translateZ(${letterDepth / 5}px)`
                       }}
                     >
-                      <div 
-                        className="facade-brand-title" 
+                      <div
+                        className="facade-brand-title"
                         style={get3DLetterStyles(currentTheme, letterDepth, lightingType, nightMode)}
                       >
                         {headline || 'VECTOR HUB'}
                       </div>
-                      <div 
-                        className="facade-brand-sub" 
-                        style={{ 
+                      <div
+                        className="facade-brand-sub"
+                        style={{
                           color: currentTheme.sub,
                           backgroundImage: currentTheme.subGradient,
                           textShadow: currentTheme.subShadow
@@ -858,4 +858,8 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
       </div>
     </section>
   );
+}
+
+function getVisualizerDownloadName(selectedLoc) {
+  return `vector_hub_${selectedLoc}_visualizer_${Date.now()}.png`;
 }

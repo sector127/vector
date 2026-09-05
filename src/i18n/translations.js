@@ -177,6 +177,22 @@ export const translations = {
     pdfGenerating: 'მზადდება საინჟინრო PDF...',
     customSvgActive: 'მორგებული SVG ვექტორი',
     customSvgLoaded: '✓ SVG ფაილი წარმატებით დამუშავდა',
+    shareSpecBtn: 'სპეციფიკაციის გაზიარება',
+    toastLinkCopied: '🔗 CAD სპეციფიკაციის ბმული დაკოპირებულია ბუფერში.',
+    bomToggle: 'საინჟინრო BOM სპეციფიკაცია და ტელემეტრია',
+    bomCutDuration: 'CNC ჭრის ხანგრძლივობა',
+    bomWeight: 'გათვლილი მასა',
+    bomElectrical: 'სიმძლავრე და დრაივერი',
+    bomDiffuser: 'ოპტიკური გამფანტველი',
+    bomDiffuserVal: '3.0მმ Plexiglas Satinice UV (92% გამტარობა)',
+    bomHardware: 'სამონტაჟო ფურნიტურა',
+    bomHardwareVal: 'AISI 316 ანკერები + Fischer დიუბელები',
+    bomIngress: 'დაცვის კლასი',
+    bomIngressVal: 'IP67 ჰერმეტული / CE & RoHS სერტიფიცირებული',
+    dockCall: 'დარეკვა',
+    dockWhatsApp: 'WhatsApp',
+    dockStudio: 'CAD სტუდია',
+    dockQuote: 'მოთხოვნა',
 
     // Tbilisi Network
     networkTag: '03 / თბილისის მედია',
@@ -471,6 +487,8 @@ export const translations = {
     optionTurnkey: 'სრული სარეკლამო პაკეტი (გარე + ბეჭდვა)',
     fileAttachedBadge: '✓ მიმაგრებულია:',
     toastFileAttached: '✓ ფაილი მიმაგრებულია: {name}',
+    fileTooLarge: 'ფაილის ზომა აღემატება 15MB ლიმიტს',
+    removeFileBtn: 'ფაილის წაშლა',
     directCommTitle: 'პირდაპირი კომუნიკაცია',
     toastWaOpened: '💬 WhatsApp დიალოგი გაიხსნა Vector Hub-ის ინჟინერთან',
     toastOrderSimulated: '⚡ შეკვეთა მიღებულია (ტესტური რეჟიმი). დააკონფიგურირეთ Telegram Bot რეალური შეტყობინებებისთვის.',
@@ -677,6 +695,22 @@ export const translations = {
     pdfGenerating: 'Generating Engineering PDF...',
     customSvgActive: 'Custom SVG Vector',
     customSvgLoaded: '✓ SVG Vector analyzed and loaded',
+    shareSpecBtn: 'Share Spec Link',
+    toastLinkCopied: '🔗 CAD Spec deep-link copied to clipboard.',
+    bomToggle: 'Technical BOM & Engineering Telemetry',
+    bomCutDuration: 'CNC Milling Duration',
+    bomWeight: 'Calculated Net Weight',
+    bomElectrical: 'Power Load & PSU Driver',
+    bomDiffuser: 'Optical Diffuser',
+    bomDiffuserVal: '3.0mm Plexiglas Satinice UV (92% transmission)',
+    bomHardware: 'Mounting Hardware',
+    bomHardwareVal: 'AISI 316 Stainless Anchors + Fischer Wall Plugs',
+    bomIngress: 'Ingress Protection',
+    bomIngressVal: 'IP67 Waterproof / CE & RoHS Certified',
+    dockCall: 'Call',
+    dockWhatsApp: 'WhatsApp',
+    dockStudio: 'CAD Studio',
+    dockQuote: 'Request',
 
     // Tbilisi Network
     networkTag: '03 / Tbilisi Network',
@@ -971,6 +1005,8 @@ export const translations = {
     optionTurnkey: 'Full Turnkey Advertising Package',
     fileAttachedBadge: '✓ Attached File:',
     toastFileAttached: '✓ Attached: {name}',
+    fileTooLarge: 'File size exceeds 15MB limit',
+    removeFileBtn: 'Remove file',
     directCommTitle: 'DIRECT COMMUNICATIONS',
     toastWaOpened: '💬 WhatsApp conversation opened with Vector Hub desk',
     toastOrderSimulated: '⚡ Inquiry received (Simulation Mode). Set TELEGRAM_BOT_TOKEN to enable live Telegram alerts.',
@@ -1177,6 +1213,22 @@ export const translations = {
     pdfGenerating: 'Формирование чертежа PDF...',
     customSvgActive: 'Пользовательский SVG вектор',
     customSvgLoaded: '✓ Вектор SVG успешно обработан',
+    shareSpecBtn: 'Поделиться спецификацией',
+    toastLinkCopied: '🔗 Ссылка на CAD спецификацию скопирована в буфер обмена.',
+    bomToggle: 'Инженерная BOM спецификация и телеметрия',
+    bomCutDuration: 'Длительность фрезеровки CNC',
+    bomWeight: 'Расчётный чистый вес',
+    bomElectrical: 'Мощность и блок питания',
+    bomDiffuser: 'Оптический рассеиватель',
+    bomDiffuserVal: '3.0мм Plexiglas Satinice UV (92% светопропускание)',
+    bomHardware: 'Монтажная фурнитура',
+    bomHardwareVal: 'Анкеры AISI 316 + Дюбели Fischer',
+    bomIngress: 'Класс защиты',
+    bomIngressVal: 'IP67 герметичный / Сертификаты CE & RoHS',
+    dockCall: 'Позвонить',
+    dockWhatsApp: 'WhatsApp',
+    dockStudio: 'CAD Студия',
+    dockQuote: 'Запрос',
 
     // Tbilisi Network
     networkTag: '03 / Медиа Тбилиси',
@@ -1471,6 +1523,8 @@ export const translations = {
     optionTurnkey: 'Полный рекламный пакет (наружная реклама + полиграфия)',
     fileAttachedBadge: '✓ Прикрепленный файл:',
     toastFileAttached: '✓ Файл прикреплен: {name}',
+    fileTooLarge: 'Размер файла превышает лимит 15 МБ',
+    removeFileBtn: 'Удалить файл',
     directCommTitle: 'ПРЯМАЯ СВЯЗЬ',
     toastWaOpened: '💬 Открыт диалог в WhatsApp с инженером Vector Hub',
     toastOrderSimulated: '⚡ Заказ принят (тестовый режим). Настройте Telegram Bot для отправки в группу.',
@@ -1512,7 +1566,7 @@ export function getTranslation(lang) {
   const fallbackKa = translations.ka;
   const fallbackEn = translations.en;
 
-  const tFunc = function(key, params) {
+  const tFunc = function (key, params) {
     let val = primary[key] ?? fallbackKa[key] ?? fallbackEn[key] ?? key;
     if (typeof val === 'string' && params && typeof params === 'object') {
       Object.entries(params).forEach(([k, v]) => {

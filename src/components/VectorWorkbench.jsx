@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { ArrowRight, Download, Sun, Moon, Upload, FileCode, RefreshCw } from 'lucide-react';
+import { ArrowRight, Download, Upload, FileCode, RefreshCw, Share2, ChevronDown, ChevronUp, Cpu, Zap, ShieldCheck, Scale } from 'lucide-react';
 import { getTranslation } from '../i18n/translations';
 
 // Sample Built-in Vector Presets
@@ -156,29 +156,54 @@ function parseSvgString(svgText) {
   }
 }
 
-export default function VectorWorkbench({ lang, onTransferSpec }) {
+export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
   const t = getTranslation(lang);
 
+  // Read initial configuration from URL params if present
+  const getInitialParam = (key, validValues, fallback) => {
+    if (typeof window !== 'undefined') {
+      const val = new URLSearchParams(window.location.search).get(key);
+      if (val && (!validValues || validValues.includes(val))) return val;
+    }
+    return fallback;
+  };
+
   // Mode: 'text' (typography) vs 'svg' (custom upload / preset)
-  const [inputMode, setInputMode] = useState('text');
+  const [inputMode, setInputMode] = useState(() => getInitialParam('mode', ['text', 'svg'], 'text'));
   const [customSvg, setCustomSvg] = useState(() => parseSvgString(SAMPLE_PRESETS.monogram.rawSvg));
   const [activePresetKey, setActivePresetKey] = useState('monogram');
   const [svgFileName, setSvgFileName] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
-  // General Spec State
-  const [productType, setProductType] = useState('letters'); // 'letters', 'lightbox', 'billboard', 'print'
-  const [currency, setCurrency] = useState('GEL'); // 'GEL', 'USD', 'EUR'
-  const [brandText, setBrandText] = useState(t.brandTextDefault || 'თბილისი');
-  const [width, setWidth] = useState(3.6); // meters
-  const [height, setHeight] = useState(1.2); // meters
-  const [material, setMaterial] = useState('brass'); // 'brass', 'stainless', 'acrylic', 'carbon'
-  const [lighting, setLighting] = useState('halo3000'); // 'halo3000', 'front6500', 'none'
+  // General Spec State with URL param fallback
+  const [productType, setProductType] = useState(() => getInitialParam('product', ['letters', 'lightbox', 'billboard', 'print'], 'letters'));
+  const [currency, setCurrency] = useState(() => getInitialParam('curr', ['GEL', 'USD', 'EUR'], 'GEL'));
+  const [brandText, setBrandText] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const txt = new URLSearchParams(window.location.search).get('text');
+      if (txt) return decodeURIComponent(txt);
+    }
+    return t.brandTextDefault || 'თბილისი';
+  });
+  const [width, setWidth] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const w = parseFloat(new URLSearchParams(window.location.search).get('w'));
+      if (!isNaN(w) && w >= 1.0 && w <= 15.0) return w;
+    }
+    return 3.6;
+  });
+  const [height, setHeight] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const h = parseFloat(new URLSearchParams(window.location.search).get('h'));
+      if (!isNaN(h) && h >= 0.4 && h <= 5.0) return h;
+    }
+    return 1.2;
+  });
+  const [material, setMaterial] = useState(() => getInitialParam('mat', ['brass', 'stainless', 'acrylic', 'carbon'], 'brass'));
+  const [lighting, setLighting] = useState(() => getInitialParam('light', ['halo3000', 'front6500', 'none'], 'halo3000'));
   const [printUnits, setPrintUnits] = useState(5000); // for print run
-  const [stageTilt, setStageTilt] = useState({ rx: 0, ry: 0 });
-  const [nightPreview, setNightPreview] = useState(false);
-  const stageRef = useRef(null);
+  const [showBom, setShowBom] = useState(false);
   const fileInputRef = useRef(null);
 
   // Conversion rates (1 USD = 2.70 GEL, 1 EUR = 2.95 GEL)
@@ -241,36 +266,48 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
   const convertedPrice = Math.round(totalCostGEL * rates[currency]);
   const estDays = productType === 'billboard' ? t.estDaysBillboard : (productType === 'letters' ? t.estDaysLetters : (productType === 'print' ? t.estDaysPrint : t.estDaysLightbox));
 
-  // Material finish colors for SVG rendering
-  const getMaterialStroke = (isNight) => {
-    if (isNight) {
-      if (lighting === 'front6500') return '#ffffff';
-      if (material === 'brass') return '#e6be44';
-      if (material === 'stainless') return '#c5cdd6';
-      if (material === 'acrylic') return '#ffffff';
-      return '#888888';
+  // Technical BOM Engineering Metrics
+  const materialDensities = { brass: 8.5, stainless: 7.9, acrylic: 1.19, carbon: 1.6 }; // g/cm³
+  const sheetThicknessM = 0.002; // 2mm sheet standard
+  const estWeightKg = (parseFloat(areaSqM) * sheetThicknessM * (materialDensities[material] || 8.0) * 1000).toFixed(1);
+  const cutDurationMin = ((toolpathMm / 1400) + ((piercingPoints || 1) * 0.8 / 60)).toFixed(1);
+  const totalWatts = Math.round(parseFloat(areaSqM) * 35 + (toolpathMm / 1000) * 8);
+  const psuDriver = totalWatts <= 60 ? 'Mean Well LPV-60-24' 
+    : (totalWatts <= 100 ? 'Mean Well LPV-100-24' 
+    : (totalWatts <= 150 ? 'Mean Well HLG-150H-24' : 'Mean Well HLG-240H-24'));
+
+  // Share CAD deep-link handler
+  const handleShareSpec = () => {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('product', productType);
+      url.searchParams.set('mat', material);
+      url.searchParams.set('w', width);
+      url.searchParams.set('h', height);
+      url.searchParams.set('light', lighting);
+      url.searchParams.set('curr', currency);
+      if (inputMode === 'text') {
+        url.searchParams.set('text', brandText);
+      }
+      url.hash = 'workbench';
+      
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url.toString());
+        if (onShowToast) onShowToast(t.toastLinkCopied);
+      }
+    } catch (err) {
+      console.error('Failed to copy share link:', err);
     }
+  };
+
+  // Material finish colors for SVG rendering
+  const getMaterialStroke = () => {
     if (material === 'brass') return '#b8860b';
     if (material === 'stainless') return '#4a5568';
     if (material === 'acrylic') return '#2b6cb0';
     return '#1a202c';
   };
 
-  // Stage Mouse Hover 3D Tilt
-  const handleStageMove = (e) => {
-    if (!stageRef.current) return;
-    const rect = stageRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    setStageTilt({
-      rx: -(y / (rect.height / 2)) * 6,
-      ry: (x / (rect.width / 2)) * 8
-    });
-  };
-
-  const handleStageLeave = () => {
-    setStageTilt({ rx: 0, ry: 0 });
-  };
 
   // Handle Preset selection
   const handleSelectPreset = (presetKey) => {
@@ -338,7 +375,7 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
   // Export clean vector CAD SVG
   const handleExportSvg = () => {
     const title = (inputMode === 'svg' ? (svgFileName ? svgFileName.replace('.svg', '') : activePresetKey) : (brandText || 'VECTOR_CAD')).toUpperCase().replace(/\s+/g, '_');
-    
+
     let innerSvgContent = '';
     if (inputMode === 'svg' && customSvg) {
       innerSvgContent = `
@@ -408,12 +445,12 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
   const toAsciiSafe = (str) => {
     if (!str) return '';
     const kaMap = {
-      'ა':'a','ბ':'b','გ':'g','დ':'d','ე':'e','ვ':'v','ზ':'z','თ':'t','ი':'i','კ':'k','ლ':'l','მ':'m',
-      'ნ':'n','ო':'o','პ':'p','ჟ':'zh','რ':'r','ს':'s','ტ':'t','უ':'u','ფ':'p','ქ':'k','ღ':'gh','ყ':'q',
-      'შ':'sh','ჩ':'ch','ც':'ts','ძ':'dz','წ':'ts','ჭ':'ch','ხ':'kh','ჯ':'j','ჰ':'h',
-      'Ა':'A','Ბ':'B','Გ':'G','Დ':'D','Ე':'E','Ვ':'V','Ზ':'Z','Თ':'T','Ი':'I','Კ':'K','Ლ':'L','Მ':'M',
-      'Ნ':'N','Ო':'O','Პ':'P','Ჟ':'ZH','Რ':'R','Ს':'S','Ტ':'T','Უ':'U','Ფ':'P','Ქ':'K','Ღ':'GH','Ყ':'Q',
-      'Შ':'SH','Ჩ':'CH','Ც':'TS','Ძ':'DZ','Წ':'TS','Ჭ':'CH','Ხ':'KH','Ჯ':'J','Ჰ':'H'
+      'ა': 'a', 'ბ': 'b', 'გ': 'g', 'დ': 'd', 'ე': 'e', 'ვ': 'v', 'ზ': 'z', 'თ': 't', 'ი': 'i', 'კ': 'k', 'ლ': 'l', 'მ': 'm',
+      'ნ': 'n', 'ო': 'o', 'პ': 'p', 'ჟ': 'zh', 'რ': 'r', 'ს': 's', 'ტ': 't', 'უ': 'u', 'ფ': 'p', 'ქ': 'k', 'ღ': 'gh', 'ყ': 'q',
+      'შ': 'sh', 'ჩ': 'ch', 'ც': 'ts', 'ძ': 'dz', 'წ': 'ts', 'ჭ': 'ch', 'ხ': 'kh', 'ჯ': 'j', 'ჰ': 'h',
+      'Ა': 'A', 'Ბ': 'B', 'Გ': 'G', 'Დ': 'D', 'Ე': 'E', 'Ვ': 'V', 'Ზ': 'Z', 'Თ': 'T', 'Ი': 'I', 'Კ': 'K', 'Ლ': 'L', 'Მ': 'M',
+      'Ნ': 'N', 'Ო': 'O', 'Პ': 'P', 'Ჟ': 'ZH', 'Რ': 'R', 'Ს': 'S', 'Ტ': 'T', 'Უ': 'U', 'Ფ': 'P', 'Ქ': 'K', 'Ღ': 'GH', 'Ყ': 'Q',
+      'Შ': 'SH', 'Ჩ': 'CH', 'Ც': 'TS', 'Ძ': 'DZ', 'Წ': 'TS', 'Ჭ': 'CH', 'Ხ': 'KH', 'Ჯ': 'J', 'Ჰ': 'H'
     };
     return str.split('').map(c => kaMap[c] || c).join('');
   };
@@ -431,8 +468,8 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
       });
 
       const title = toAsciiSafe((inputMode === 'svg' ? (svgFileName ? svgFileName.replace('.svg', '') : activePresetKey) : (brandText || 'VECTOR_SIGN')).toUpperCase());
-      const docNum = `VH-CAD-2026-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
-      const dateStr = new Date().toISOString().split('T')[0];
+      const docNum = generateCadDocNumber();
+      const dateStr = getTodayIsoDateString();
 
       // Page Background & Boundary Borders (DIN/ISO Engineering Drawing Standards)
       doc.setFillColor(252, 253, 255);
@@ -664,17 +701,8 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
 
         {/* Workbench Layout */}
         <div className="workbench-layout">
-          {/* Left: Vector CAD Stage with 3D Tilt */}
-          <div 
-            className={`workbench-stage-box ${nightPreview ? 'night-active' : ''}`}
-            ref={stageRef}
-            onMouseMove={handleStageMove}
-            onMouseLeave={handleStageLeave}
-            style={{
-              transform: `perspective(900px) rotateX(${stageTilt.rx}deg) rotateY(${stageTilt.ry}deg)`,
-              transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-            }}
-          >
+          {/* Left: Vector CAD Stage */}
+          <div className="workbench-stage-box">
             <div className="canvas-header-bar">
               <div className="canvas-header-left">
                 <span className="canvas-header-title">Photometric CAD</span>
@@ -685,23 +713,22 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                   </span>
                 )}
               </div>
-              
-              {/* Day/Night, PDF & SVG Export Toolbar */}
+
+              {/* PDF, SVG & Share Spec Toolbar */}
               <div className="canvas-header-actions">
-                {productType !== 'print' && lighting !== 'none' && (
-                  <button 
-                    className={`cad-toolbar-btn ${nightPreview ? 'active' : ''}`}
-                    onClick={() => setNightPreview(!nightPreview)}
-                    title={nightPreview ? t.cadViewDay : t.cadViewNight}
-                    data-cursor-text={nightPreview ? 'DAYLIGHT' : 'NIGHT LUX'}
-                  >
-                    {nightPreview ? <Sun size={13} /> : <Moon size={13} />}
-                    <span>{nightPreview ? t.cadViewDay : t.cadViewNight}</span>
-                  </button>
-                )}
+                {/* Share Link Button */}
+                <button
+                  className="cad-toolbar-btn"
+                  onClick={handleShareSpec}
+                  title={t.shareSpecBtn}
+                  data-cursor-text="SHARE SPEC"
+                >
+                  <Share2 size={13} />
+                  <span>{t.shareSpecBtn}</span>
+                </button>
 
                 {/* PDF Blueprint Button */}
-                <button 
+                <button
                   className="cad-toolbar-btn export-pdf-btn"
                   onClick={handleExportPdfBlueprint}
                   disabled={isGeneratingPdf}
@@ -713,7 +740,7 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                 </button>
 
                 {/* SVG Button */}
-                <button 
+                <button
                   className="cad-toolbar-btn export-btn"
                   onClick={handleExportSvg}
                   title={t.exportSvgBtn}
@@ -726,89 +753,41 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
             </div>
 
             {/* Simulated Vector Wireframe CAD Box */}
-            <div className={`stage-cad-view ${nightPreview ? 'night-facade' : ''}`}>
+            <div className="stage-cad-view">
               <svg viewBox="0 0 460 300" style={{ width: '100%', height: '100%' }}>
                 <defs>
                   {/* Background CAD Grid */}
                   <pattern id="cadGrid" width="20" height="20" patternUnits="userSpaceOnUse">
-                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke={nightPreview ? "rgba(255,255,255,0.06)" : "var(--ink-hairline)"} strokeWidth="0.5" />
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="var(--ink-hairline)" strokeWidth="0.5" />
                   </pattern>
-
-                  {/* Halo Glow Filters for Night Simulation */}
-                  <filter id="haloGlowWarm" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="12" result="blur1" />
-                    <feGaussianBlur stdDeviation="6" result="blur2" />
-                    <feMerge>
-                      <feMergeNode in="blur1" />
-                      <feMergeNode in="blur2" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
-
-                  <filter id="haloGlowCool" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="14" result="blur1" />
-                    <feGaussianBlur stdDeviation="7" result="blur2" />
-                    <feMerge>
-                      <feMergeNode in="blur1" />
-                      <feMergeNode in="blur2" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
                 </defs>
 
-                <rect width="100%" height="100%" fill={nightPreview ? "#0f1013" : "url(#cadGrid)"} />
+                <rect width="100%" height="100%" fill="url(#cadGrid)" />
 
                 {/* Dimension Extension Lines */}
-                <line x1="60" y1="35" x2="400" y2="35" stroke={nightPreview ? "#ffffff" : "var(--ink-primary)"} strokeWidth="1" />
-                <line x1="60" y1="30" x2="60" y2="40" stroke={nightPreview ? "#ffffff" : "var(--ink-primary)"} strokeWidth="1" />
-                <line x1="400" y1="30" x2="400" y2="40" stroke={nightPreview ? "#ffffff" : "var(--ink-primary)"} strokeWidth="1" />
-                <text x="230" y="28" fill={nightPreview ? "#ffffff" : "var(--ink-primary)"} fontSize="10" fontFamily="Space Mono" textAnchor="middle" fontWeight="700">
+                <line x1="60" y1="35" x2="400" y2="35" stroke="var(--ink-primary)" strokeWidth="1" />
+                <line x1="60" y1="30" x2="60" y2="40" stroke="var(--ink-primary)" strokeWidth="1" />
+                <line x1="400" y1="30" x2="400" y2="40" stroke="var(--ink-primary)" strokeWidth="1" />
+                <text x="230" y="28" fill="var(--ink-primary)" fontSize="10" fontFamily="Space Mono" textAnchor="middle" fontWeight="700">
                   {t.widthLabelUpper}: {width} m
                 </text>
 
-                <line x1="420" y1="55" x2="420" y2="245" stroke={nightPreview ? "#ffffff" : "var(--ink-primary)"} strokeWidth="1" />
-                <line x1="415" y1="55" x2="425" y2="55" stroke={nightPreview ? "#ffffff" : "var(--ink-primary)"} strokeWidth="1" />
-                <line x1="415" y1="245" x2="425" y2="245" stroke={nightPreview ? "#ffffff" : "var(--ink-primary)"} strokeWidth="1" />
-                <text x="440" y="150" fill={nightPreview ? "#ffffff" : "var(--ink-primary)"} fontSize="10" fontFamily="Space Mono" transform="rotate(90 440,150)" textAnchor="middle" fontWeight="700">
+                <line x1="420" y1="55" x2="420" y2="245" stroke="var(--ink-primary)" strokeWidth="1" />
+                <line x1="415" y1="55" x2="425" y2="55" stroke="var(--ink-primary)" strokeWidth="1" />
+                <line x1="415" y1="245" x2="425" y2="245" stroke="var(--ink-primary)" strokeWidth="1" />
+                <text x="440" y="150" fill="var(--ink-primary)" fontSize="10" fontFamily="Space Mono" transform="rotate(90 440,150)" textAnchor="middle" fontWeight="700">
                   {t.heightLabelUpper}: {height} m
                 </text>
 
                 {/* Render Custom Vector SVG Mode */}
                 {inputMode === 'svg' && customSvg && (
                   <g transform={`translate(${230 - (customSvg.vbWidth * (220 / customSvg.vbWidth)) / 2}, ${150 - (customSvg.vbHeight * (220 / customSvg.vbWidth)) / 2}) scale(${220 / customSvg.vbWidth}) translate(${-customSvg.vbMinX}, ${-customSvg.vbMinY})`}>
-                    {/* Simulated Night Halo for SVG */}
-                    {nightPreview && lighting === 'halo3000' && (
-                      <g 
-                        fill="none" 
-                        stroke="rgba(255, 190, 80, 0.9)" 
-                        strokeWidth="12" 
-                        filter="url(#haloGlowWarm)"
-                      >
-                        {customSvg.paths.map((p, i) => (
-                          <path key={`halo-${i}`} d={p} />
-                        ))}
-                      </g>
-                    )}
-
-                    {nightPreview && lighting === 'front6500' && (
-                      <g 
-                        fill="none" 
-                        stroke="rgba(210, 240, 255, 0.95)" 
-                        strokeWidth="10" 
-                        filter="url(#haloGlowCool)"
-                      >
-                        {customSvg.paths.map((p, i) => (
-                          <path key={`front-glow-${i}`} d={p} />
-                        ))}
-                      </g>
-                    )}
-
                     {/* Extrusion depth */}
-                    <g 
-                      transform="translate(4, -4)" 
-                      fill="none" 
-                      stroke={nightPreview ? "rgba(255,255,255,0.25)" : "var(--ink-muted)"} 
-                      strokeWidth="2" 
+                    <g
+                      transform="translate(4, -4)"
+                      fill="none"
+                      stroke="var(--ink-muted)"
+                      strokeWidth="2"
                       strokeDasharray="3 3"
                     >
                       {customSvg.paths.map((p, i) => (
@@ -817,9 +796,9 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                     </g>
 
                     {/* Front Face */}
-                    <g 
-                      fill="none" 
-                      stroke={getMaterialStroke(nightPreview)} 
+                    <g
+                      fill="none"
+                      stroke={getMaterialStroke()}
                       strokeWidth="3.5"
                     >
                       {customSvg.paths.map((p, i) => (
@@ -832,54 +811,17 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                 {/* Render Typography Text Mode */}
                 {inputMode === 'text' && productType === 'letters' && (
                   <g>
-                    {/* Simulated Night Illumination Halo */}
-                    {nightPreview && lighting === 'halo3000' && (
-                      <text 
-                        x="230" 
-                        y="160" 
-                        fill="rgba(255, 185, 75, 0.85)" 
-                        stroke="rgba(255, 190, 80, 0.9)" 
-                        strokeWidth="16" 
-                        fontSize={brandText.length > 8 ? "28" : "38"} 
-                        fontFamily="TG Square, Noto Sans Georgian, Syne" 
-                        fontWeight="900" 
-                        textAnchor="middle" 
-                        letterSpacing="0.04em"
-                        filter="url(#haloGlowWarm)"
-                      >
-                        {brandText || 'VECTOR'}
-                      </text>
-                    )}
-
-                    {nightPreview && lighting === 'front6500' && (
-                      <text 
-                        x="230" 
-                        y="160" 
-                        fill="rgba(210, 240, 255, 0.9)" 
-                        stroke="rgba(230, 250, 255, 0.95)" 
-                        strokeWidth="14" 
-                        fontSize={brandText.length > 8 ? "28" : "38"} 
-                        fontFamily="TG Square, Noto Sans Georgian, Syne" 
-                        fontWeight="900" 
-                        textAnchor="middle" 
-                        letterSpacing="0.04em"
-                        filter="url(#haloGlowCool)"
-                      >
-                        {brandText || 'VECTOR'}
-                      </text>
-                    )}
-
                     {/* 3D Extrusion Backing */}
-                    <text 
-                      x="230" 
-                      y="160" 
-                      fill="none" 
-                      stroke={nightPreview ? "rgba(255,255,255,0.3)" : "var(--ink-muted)"} 
-                      strokeWidth="3" 
-                      fontSize={brandText.length > 8 ? "28" : "38"} 
-                      fontFamily="TG Square, Noto Sans Georgian, Syne" 
-                      fontWeight="900" 
-                      textAnchor="middle" 
+                    <text
+                      x="230"
+                      y="160"
+                      fill="none"
+                      stroke="var(--ink-muted)"
+                      strokeWidth="3"
+                      fontSize={brandText.length > 8 ? "28" : "38"}
+                      fontFamily="TG Square, Noto Sans Georgian, Syne"
+                      fontWeight="900"
+                      textAnchor="middle"
                       letterSpacing="0.04em"
                       dx="6"
                       dy="-6"
@@ -888,16 +830,16 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                     </text>
 
                     {/* Front Face */}
-                    <text 
-                      x="230" 
-                      y="160" 
-                      fill={nightPreview ? (lighting === 'front6500' ? "#ffffff" : "#1e2024") : "var(--bg-main)"} 
-                      stroke={nightPreview ? (lighting === 'front6500' ? "#ffffff" : "#d4af37") : "var(--ink-primary)"} 
-                      strokeWidth="2.5" 
-                      fontSize={brandText.length > 8 ? "28" : "38"} 
-                      fontFamily="TG Square, Noto Sans Georgian, Syne" 
-                      fontWeight="900" 
-                      textAnchor="middle" 
+                    <text
+                      x="230"
+                      y="160"
+                      fill="var(--bg-main)"
+                      stroke="var(--ink-primary)"
+                      strokeWidth="2.5"
+                      fontSize={brandText.length > 8 ? "28" : "38"}
+                      fontFamily="TG Square, Noto Sans Georgian, Syne"
+                      fontWeight="900"
+                      textAnchor="middle"
                       letterSpacing="0.04em"
                     >
                       {brandText || 'VECTOR'}
@@ -907,18 +849,17 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
 
                 {inputMode === 'text' && productType === 'lightbox' && (
                   <g>
-                    <rect 
-                      x="70" 
-                      y="60" 
-                      width="320" 
-                      height="170" 
-                      fill={nightPreview ? (lighting === 'halo3000' ? "rgba(255, 240, 200, 0.9)" : "rgba(240, 250, 255, 0.95)") : "var(--bg-main)"} 
-                      stroke={nightPreview ? "#ffffff" : "var(--ink-primary)"} 
-                      strokeWidth="2.5" 
-                      filter={nightPreview ? "url(#haloGlowCool)" : undefined}
+                    <rect
+                      x="70"
+                      y="60"
+                      width="320"
+                      height="170"
+                      fill="var(--bg-main)"
+                      stroke="var(--ink-primary)"
+                      strokeWidth="2.5"
                     />
-                    <rect x="80" y="70" width="300" height="150" fill="none" stroke={nightPreview ? "rgba(0,0,0,0.3)" : "var(--ink-muted)"} strokeWidth="1" strokeDasharray="4 4" />
-                    <text x="230" y="155" fill={nightPreview ? "#000000" : "var(--ink-primary)"} fontSize="26" fontFamily="TG Square, Noto Sans Georgian, Syne" fontWeight="800" textAnchor="middle">
+                    <rect x="80" y="70" width="300" height="150" fill="none" stroke="var(--ink-muted)" strokeWidth="1" strokeDasharray="4 4" />
+                    <text x="230" y="155" fill="var(--ink-primary)" fontSize="26" fontFamily="TG Square, Noto Sans Georgian, Syne" fontWeight="800" textAnchor="middle">
                       {brandText || t.fallbackLightbox}
                     </text>
                   </g>
@@ -926,26 +867,25 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
 
                 {inputMode === 'text' && productType === 'billboard' && (
                   <g>
-                    <rect 
-                      x="70" 
-                      y="60" 
-                      width="320" 
-                      height="120" 
-                      fill={nightPreview ? "#000000" : "var(--bg-main)"} 
-                      stroke={nightPreview ? "#ffffff" : "var(--ink-primary)"} 
-                      strokeWidth="3" 
+                    <rect
+                      x="70"
+                      y="60"
+                      width="320"
+                      height="120"
+                      fill="var(--bg-main)"
+                      stroke="var(--ink-primary)"
+                      strokeWidth="3"
                     />
-                    <line x1="220" y1="180" x2="220" y2="260" stroke={nightPreview ? "#666666" : "var(--ink-primary)"} strokeWidth="4" />
-                    <line x1="240" y1="180" x2="240" y2="260" stroke={nightPreview ? "#666666" : "var(--ink-primary)"} strokeWidth="4" />
-                    <text 
-                      x="230" 
-                      y="130" 
-                      fill={nightPreview ? "#00ffcc" : "var(--ink-primary)"} 
-                      fontSize="22" 
-                      fontFamily="TG Square, Noto Sans Georgian, Syne" 
-                      fontWeight="900" 
+                    <line x1="220" y1="180" x2="220" y2="260" stroke="var(--ink-primary)" strokeWidth="4" />
+                    <line x1="240" y1="180" x2="240" y2="260" stroke="var(--ink-primary)" strokeWidth="4" />
+                    <text
+                      x="230"
+                      y="130"
+                      fill="var(--ink-primary)"
+                      fontSize="22"
+                      fontFamily="TG Square, Noto Sans Georgian, Syne"
+                      fontWeight="900"
                       textAnchor="middle"
-                      filter={nightPreview ? "url(#haloGlowCool)" : undefined}
                     >
                       {brandText || t.fallbackBillboard}
                     </text>
@@ -982,21 +922,21 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                 <span style={{ color: 'var(--ink-muted)' }}>{t.step1Sub}</span>
               </div>
               <div className="segmented-control">
-                <button 
+                <button
                   className={`segment-btn ${currency === 'GEL' ? 'active' : ''}`}
                   onClick={() => setCurrency('GEL')}
                   data-cursor-text="GEL"
                 >
                   ₾ GEL ({t.currencyGeo})
                 </button>
-                <button 
+                <button
                   className={`segment-btn ${currency === 'USD' ? 'active' : ''}`}
                   onClick={() => setCurrency('USD')}
                   data-cursor-text="USD"
                 >
                   $ USD ({t.currencyIntl})
                 </button>
-                <button 
+                <button
                   className={`segment-btn ${currency === 'EUR' ? 'active' : ''}`}
                   onClick={() => setCurrency('EUR')}
                   data-cursor-text="EUR"
@@ -1010,28 +950,28 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
             <div className="control-block">
               <div className="control-title">{t.step2Title}</div>
               <div className="segmented-control">
-                <button 
+                <button
                   className={`segment-btn ${productType === 'letters' ? 'active' : ''}`}
                   onClick={() => setProductType('letters')}
                   data-cursor-text="3D LETTERS"
                 >
                   {t.modeLetters}
                 </button>
-                <button 
+                <button
                   className={`segment-btn ${productType === 'lightbox' ? 'active' : ''}`}
                   onClick={() => setProductType('lightbox')}
                   data-cursor-text="LIGHTBOX"
                 >
                   {t.modeLightbox}
                 </button>
-                <button 
+                <button
                   className={`segment-btn ${productType === 'billboard' ? 'active' : ''}`}
                   onClick={() => setProductType('billboard')}
                   data-cursor-text="BILLBOARD"
                 >
                   {t.modeBillboard}
                 </button>
-                <button 
+                <button
                   className={`segment-btn ${productType === 'print' ? 'active' : ''}`}
                   onClick={() => setProductType('print')}
                   data-cursor-text="PRINT"
@@ -1048,14 +988,14 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                 <span className="badge-tag-mini">{inputMode === 'svg' ? t.customSvgActive : 'TEXT'}</span>
               </div>
               <div className="segmented-control mode-selector-bar">
-                <button 
+                <button
                   className={`segment-btn ${inputMode === 'text' ? 'active' : ''}`}
                   onClick={() => setInputMode('text')}
                   data-cursor-text="TEXT MODE"
                 >
                   {t.inputModeText}
                 </button>
-                <button 
+                <button
                   className={`segment-btn ${inputMode === 'svg' ? 'active' : ''}`}
                   onClick={() => setInputMode('svg')}
                   data-cursor-text="SVG VECTOR"
@@ -1065,10 +1005,10 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
               </div>
 
               {inputMode === 'text' ? (
-                <input 
-                  type="text" 
-                  className="swiss-input" 
-                  value={brandText} 
+                <input
+                  type="text"
+                  className="swiss-input"
+                  value={brandText}
                   onChange={(e) => setBrandText(e.target.value)}
                   placeholder={t.brandPlaceholder}
                   maxLength={24}
@@ -1077,18 +1017,18 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
               ) : (
                 <div style={{ marginTop: '10px' }}>
                   {/* SVG Drag and drop zone */}
-                  <div 
+                  <div
                     className={`svg-dropzone ${isDragOver ? 'drag-over' : ''}`}
                     onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
                     onDragLeave={() => setIsDragOver(false)}
                     onDrop={handleDrop}
                     onClick={() => fileInputRef.current?.click()}
                   >
-                    <input 
-                      type="file" 
-                      ref={fileInputRef} 
-                      style={{ display: 'none' }} 
-                      accept=".svg" 
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      style={{ display: 'none' }}
+                      accept=".svg"
                       onChange={(e) => handleFileProcess(e.target.files[0])}
                     />
                     <Upload size={18} className="dropzone-icon" />
@@ -1130,12 +1070,12 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                     <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--ink-muted)' }}>
                       {t.widthLabelUpper}: {width}m
                     </label>
-                    <input 
-                      type="range" 
-                      min="1.0" 
-                      max="15.0" 
-                      step="0.2" 
-                      value={width} 
+                    <input
+                      type="range"
+                      min="1.0"
+                      max="15.0"
+                      step="0.2"
+                      value={width}
                       onChange={(e) => setWidth(parseFloat(e.target.value))}
                       className="swiss-slider"
                     />
@@ -1144,12 +1084,12 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                     <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--ink-muted)' }}>
                       {t.heightLabelUpper}: {height}m
                     </label>
-                    <input 
-                      type="range" 
-                      min="0.4" 
-                      max="5.0" 
-                      step="0.1" 
-                      value={height} 
+                    <input
+                      type="range"
+                      min="0.4"
+                      max="5.0"
+                      step="0.1"
+                      value={height}
                       onChange={(e) => setHeight(parseFloat(e.target.value))}
                       className="swiss-slider"
                     />
@@ -1162,12 +1102,12 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                   <span>{t.step4Units}</span>
                   <span>{printUnits.toLocaleString()} {t.unitsLabel}</span>
                 </div>
-                <input 
-                  type="range" 
-                  min="500" 
-                  max="100000" 
-                  step="500" 
-                  value={printUnits} 
+                <input
+                  type="range"
+                  min="500"
+                  max="100000"
+                  step="500"
+                  value={printUnits}
                   onChange={(e) => setPrintUnits(parseInt(e.target.value))}
                   className="swiss-slider"
                 />
@@ -1178,25 +1118,25 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
             <div className="control-block">
               <div className="control-title">{t.step5Title}</div>
               <div className="segmented-control">
-                <button 
+                <button
                   className={`segment-btn ${material === 'brass' ? 'active' : ''}`}
                   onClick={() => setMaterial('brass')}
                 >
                   {t.matBrass}
                 </button>
-                <button 
+                <button
                   className={`segment-btn ${material === 'stainless' ? 'active' : ''}`}
                   onClick={() => setMaterial('stainless')}
                 >
                   {t.matSteel}
                 </button>
-                <button 
+                <button
                   className={`segment-btn ${material === 'acrylic' ? 'active' : ''}`}
                   onClick={() => setMaterial('acrylic')}
                 >
                   {t.matAcrylic}
                 </button>
-                <button 
+                <button
                   className={`segment-btn ${material === 'carbon' ? 'active' : ''}`}
                   onClick={() => setMaterial('carbon')}
                 >
@@ -1210,19 +1150,19 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
               <div className="control-block">
                 <div className="control-title">{t.step6Title}</div>
                 <div className="segmented-control">
-                  <button 
+                  <button
                     className={`segment-btn ${lighting === 'halo3000' ? 'active' : ''}`}
                     onClick={() => setLighting('halo3000')}
                   >
                     {t.lightHalo}
                   </button>
-                  <button 
+                  <button
                     className={`segment-btn ${lighting === 'front6500' ? 'active' : ''}`}
                     onClick={() => setLighting('front6500')}
                   >
                     {t.lightFront}
                   </button>
-                  <button 
+                  <button
                     className={`segment-btn ${lighting === 'none' ? 'active' : ''}`}
                     onClick={() => setLighting('none')}
                   >
@@ -1245,8 +1185,8 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                   ✓ {estDays}
                 </span>
               </div>
-              <button 
-                className="btn-swiss btn-swiss-solid" 
+              <button
+                className="btn-swiss btn-swiss-solid"
                 onClick={handleApply}
                 data-cursor-text="APPLY"
               >
@@ -1254,9 +1194,65 @@ export default function VectorWorkbench({ lang, onTransferSpec }) {
                 <ArrowRight size={14} />
               </button>
             </div>
+
+            {/* Technical BOM & Engineering Telemetry */}
+            {productType !== 'print' && (
+              <div className="workbench-bom-card">
+                <button
+                  type="button"
+                  className="bom-toggle-btn"
+                  onClick={() => setShowBom(!showBom)}
+                  data-cursor-text="BOM TELEMETRY"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Cpu size={14} />
+                    <span>{t.bomToggle}</span>
+                  </div>
+                  {showBom ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                </button>
+                {showBom && (
+                  <div className="bom-details-panel">
+                    <div className="bom-metric-row">
+                      <span className="bom-metric-key"><Zap size={12} style={{ display: 'inline', marginRight: '5px' }} />{t.bomCutDuration}:</span>
+                      <strong className="bom-metric-val">{cutDurationMin} min (~{toolpathMm.toLocaleString()} mm)</strong>
+                    </div>
+                    <div className="bom-metric-row">
+                      <span className="bom-metric-key"><Scale size={12} style={{ display: 'inline', marginRight: '5px' }} />{t.bomWeight}:</span>
+                      <strong className="bom-metric-val">~{estWeightKg} kg (2.0mm {material.toUpperCase()})</strong>
+                    </div>
+                    {lighting !== 'none' && (
+                      <div className="bom-metric-row">
+                        <span className="bom-metric-key">{t.bomElectrical}:</span>
+                        <strong className="bom-metric-val">~{totalWatts}W • {psuDriver}</strong>
+                      </div>
+                    )}
+                    <div className="bom-metric-row">
+                      <span className="bom-metric-key">{t.bomDiffuser}:</span>
+                      <span className="bom-metric-val">{t.bomDiffuserVal}</span>
+                    </div>
+                    <div className="bom-metric-row">
+                      <span className="bom-metric-key">{t.bomHardware}:</span>
+                      <span className="bom-metric-val">{t.bomHardwareVal}</span>
+                    </div>
+                    <div className="bom-metric-row">
+                      <span className="bom-metric-key"><ShieldCheck size={12} style={{ display: 'inline', marginRight: '5px' }} />{t.bomIngress}:</span>
+                      <span className="bom-metric-val">{t.bomIngressVal}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
     </section>
   );
+}
+
+function generateCadDocNumber() {
+  return `VH-CAD-2026-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+}
+
+function getTodayIsoDateString() {
+  return new Date().toISOString().split('T')[0];
 }

@@ -51,7 +51,7 @@ export default defineConfig(({ mode }) => {
 📐 <b>პროდუქცია:</b> <b>${escapeHtml((data.medium || '3D ასოები').toUpperCase())}</b>
 📝 <b>სპეციფიკაცია & შენიშვნები:</b>
 <pre>${escapeHtml(data.notes || '—')}</pre>
-${data.fileAttached ? `📎 <b>მიმაგრებული ფაილი:</b> <code>${escapeHtml(data.fileAttached)}</code>\n` : ''}━━━━━━━━━━━━━━━━━━━━━━━━━━
+${data.fileAttached || data.fileName ? `📎 <b>მიმაგრებული ფაილი:</b> <code>${escapeHtml(data.fileName || data.fileAttached)}</code>\n` : ''}━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⏰ <b>დრო:</b> ${escapeHtml(data.timestamp || new Date().toLocaleString('ka-GE', { timeZone: 'Asia/Tbilisi' }))}
 `;
 
@@ -79,9 +79,40 @@ ${data.fileAttached ? `📎 <b>მიმაგრებული ფაილი
                 });
 
                 const tgData = await tgRes.json();
+
+                // If physical file was uploaded, dispatch via sendDocument
+                let docSent = false;
+                if (data.fileData) {
+                  try {
+                    const base64Data = data.fileData.includes(',') ? data.fileData.split(',')[1] : data.fileData;
+                    const fileBuffer = Buffer.from(base64Data, 'base64');
+                    const effectiveFileName = data.fileName || data.fileAttached || 'blueprint.pdf';
+                    const effectiveMimeType = data.fileType || 'application/octet-stream';
+                    const blob = new Blob([fileBuffer], { type: effectiveMimeType });
+
+                    const docFormData = new FormData();
+                    docFormData.append('chat_id', chatId);
+                    docFormData.append('document', blob, effectiveFileName);
+                    docFormData.append('caption', `📎 <b>${escapeHtml(effectiveFileName)}</b>\n👤 ${escapeHtml(data.name || 'კლიენტი')}${data.company ? ` • ${escapeHtml(data.company)}` : ''}`);
+                    docFormData.append('parse_mode', 'HTML');
+
+                    const docRes = await fetch(`https://api.telegram.org/bot${token}/sendDocument`, {
+                      method: 'POST',
+                      body: docFormData
+                    });
+                    const docResult = await docRes.json();
+                    docSent = docResult.ok;
+                    if (!docResult.ok) {
+                      console.warn('Dev server sendDocument warning:', docResult);
+                    }
+                  } catch (docErr) {
+                    console.error('Dev server error sending document to Telegram:', docErr);
+                  }
+                }
+
                 res.statusCode = tgData.ok ? 200 : 400;
                 res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(tgData));
+                res.end(JSON.stringify({ ...tgData, docSent }));
               } catch (err) {
                 res.statusCode = 500;
                 res.setHeader('Content-Type', 'application/json');

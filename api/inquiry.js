@@ -15,6 +15,9 @@ export default async function handler(req, res) {
       medium,
       notes,
       fileAttached,
+      fileName,
+      fileType,
+      fileData,
       timestamp
     } = data;
 
@@ -47,7 +50,7 @@ export default async function handler(req, res) {
 📐 <b>პროდუქციის ტიპი:</b> <b>${escapeHtml((medium || '3D ასოები').toUpperCase())}</b>
 📝 <b>სპეციფიკაცია & შენიშვნები:</b>
 <pre>${escapeHtml(notes || 'დეტალები არ არის მითითებული')}</pre>
-${fileAttached ? `📎 <b>მიმაგრებული ფაილი:</b> <code>${escapeHtml(fileAttached)}</code>\n` : ''}━━━━━━━━━━━━━━━━━━━━━━━━━━
+${fileAttached || fileName ? `📎 <b>მიმაგრებული ფაილი:</b> <code>${escapeHtml(fileName || fileAttached)}</code>\n` : ''}━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⏰ <b>დრო:</b> ${escapeHtml(timestamp || new Date().toISOString())}
 `;
 
@@ -73,7 +76,7 @@ ${fileAttached ? `📎 <b>მიმაგრებული ფაილი:</b>
         text: formattedMessage,
         parse_mode: 'HTML',
         disable_web_page_preview: true,
-        reply_markup: inlineKeyboard.inline_keyboard[0].length > 0 ? inlineKeyboard : undefined
+        reply_markup: inlineKeyboard && inlineKeyboard.inline_keyboard[0].length > 0 ? inlineKeyboard : undefined
       })
     });
 
@@ -87,9 +90,44 @@ ${fileAttached ? `📎 <b>მიმაგრებული ფაილი:</b>
       });
     }
 
+    // If a physical blueprint file was attached, dispatch it via sendDocument
+    let docSent = false;
+    let docError = null;
+    if (fileData) {
+      try {
+        const base64Data = fileData.includes(',') ? fileData.split(',')[1] : fileData;
+        const fileBuffer = Buffer.from(base64Data, 'base64');
+        const effectiveFileName = fileName || fileAttached || 'blueprint.pdf';
+        const effectiveMimeType = fileType || 'application/octet-stream';
+        const blob = new Blob([fileBuffer], { type: effectiveMimeType });
+
+        const docFormData = new FormData();
+        docFormData.append('chat_id', chatId);
+        docFormData.append('document', blob, effectiveFileName);
+        docFormData.append('caption', `📎 <b>${escapeHtml(effectiveFileName)}</b>\n👤 ${escapeHtml(name || 'კლიენტი')}${company ? ` • ${escapeHtml(company)}` : ''}`);
+        docFormData.append('parse_mode', 'HTML');
+
+        const docRes = await fetch(`https://api.telegram.org/bot${token}/sendDocument`, {
+          method: 'POST',
+          body: docFormData
+        });
+        const docResult = await docRes.json();
+        docSent = docResult.ok;
+        if (!docResult.ok) {
+          console.warn('Telegram sendDocument warning:', docResult);
+          docError = docResult.description;
+        }
+      } catch (docErr) {
+        console.error('Error forwarding document to Telegram:', docErr);
+        docError = docErr.message;
+      }
+    }
+
     return res.status(200).json({
       success: true,
-      messageId: result.result?.message_id
+      messageId: result.result?.message_id,
+      docSent,
+      docError
     });
   } catch (error) {
     console.error('Server error processing inquiry:', error);
