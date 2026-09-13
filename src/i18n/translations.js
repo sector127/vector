@@ -179,6 +179,9 @@ export const translations = {
     customSvgLoaded: '✓ SVG ფაილი წარმატებით დამუშავდა',
     shareSpecBtn: 'სპეციფიკაციის გაზიარება',
     toastLinkCopied: '🔗 CAD სპეციფიკაციის ბმული დაკოპირებულია ბუფერში.',
+    returnDepth: 'ბორტის სიღრმე',
+    bomReturnDepth: 'ბორტის სიღრმე (Channel Return)',
+    bomReturnArea: 'ბორტის ზედაპირი',
     bomToggle: 'საინჟინრო BOM სპეციფიკაცია და ტელემეტრია',
     bomCutDuration: 'CNC ჭრის ხანგრძლივობა',
     bomWeight: 'გათვლილი მასა',
@@ -696,7 +699,9 @@ export const translations = {
     customSvgActive: 'Custom SVG Vector',
     customSvgLoaded: '✓ SVG Vector analyzed and loaded',
     shareSpecBtn: 'Share Spec Link',
-    toastLinkCopied: '🔗 CAD Spec deep-link copied to clipboard.',
+    returnDepth: 'Return Depth',
+    bomReturnDepth: 'Channel Return Depth',
+    bomReturnArea: 'Return Wall Surface',
     bomToggle: 'Technical BOM & Engineering Telemetry',
     bomCutDuration: 'CNC Milling Duration',
     bomWeight: 'Calculated Net Weight',
@@ -1215,6 +1220,9 @@ export const translations = {
     customSvgLoaded: '✓ Вектор SVG успешно обработан',
     shareSpecBtn: 'Поделиться спецификацией',
     toastLinkCopied: '🔗 Ссылка на CAD спецификацию скопирована в буфер обмена.',
+    returnDepth: 'Глубина борта',
+    bomReturnDepth: 'Глубина борта (Return)',
+    bomReturnArea: 'Площадь борта',
     bomToggle: 'Инженерная BOM спецификация и телеметрия',
     bomCutDuration: 'Длительность фрезеровки CNC',
     bomWeight: 'Расчётный чистый вес',
@@ -1592,11 +1600,16 @@ export function getTranslation(lang) {
 export function formatTransferredNotes(lang, spec) {
   const isKa = lang === 'ka';
   const isRu = lang === 'ru';
+  const depthStrKa = spec.returnDepth ? `• ბორტის სიღრმე: ${spec.returnDepth}\n` : '';
+  const depthStrRu = spec.returnDepth ? `• Глубина борта: ${spec.returnDepth}\n` : '';
+  const depthStrEn = spec.returnDepth ? `• Return Depth: ${spec.returnDepth}\n` : '';
+
   if (isKa) {
     return `ვექტორ სტუდიიდან გადმოტანილი პარამეტრები:\n` +
       `• რეჟიმი: ${spec.inputMode === 'svg' ? 'მორგებული SVG ვექტორი' : 'ტექსტური წარწერა'}\n` +
       `• ობიექტი: "${spec.brandText}"\n` +
       `• ზომები: ${spec.dimensions}\n` +
+      depthStrKa +
       `• ჭრის პერიმეტრი (Toolpath): ${spec.toolpathMm ? spec.toolpathMm.toLocaleString() + ' მმ' : 'ავტომატური'}\n` +
       `• კონტურები: ${spec.contourCount || 1}\n` +
       `• მასალა: ${spec.material}\n` +
@@ -1608,6 +1621,7 @@ export function formatTransferredNotes(lang, spec) {
       `• Режим: ${spec.inputMode === 'svg' ? 'Пользовательский SVG вектор' : 'Текстовая вывеска'}\n` +
       `• Объект: "${spec.brandText}"\n` +
       `• Размеры: ${spec.dimensions}\n` +
+      depthStrRu +
       `• Периметр реза (Toolpath): ${spec.toolpathMm ? spec.toolpathMm.toLocaleString() + ' мм' : 'авто'}\n` +
       `• Контуры: ${spec.contourCount || 1}\n` +
       `• Материал: ${spec.material}\n` +
@@ -1619,6 +1633,7 @@ export function formatTransferredNotes(lang, spec) {
       `• Mode: ${spec.inputMode === 'svg' ? 'Custom SVG Vector' : 'Typography Text'}\n` +
       `• Object: "${spec.brandText}"\n` +
       `• Scale: ${spec.dimensions}\n` +
+      depthStrEn +
       `• Cutting Toolpath: ${spec.toolpathMm ? spec.toolpathMm.toLocaleString() + ' mm' : 'auto'}\n` +
       `• Contours: ${spec.contourCount || 1}\n` +
       `• Material: ${spec.material}\n` +

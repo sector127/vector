@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { ArrowRight, Download, Upload, FileCode, RefreshCw, Share2, ChevronDown, ChevronUp, Cpu, Zap, ShieldCheck, Scale } from 'lucide-react';
+import { ArrowRight, Download, Upload, FileCode, RefreshCw, Share2, ChevronDown, ChevronUp, Cpu, Zap, ShieldCheck, Scale, Layers } from 'lucide-react';
 import { getTranslation } from '../i18n/translations';
 
 // Sample Built-in Vector Presets
@@ -204,6 +204,13 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
   const [lighting, setLighting] = useState(() => getInitialParam('light', ['halo3000', 'front6500', 'none'], 'halo3000'));
   const [printUnits, setPrintUnits] = useState(5000); // for print run
   const [showBom, setShowBom] = useState(false);
+  const [depthMm, setDepthMm] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const d = parseInt(new URLSearchParams(window.location.search).get('depth'), 10);
+      if (!isNaN(d) && d >= 30 && d <= 150) return d;
+    }
+    return 60;
+  });
   const fileInputRef = useRef(null);
 
   // Conversion rates (1 USD = 2.70 GEL, 1 EUR = 2.95 GEL)
@@ -269,12 +276,17 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
   // Technical BOM Engineering Metrics
   const materialDensities = { brass: 8.5, stainless: 7.9, acrylic: 1.19, carbon: 1.6 }; // g/cm³
   const sheetThicknessM = 0.002; // 2mm sheet standard
-  const estWeightKg = (parseFloat(areaSqM) * sheetThicknessM * (materialDensities[material] || 8.0) * 1000).toFixed(1);
+  // Channel letter return wall area: (toolpathMm * depthMm) / 1,000,000 m²
+  const returnAreaSqM = ((toolpathMm * depthMm) / 1000000);
+  const totalMaterialAreaSqM = (parseFloat(areaSqM) + (productType === 'letters' ? returnAreaSqM : 0)).toFixed(2);
+  const estWeightKg = (parseFloat(totalMaterialAreaSqM) * sheetThicknessM * (materialDensities[material] || 8.0) * 1000).toFixed(1);
   const cutDurationMin = ((toolpathMm / 1400) + ((piercingPoints || 1) * 0.8 / 60)).toFixed(1);
   const totalWatts = Math.round(parseFloat(areaSqM) * 35 + (toolpathMm / 1000) * 8);
   const psuDriver = totalWatts <= 60 ? 'Mean Well LPV-60-24' 
     : (totalWatts <= 100 ? 'Mean Well LPV-100-24' 
     : (totalWatts <= 150 ? 'Mean Well HLG-150H-24' : 'Mean Well HLG-240H-24'));
+  // Dynamic 2D blueprint isometric extrusion offset based on depth (30-150mm)
+  const depthOffset = (depthMm / 12).toFixed(1);
 
   // Share CAD deep-link handler
   const handleShareSpec = () => {
@@ -286,6 +298,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
       url.searchParams.set('h', height);
       url.searchParams.set('light', lighting);
       url.searchParams.set('curr', currency);
+      url.searchParams.set('depth', depthMm);
       if (inputMode === 'text') {
         url.searchParams.set('text', brandText);
       }
@@ -363,6 +376,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
       dimensions: `${width}m × ${height}m (${areaSqM} m²)`,
       material,
       lighting,
+      returnDepth: productType === 'letters' ? `${depthMm} mm` : null,
       printUnits: productType === 'print' ? printUnits : null,
       toolpathMm,
       contourCount,
@@ -754,155 +768,155 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
 
             {/* Simulated Vector Wireframe CAD Box */}
             <div className="stage-cad-view">
-              <svg viewBox="0 0 460 300" style={{ width: '100%', height: '100%' }}>
-                <defs>
-                  {/* Background CAD Grid */}
-                  <pattern id="cadGrid" width="20" height="20" patternUnits="userSpaceOnUse">
-                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="var(--ink-hairline)" strokeWidth="0.5" />
-                  </pattern>
-                </defs>
+                <svg viewBox="0 0 460 300" style={{ width: '100%', height: '100%' }}>
+                  <defs>
+                    {/* Background CAD Grid */}
+                    <pattern id="cadGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="var(--ink-hairline)" strokeWidth="0.5" />
+                    </pattern>
+                  </defs>
 
-                <rect width="100%" height="100%" fill="url(#cadGrid)" />
+                  <rect width="100%" height="100%" fill="url(#cadGrid)" />
 
-                {/* Dimension Extension Lines */}
-                <line x1="60" y1="35" x2="400" y2="35" stroke="var(--ink-primary)" strokeWidth="1" />
-                <line x1="60" y1="30" x2="60" y2="40" stroke="var(--ink-primary)" strokeWidth="1" />
-                <line x1="400" y1="30" x2="400" y2="40" stroke="var(--ink-primary)" strokeWidth="1" />
-                <text x="230" y="28" fill="var(--ink-primary)" fontSize="10" fontFamily="Space Mono" textAnchor="middle" fontWeight="700">
-                  {t.widthLabelUpper}: {width} m
-                </text>
+                  {/* Dimension Extension Lines */}
+                  <line x1="60" y1="35" x2="400" y2="35" stroke="var(--ink-primary)" strokeWidth="1" />
+                  <line x1="60" y1="30" x2="60" y2="40" stroke="var(--ink-primary)" strokeWidth="1" />
+                  <line x1="400" y1="30" x2="400" y2="40" stroke="var(--ink-primary)" strokeWidth="1" />
+                  <text x="230" y="28" fill="var(--ink-primary)" fontSize="10" fontFamily="Space Mono" textAnchor="middle" fontWeight="700">
+                    {t.widthLabelUpper}: {width} m
+                  </text>
 
-                <line x1="420" y1="55" x2="420" y2="245" stroke="var(--ink-primary)" strokeWidth="1" />
-                <line x1="415" y1="55" x2="425" y2="55" stroke="var(--ink-primary)" strokeWidth="1" />
-                <line x1="415" y1="245" x2="425" y2="245" stroke="var(--ink-primary)" strokeWidth="1" />
-                <text x="440" y="150" fill="var(--ink-primary)" fontSize="10" fontFamily="Space Mono" transform="rotate(90 440,150)" textAnchor="middle" fontWeight="700">
-                  {t.heightLabelUpper}: {height} m
-                </text>
+                  <line x1="420" y1="55" x2="420" y2="245" stroke="var(--ink-primary)" strokeWidth="1" />
+                  <line x1="415" y1="55" x2="425" y2="55" stroke="var(--ink-primary)" strokeWidth="1" />
+                  <line x1="415" y1="245" x2="425" y2="245" stroke="var(--ink-primary)" strokeWidth="1" />
+                  <text x="440" y="150" fill="var(--ink-primary)" fontSize="10" fontFamily="Space Mono" transform="rotate(90 440,150)" textAnchor="middle" fontWeight="700">
+                    {t.heightLabelUpper}: {height} m
+                  </text>
 
-                {/* Render Custom Vector SVG Mode */}
-                {inputMode === 'svg' && customSvg && (
-                  <g transform={`translate(${230 - (customSvg.vbWidth * (220 / customSvg.vbWidth)) / 2}, ${150 - (customSvg.vbHeight * (220 / customSvg.vbWidth)) / 2}) scale(${220 / customSvg.vbWidth}) translate(${-customSvg.vbMinX}, ${-customSvg.vbMinY})`}>
-                    {/* Extrusion depth */}
-                    <g
-                      transform="translate(4, -4)"
-                      fill="none"
-                      stroke="var(--ink-muted)"
-                      strokeWidth="2"
-                      strokeDasharray="3 3"
-                    >
-                      {customSvg.paths.map((p, i) => (
-                        <path key={`ext-${i}`} d={p} />
-                      ))}
+                  {/* Render Custom Vector SVG Mode */}
+                  {inputMode === 'svg' && customSvg && (
+                    <g transform={`translate(${230 - (customSvg.vbWidth * (220 / customSvg.vbWidth)) / 2}, ${150 - (customSvg.vbHeight * (220 / customSvg.vbWidth)) / 2}) scale(${220 / customSvg.vbWidth}) translate(${-customSvg.vbMinX}, ${-customSvg.vbMinY})`}>
+                      {/* Extrusion depth */}
+                      <g
+                        transform={`translate(${depthOffset}, ${-depthOffset})`}
+                        fill="none"
+                        stroke="var(--ink-muted)"
+                        strokeWidth="2"
+                        strokeDasharray="3 3"
+                      >
+                        {customSvg.paths.map((p, i) => (
+                          <path key={`ext-${i}`} d={p} />
+                        ))}
+                      </g>
+
+                      {/* Front Face */}
+                      <g
+                        fill="none"
+                        stroke={getMaterialStroke()}
+                        strokeWidth="3.5"
+                      >
+                        {customSvg.paths.map((p, i) => (
+                          <path key={`front-${i}`} d={p} />
+                        ))}
+                      </g>
                     </g>
+                  )}
 
-                    {/* Front Face */}
-                    <g
-                      fill="none"
-                      stroke={getMaterialStroke()}
-                      strokeWidth="3.5"
-                    >
-                      {customSvg.paths.map((p, i) => (
-                        <path key={`front-${i}`} d={p} />
-                      ))}
+                  {/* Render Typography Text Mode */}
+                  {inputMode === 'text' && productType === 'letters' && (
+                    <g>
+                      {/* 3D Extrusion Backing */}
+                      <text
+                        x="230"
+                        y="160"
+                        fill="none"
+                        stroke="var(--ink-muted)"
+                        strokeWidth="3"
+                        fontSize={brandText.length > 8 ? "28" : "38"}
+                        fontFamily="TG Square, Noto Sans Georgian, Syne"
+                        fontWeight="900"
+                        textAnchor="middle"
+                        letterSpacing="0.04em"
+                        dx={depthOffset}
+                        dy={-depthOffset}
+                      >
+                        {brandText || 'VECTOR'}
+                      </text>
+
+                      {/* Front Face */}
+                      <text
+                        x="230"
+                        y="160"
+                        fill="var(--bg-main)"
+                        stroke="var(--ink-primary)"
+                        strokeWidth="2.5"
+                        fontSize={brandText.length > 8 ? "28" : "38"}
+                        fontFamily="TG Square, Noto Sans Georgian, Syne"
+                        fontWeight="900"
+                        textAnchor="middle"
+                        letterSpacing="0.04em"
+                      >
+                        {brandText || 'VECTOR'}
+                      </text>
                     </g>
-                  </g>
-                )}
+                  )}
 
-                {/* Render Typography Text Mode */}
-                {inputMode === 'text' && productType === 'letters' && (
-                  <g>
-                    {/* 3D Extrusion Backing */}
-                    <text
-                      x="230"
-                      y="160"
-                      fill="none"
-                      stroke="var(--ink-muted)"
-                      strokeWidth="3"
-                      fontSize={brandText.length > 8 ? "28" : "38"}
-                      fontFamily="TG Square, Noto Sans Georgian, Syne"
-                      fontWeight="900"
-                      textAnchor="middle"
-                      letterSpacing="0.04em"
-                      dx="6"
-                      dy="-6"
-                    >
-                      {brandText || 'VECTOR'}
-                    </text>
+                  {inputMode === 'text' && productType === 'lightbox' && (
+                    <g>
+                      <rect
+                        x="70"
+                        y="60"
+                        width="320"
+                        height="170"
+                        fill="var(--bg-main)"
+                        stroke="var(--ink-primary)"
+                        strokeWidth="2.5"
+                      />
+                      <rect x="80" y="70" width="300" height="150" fill="none" stroke="var(--ink-muted)" strokeWidth="1" strokeDasharray="4 4" />
+                      <text x="230" y="155" fill="var(--ink-primary)" fontSize="26" fontFamily="TG Square, Noto Sans Georgian, Syne" fontWeight="800" textAnchor="middle">
+                        {brandText || t.fallbackLightbox}
+                      </text>
+                    </g>
+                  )}
 
-                    {/* Front Face */}
-                    <text
-                      x="230"
-                      y="160"
-                      fill="var(--bg-main)"
-                      stroke="var(--ink-primary)"
-                      strokeWidth="2.5"
-                      fontSize={brandText.length > 8 ? "28" : "38"}
-                      fontFamily="TG Square, Noto Sans Georgian, Syne"
-                      fontWeight="900"
-                      textAnchor="middle"
-                      letterSpacing="0.04em"
-                    >
-                      {brandText || 'VECTOR'}
-                    </text>
-                  </g>
-                )}
+                  {inputMode === 'text' && productType === 'billboard' && (
+                    <g>
+                      <rect
+                        x="70"
+                        y="60"
+                        width="320"
+                        height="120"
+                        fill="var(--bg-main)"
+                        stroke="var(--ink-primary)"
+                        strokeWidth="3"
+                      />
+                      <line x1="220" y1="180" x2="220" y2="260" stroke="var(--ink-primary)" strokeWidth="4" />
+                      <line x1="240" y1="180" x2="240" y2="260" stroke="var(--ink-primary)" strokeWidth="4" />
+                      <text
+                        x="230"
+                        y="130"
+                        fill="var(--ink-primary)"
+                        fontSize="22"
+                        fontFamily="TG Square, Noto Sans Georgian, Syne"
+                        fontWeight="900"
+                        textAnchor="middle"
+                      >
+                        {brandText || t.fallbackBillboard}
+                      </text>
+                    </g>
+                  )}
 
-                {inputMode === 'text' && productType === 'lightbox' && (
-                  <g>
-                    <rect
-                      x="70"
-                      y="60"
-                      width="320"
-                      height="170"
-                      fill="var(--bg-main)"
-                      stroke="var(--ink-primary)"
-                      strokeWidth="2.5"
-                    />
-                    <rect x="80" y="70" width="300" height="150" fill="none" stroke="var(--ink-muted)" strokeWidth="1" strokeDasharray="4 4" />
-                    <text x="230" y="155" fill="var(--ink-primary)" fontSize="26" fontFamily="TG Square, Noto Sans Georgian, Syne" fontWeight="800" textAnchor="middle">
-                      {brandText || t.fallbackLightbox}
-                    </text>
-                  </g>
-                )}
-
-                {inputMode === 'text' && productType === 'billboard' && (
-                  <g>
-                    <rect
-                      x="70"
-                      y="60"
-                      width="320"
-                      height="120"
-                      fill="var(--bg-main)"
-                      stroke="var(--ink-primary)"
-                      strokeWidth="3"
-                    />
-                    <line x1="220" y1="180" x2="220" y2="260" stroke="var(--ink-primary)" strokeWidth="4" />
-                    <line x1="240" y1="180" x2="240" y2="260" stroke="var(--ink-primary)" strokeWidth="4" />
-                    <text
-                      x="230"
-                      y="130"
-                      fill="var(--ink-primary)"
-                      fontSize="22"
-                      fontFamily="TG Square, Noto Sans Georgian, Syne"
-                      fontWeight="900"
-                      textAnchor="middle"
-                    >
-                      {brandText || t.fallbackBillboard}
-                    </text>
-                  </g>
-                )}
-
-                {productType === 'print' && (
-                  <g>
-                    <rect x="110" y="60" width="240" height="170" fill="var(--bg-main)" stroke="var(--ink-primary)" strokeWidth="1.5" />
-                    <rect x="100" y="50" width="260" height="190" fill="none" stroke="var(--ink-hairline)" strokeWidth="1" strokeDasharray="2 2" />
-                    <text x="230" y="150" fill="var(--ink-primary)" fontSize="20" fontFamily="TG Square, Noto Sans Georgian, Space Grotesk" fontWeight="700" textAnchor="middle">
-                      {t('flyerUnitsCount', { count: printUnits.toLocaleString() })}
-                    </text>
-                  </g>
-                )}
-              </svg>
-            </div>
+                  {productType === 'print' && (
+                    <g>
+                      <rect x="110" y="60" width="240" height="170" fill="var(--bg-main)" stroke="var(--ink-primary)" strokeWidth="1.5" />
+                      <rect x="100" y="50" width="260" height="190" fill="none" stroke="var(--ink-hairline)" strokeWidth="1" strokeDasharray="2 2" />
+                      <text x="230" y="150" fill="var(--ink-primary)" fontSize="20" fontFamily="TG Square, Noto Sans Georgian, Space Grotesk" fontWeight="700" textAnchor="middle">
+                        {t('flyerUnitsCount', { count: printUnits.toLocaleString() })}
+                      </text>
+                    </g>
+                  )}
+                </svg>
+              </div>
 
             {/* CAD Spec Readout */}
             <div className="canvas-footer-hud" style={{ borderTop: '1px solid var(--ink-hairline)', paddingTop: '12px' }}>
@@ -910,6 +924,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
               <div><strong>{t.hudToolpath}:</strong> {toolpathMm.toLocaleString()} mm</div>
               <div><strong>{t.hudContours}:</strong> {contourCount}</div>
               <div><strong>{t.hudPiercing}:</strong> {piercingPoints}</div>
+              {productType === 'letters' && <div><strong>{t.returnDepth || 'Depth'}:</strong> {depthMm} mm</div>}
             </div>
           </div>
 
@@ -1145,6 +1160,25 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
               </div>
             </div>
 
+            {/* Return Depth for 3D Channel Letters */}
+            {productType === 'letters' && (
+              <div className="control-block">
+                <div className="control-title">
+                  <span>{t.returnDepth || 'Return Depth'}</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink-primary)' }}>{depthMm} mm</span>
+                </div>
+                <input
+                  type="range"
+                  min="30"
+                  max="150"
+                  step="5"
+                  value={depthMm}
+                  onChange={(e) => setDepthMm(parseInt(e.target.value, 10))}
+                  className="swiss-slider"
+                />
+              </div>
+            )}
+
             {/* Illumination Style */}
             {productType !== 'print' && (
               <div className="control-block">
@@ -1220,6 +1254,12 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
                       <span className="bom-metric-key"><Scale size={12} style={{ display: 'inline', marginRight: '5px' }} />{t.bomWeight}:</span>
                       <strong className="bom-metric-val">~{estWeightKg} kg (2.0mm {material.toUpperCase()})</strong>
                     </div>
+                    {productType === 'letters' && (
+                      <div className="bom-metric-row">
+                        <span className="bom-metric-key"><Layers size={12} style={{ display: 'inline', marginRight: '5px' }} />{t.bomReturnDepth || 'Return Depth'}:</span>
+                        <strong className="bom-metric-val">{depthMm} mm ({t.bomReturnArea || 'Surface'}: ~{returnAreaSqM.toFixed(2)} m²)</strong>
+                      </div>
+                    )}
                     {lighting !== 'none' && (
                       <div className="bom-metric-row">
                         <span className="bom-metric-key">{t.bomElectrical}:</span>
