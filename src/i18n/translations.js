@@ -242,10 +242,10 @@ export const translations = {
     mockupTitle: 'არქიტექტურული აბრებისა და კონსტრუქციების ვიზუალიზატორი',
     mockupSub: 'იხილეთ თქვენი ლოგო, ფასადის აბრა ან სარეკლამო ობიექტი რეალურ გარემოში დამზადებამდე. ჩვენი საწარმო უზრუნველყოფს სრულ საინჟინრო ციკლს: CAD დაპროექტებას, ლითონკონსტრუქციის წარმოებას, LED ინტეგრაციასა და მონტაჟს.',
     mockupLocLetters: '3D თითბერის ასოები & Halo',
-    mockupLocHeroes: 'მომრგვალებული LED მეგაკონსტრუქცია',
     mockupLocVake: 'ფასადის არქიტექტურული ეკრანი',
     mockupLocKakheti: 'მაგისტრალური უნიპოლარული ბილბორდი',
     mockupLocRustaveli: 'სითილაითის ლაითბოქსი',
+    mockupLocCard: 'სავიზიტო ბარათი (3D)',
     mockupModeUpload: 'დიზაინის / ლოგოს ატვირთვა',
     mockupModeDesigner: 'ონლაინ კონსტრუქტორი',
     mockupUploadPrompt: 'ჩააგდეთ თქვენი ლოგო ან დიზაინი (.JPG, .PNG, .SVG)',
@@ -278,6 +278,44 @@ export const translations = {
     lightingDual: 'ორმაგი Dual',
     structureEstimate: 'კონსტრუქცია: {name} ({standard})',
 
+    // American Psycho & Executive Card Studio
+    cardFormat: 'ფორმატი',
+    cardFormatBusiness: 'სავიზიტო ბარათი (90×50)',
+    cardFormatFlyer: 'ლუქს ფლაერი (A5)',
+    cardArchetypes: 'American Psycho პერსონაჟები & პრესეტები',
+    cardStock: 'ქაღალდის ფაქტურა',
+    cardStockBone: 'Bone (სპილოსძვლისფერი)',
+    cardStockEggshell: 'Eggshell (კვერცხის ნაჭუჭი)',
+    cardStockNimbus: 'Pale Nimbus White',
+    cardStockOffWhite: 'Subtle Off-White (Linen)',
+    cardStockObsidian: 'Obsidian Soft-Touch (შავი)',
+    cardFinish: 'პოლიგრაფიული დამუშავება',
+    cardFinishRaised: 'რელიეფური ასოები (Raised)',
+    cardFinishGoldFoil: 'ოქროს ფოლგა (Hot Foil)',
+    cardFinishSilverFoil: 'ვერცხლის ფოლგა (Silver Foil)',
+    cardFinishDeboss: 'Silian Rail ჩაღრმავება (Letterpress)',
+    cardFinishSpotUV: 'Soft-Touch & Spot UV',
+    cardWeight: 'ქაღალდის წონა & სისქე',
+    cardGsm350: '350 GSM (Standard)',
+    cardGsm450: '450 GSM (Tasteful Thickness)',
+    cardGsm600: '600 GSM (Heavyweight Duplex)',
+    cardWatermark: 'წყლის ნიშანი (Watermark)',
+    cardWatermarkOn: 'ჩართული ("Oh my God, it even has a watermark...")',
+    cardWatermarkOff: 'გამორთული',
+    cardFlip: 'ბარათის გადაბრუნება (3D Flip)',
+    cardFront: 'წინა მხარე',
+    cardBack: 'უკანა მხარე',
+    cardInputHolder: 'მფლობელის სახელი',
+    cardInputRole: 'თანამდებობა / როლი',
+    cardInputDivision: 'დეპარტამენტი',
+    cardInputCompany: 'კომპანია',
+    cardPutYourName: 'ჩაწერეთ თქვენი სახელი ბარათზე',
+    cardNextCard: 'შემდეგი ბარათი 🎲',
+    cardResetName: '↺ საწყისი სახელი',
+    cardBookBtn: 'ტირაჟის დაბეჭდვა Heidelberg-ზე →',
+    cardEasterEggQuote: 'ციტატა ფილმიდან',
+    cardTiltHint: 'გადაატარეთ კურსორი 3D კუთხისა და სინათლის არეკვლის სანახავად',
+
     mockupLocations: {
       letters: {
         shortName: '3D თითბერის ასოები',
@@ -291,12 +329,6 @@ export const translations = {
         standard: 'IP65 ჰერმეტული • მერიის სტანდარტი',
         leadTime: '5 სამუშაო დღე • მზა ნაკრები'
       },
-      heroes: {
-        shortName: 'მომრგვალებული LED',
-        spec: 'მოთუთიებული ფოლადი S355 • P3.91 IP68 LED',
-        standard: 'ქარის გამძლეობა 180 კმ/სთ • ISO 9001',
-        leadTime: '14 სამუშაო დღე • გარანტია 5 წელი'
-      },
       vake: {
         shortName: 'ფასადის ეკრანი',
         spec: 'ბაზალტის ანკერირება • P2.5 Ultra-Black • AISI 316',
@@ -308,6 +340,12 @@ export const translations = {
         spec: 'Ø 1200მმ ფოლადის სვეტი • ცხელი მოთუთიება HDG',
         standard: 'ქარის 180 კმ/სთ გამძლეობა • სტატიკური გათვლა',
         leadTime: '12 სამუშაო დღე • საინჟინრო პაკეტი'
+      },
+      card: {
+        shortName: 'ბარათი & ფლაერი (3D)',
+        spec: '450 GSM ბამბის ქაღალდი • Silian Rail რელიეფი • Hot Foil',
+        standard: 'Heidelberg ოფსეტი • Duplex ორშრიანი • Spot UV',
+        leadTime: '2-3 სამუშაო დღე • ლუქს შეფუთვა'
       }
     },
 
@@ -762,10 +800,10 @@ export const translations = {
     mockupTitle: 'Architectural Signage & Billboard Visualizer',
     mockupSub: 'Simulate your brand identity, dimensional letters, or large-scale billboard in photorealistic Tbilisi urban environments before fabrication. Full in-house CAD, steel fabrication, LED rigging, and permit clearance.',
     mockupLocLetters: '3D Brass Letters & Halo',
-    mockupLocHeroes: 'Curved Flyover LED Screen',
     mockupLocVake: 'Facade Architectural Display',
     mockupLocKakheti: 'Highway Monopole Structure',
     mockupLocRustaveli: 'Citylight Lightbox',
+    mockupLocCard: 'Executive Business Card (3D)',
     mockupModeUpload: 'Upload Logo / Artwork',
     mockupModeDesigner: 'Signage Designer',
     mockupUploadPrompt: 'Drop your brand logo or vector graphic (.JPG, .PNG, .SVG)',
@@ -798,6 +836,44 @@ export const translations = {
     lightingDual: 'Dual Lighting',
     structureEstimate: 'Structure: {name} ({standard})',
 
+    // American Psycho & Executive Card Studio
+    cardFormat: 'Format',
+    cardFormatBusiness: 'Executive Business Card (90×50)',
+    cardFormatFlyer: 'Luxury Event Flyer (A5)',
+    cardArchetypes: 'American Psycho Archetypes',
+    cardStock: 'Paper Stock',
+    cardStockBone: 'Bone (Ivory Warm)',
+    cardStockEggshell: 'Eggshell (Tactile Texture)',
+    cardStockNimbus: 'Pale Nimbus White',
+    cardStockOffWhite: 'Subtle Off-White (Linen)',
+    cardStockObsidian: 'Obsidian Soft-Touch (Black)',
+    cardFinish: 'Print Finish & Lettering',
+    cardFinishRaised: 'Raised Lettering (Thermography)',
+    cardFinishGoldFoil: 'Metallic Gold Hot Foil',
+    cardFinishSilverFoil: 'Metallic Silver Hot Foil',
+    cardFinishDeboss: 'Silian Rail Debossed (Letterpress)',
+    cardFinishSpotUV: 'Soft-Touch & Spot UV',
+    cardWeight: 'Tasteful Thickness & GSM',
+    cardGsm350: '350 GSM (Standard)',
+    cardGsm450: '450 GSM (Tasteful Thickness)',
+    cardGsm600: '600 GSM (Heavyweight Duplex)',
+    cardWatermark: 'Watermark Security',
+    cardWatermarkOn: 'Visible ("Oh my God, it even has a watermark...")',
+    cardWatermarkOff: 'Hidden',
+    cardFlip: 'Flip Side (3D Flip)',
+    cardFront: 'Front Face',
+    cardBack: 'Reverse Back',
+    cardInputHolder: 'Cardholder Name',
+    cardInputRole: 'Title / Position',
+    cardInputDivision: 'Division / Department',
+    cardInputCompany: 'Firm / Corporation',
+    cardPutYourName: 'Put Your Name on the Card',
+    cardNextCard: 'Next Card 🎲',
+    cardResetName: '↺ Reset Name',
+    cardBookBtn: 'Order Print Run on Heidelberg →',
+    cardEasterEggQuote: 'Film Quote',
+    cardTiltHint: 'Move cursor over card to inspect 3D tilt & foil glint',
+
     mockupLocations: {
       letters: {
         shortName: '3D Brass Letters',
@@ -828,6 +904,12 @@ export const translations = {
         spec: 'Ø 1200mm Steel Column • HDG',
         standard: '180 km/h Wind Load • Static Certified',
         leadTime: '12 Work Days • Full Engineering'
+      },
+      card: {
+        shortName: 'Executive Card (3D)',
+        spec: '450 GSM Cotton Stock • Silian Rail Deboss • Gold Hot Foil',
+        standard: 'Heidelberg Offset • Multi-Layer Duplex • Spot UV',
+        leadTime: '2-3 Work Days • Luxury Packaging'
       }
     },
 
@@ -1283,10 +1365,10 @@ export const translations = {
     mockupTitle: 'Визуализатор архитектурных вывесок и конструкций',
     mockupSub: 'Оцените внешний вид вашей фасадной вывески, логотипа или металлоконструкции в реальной городской среде до запуска в производство. Полный цикл: расчет, изготовление и монтаж под ключ.',
     mockupLocLetters: '3D-буквы из латуни с контражуром',
-    mockupLocHeroes: 'Изогнутая LED мегаконструкция',
     mockupLocVake: 'Фасадный архитектурный экран',
     mockupLocKakheti: 'Магистральный униполярный билборд',
     mockupLocRustaveli: 'Ситилайт-лайтбокс',
+    mockupLocCard: 'Визитная карточка (3D)',
     mockupModeUpload: 'Загрузить логотип / макет',
     mockupModeDesigner: 'Онлайн конструктор',
     mockupUploadPrompt: 'Перетащите ваш логотип или графику (.JPG, .PNG, .SVG)',
@@ -1319,6 +1401,44 @@ export const translations = {
     lightingDual: 'Двойная подсветка',
     structureEstimate: 'Конструкция: {name} ({standard})',
 
+    // American Psycho & Executive Card Studio
+    cardFormat: 'Формат',
+    cardFormatBusiness: 'Визитная карточка (90×50)',
+    cardFormatFlyer: 'Премиум флаер (A5)',
+    cardArchetypes: 'Персонажи American Psycho',
+    cardStock: 'Фактура бумаги',
+    cardStockBone: 'Bone (Слоновая кость)',
+    cardStockEggshell: 'Eggshell (Скорлупа)',
+    cardStockNimbus: 'Pale Nimbus White',
+    cardStockOffWhite: 'Subtle Off-White (Лен)',
+    cardStockObsidian: 'Obsidian Soft-Touch (Черный)',
+    cardFinish: 'Отделка и тиснение',
+    cardFinishRaised: 'Рельефный шрифт (Raised)',
+    cardFinishGoldFoil: 'Золотое тиснение (Hot Foil)',
+    cardFinishSilverFoil: 'Серебряная фольга (Silver Foil)',
+    cardFinishDeboss: 'Глубокий оттиск Silian Rail',
+    cardFinishSpotUV: 'Soft-Touch и УФ-лак',
+    cardWeight: 'Изысканная толщина и плотность',
+    cardGsm350: '350 г/м² (Стандарт)',
+    cardGsm450: '450 г/м² (Изысканная толщина)',
+    cardGsm600: '600 г/м² (Тяжелый Duplex)',
+    cardWatermark: 'Водяной знак (Watermark)',
+    cardWatermarkOn: 'Видим ("О боже, здесь даже водяной знак...")',
+    cardWatermarkOff: 'Выключен',
+    cardFlip: 'Перевернуть (3D Flip)',
+    cardFront: 'Лицевая сторона',
+    cardBack: 'Оборотная сторона',
+    cardInputHolder: 'Имя держателя',
+    cardInputRole: 'Должность',
+    cardInputDivision: 'Департамент',
+    cardInputCompany: 'Компания / Фирма',
+    cardPutYourName: 'Ваше имя на визитке',
+    cardNextCard: 'Следующая 🎲',
+    cardResetName: '↺ Исходное имя',
+    cardBookBtn: 'Заказать тираж на Heidelberg →',
+    cardEasterEggQuote: 'Цитата из фильма',
+    cardTiltHint: 'Двигайте курсор для 3D наклона и бликов фольги',
+
     mockupLocations: {
       letters: {
         shortName: 'Объемные 3D-буквы',
@@ -1332,12 +1452,6 @@ export const translations = {
         standard: 'IP65 Влагозащита • Стандарт мэрии',
         leadTime: '5 рабочих дней • Готовый комплект'
       },
-      heroes: {
-        shortName: 'Радиусный LED-экран',
-        spec: 'Оцинкованная сталь S355 • P3.91 IP68 LED',
-        standard: 'Ветроустойчивость 180 км/ч • ISO 9001',
-        leadTime: '14 рабочих дней • Гарантия 5 лет'
-      },
       vake: {
         shortName: 'Фасадный LED-экран',
         spec: 'Базальтовые анкеры • P2.5 Ultra-Black • AISI 316',
@@ -1349,6 +1463,12 @@ export const translations = {
         spec: 'Ø 1200мм стальная колонна • Горячее цинкование HDG',
         standard: 'Ветроустойчивость 180 км/ч • Статический расчет',
         leadTime: '12 рабочих дней • Инженерный пакет'
+      },
+      card: {
+        shortName: 'Визитка и флаер (3D)',
+        spec: '450 г/м² хлопковая бумага • Тиснение Silian Rail • Фольга',
+        standard: 'Офсет Heidelberg • Двухслойный Duplex • УФ-лак',
+        leadTime: '2-3 рабочих дня • Премиум упаковка'
       }
     },
 

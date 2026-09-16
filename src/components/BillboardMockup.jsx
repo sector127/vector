@@ -1,12 +1,13 @@
 import React, { useState, useRef } from 'react';
-import { Download, Sun, Moon, Upload, ArrowRight, Sparkles, Image as ImageIcon, ShieldCheck, Wrench, Layers, Loader2 } from 'lucide-react';
+import { Download, Sun, Moon, Upload, ArrowRight, Sparkles, Image as ImageIcon, ShieldCheck, Wrench, Layers, Loader2, RotateCw, Quote } from 'lucide-react';
+import CardStage3D from './CardStage3D';
 import { getTranslation } from '../i18n/translations';
 
 export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) {
   const t = getTranslation(lang);
 
-  // Selected Location: 'letters', 'rustaveli', 'heroes', 'vake', 'kakheti'
-  const [selectedLoc, setSelectedLoc] = useState('letters');
+  // Selected Location: 'letters', 'rustaveli', 'vake', 'kakheti', 'card'
+  const [selectedLoc, setSelectedLoc] = useState('card');
   const [nightMode, setNightMode] = useState(false);
   const [inputMode, setInputMode] = useState('designer'); // 'designer' or 'upload'
   const [isExporting, setIsExporting] = useState(false);
@@ -19,13 +20,147 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
   const [letterDepth, setLetterDepth] = useState(60); // 30, 60, 100 mm physical extrusion
   const [lightingType, setLightingType] = useState('halo'); // 'halo', 'front', 'dual'
 
+  // Card Studio State (American Psycho Suite)
+  const cardFormat = 'business_card';
+  const [cardArchetype, setCardArchetype] = useState('bateman');
+  const [cardStock, setCardStock] = useState('bone');
+  const [cardFinish, setCardFinish] = useState('deboss');
+  const [cardGsm, setCardGsm] = useState(450);
+  const [cardWatermark, setCardWatermark] = useState(false);
+  const [cardFlipped, setCardFlipped] = useState(false);
+
+  // Card Content Fields (Screen-Accurate American Psycho Props)
+  const [cardPhone, setCardPhone] = useState('212 555 6342');
+  const [cardHolder, setCardHolder] = useState('PATRICK BATEMAN');
+  const [customName, setCustomName] = useState('');
+  const [cardRole, setCardRole] = useState('VICE PRESIDENT');
+  const [cardDivision, setCardDivision] = useState('MERGERS AND AQUISITIONS');
+  const [cardCompany, setCardCompany] = useState('PIERCE & PIERCE');
+  const [cardAddress, setCardAddress] = useState('358 Exchange Place New York, N.Y. 10099 FAX 212 555 6390 TELEX 10 4534');
+  const [cardAddressLine2, setCardAddressLine2] = useState('');
+  const [cardIsTwoLineAddress, setCardIsTwoLineAddress] = useState(false);
+  const [cardContact, setCardContact] = useState('FAX 212 555 6390 TELEX 10 4534');
+  const [cardQuote, setCardQuote] = useState("That's bone. And the lettering is something called Silian Rail.");
+
+  const AMERICAN_PSYCHO_ARCHETYPES = [
+    {
+      id: 'bateman',
+      name: 'Patrick Bateman',
+      tag: 'Bone • Silian Rail',
+      holder: 'PATRICK BATEMAN',
+      role: 'VICE PRESIDENT',
+      division: 'MERGERS AND AQUISITIONS',
+      company: 'PIERCE & PIERCE',
+      phone: '212 555 6342',
+      address: '358 Exchange Place New York, N.Y. 10099 FAX 212 555 6390 TELEX 10 4534',
+      addressLine2: '',
+      isTwoLine: false,
+      stock: 'bone',
+      finish: 'deboss',
+      gsm: 450,
+      watermark: false,
+      quote: "That's bone. And the lettering is something called Silian Rail."
+    },
+    {
+      id: 'van_patten',
+      name: 'David Van Patten',
+      tag: 'Eggshell • Romalian',
+      holder: 'DAVID VAN PATTEN',
+      role: 'Vice President',
+      division: 'Mergers and Aquisitions',
+      company: 'PIERCE & PIERCE',
+      phone: '212 555 6342',
+      address: '358 EXCHANGE PLACE NEW YORK, N.Y. 10099 FAX 212 555 6390 TELEX 10 4534',
+      addressLine2: '',
+      isTwoLine: false,
+      stock: 'eggshell',
+      finish: 'deboss',
+      gsm: 450,
+      watermark: false,
+      quote: "That's really nice. Eggshell with Romalian type."
+    },
+    {
+      id: 'allen',
+      name: 'Paul Allen',
+      tag: 'Off-White • Watermark',
+      holder: 'PAUL ALLEN',
+      role: 'VICE PRESIDENT',
+      division: 'MERGERS AND AQUISITIONS',
+      company: 'PIERCE & PIERCE',
+      phone: '212.555.6342',
+      address: '358 EXCHANGE PLACE NEW YORK, N.Y. 10099',
+      addressLine2: 'FAX 212 555 6390 TELEX 10 4534',
+      isTwoLine: true,
+      stock: 'offwhite',
+      finish: 'copperplate',
+      gsm: 450,
+      watermark: true,
+      quote: "Look at that subtle off-white coloring. The tasteful thickness of it. Oh my God, it even has a watermark..."
+    },
+    {
+      id: 'bryce',
+      name: 'Timothy Bryce',
+      tag: 'Nimbus • Raised Lettering',
+      holder: 'TIMOTHY BRYCE',
+      role: 'Vice President',
+      division: 'Mergers and Aquisitions',
+      company: 'PIERCE & PIERCE',
+      phone: '212 555 6342',
+      address: '358 EXCHANGE PLACE NEW YORK, N.Y. 10099 FAX 212 555 6390 TELEX 10 4534',
+      addressLine2: '',
+      isTwoLine: false,
+      stock: 'nimbus',
+      finish: 'raised_gold',
+      gsm: 450,
+      watermark: false,
+      quote: "Raised lettering, pale nimbus white."
+    }
+  ];
+
+  const handleSelectCardArchetype = (arc) => {
+    setCardArchetype(arc.id);
+    setCardHolder(customName.trim() ? customName.toUpperCase() : arc.holder);
+    setCardRole(arc.role);
+    setCardDivision(arc.division);
+    setCardCompany(arc.company);
+    setCardPhone(arc.phone || '212 555 6342');
+    setCardAddress(arc.address);
+    setCardAddressLine2(arc.addressLine2 || '');
+    setCardIsTwoLineAddress(!!arc.isTwoLine);
+    setCardContact(arc.contact || '');
+    setCardStock(arc.stock);
+    setCardFinish(arc.finish);
+    setCardGsm(arc.gsm);
+    setCardWatermark(arc.watermark);
+    setCardQuote(arc.quote);
+    setCardFlipped(false);
+  };
+
+  const handleCustomNameChange = (val) => {
+    setCustomName(val);
+    const currentArc = AMERICAN_PSYCHO_ARCHETYPES.find(a => a.id === cardArchetype) || AMERICAN_PSYCHO_ARCHETYPES[0];
+    setCardHolder(val.trim() ? val.toUpperCase() : currentArc.holder);
+  };
+
+  const handleResetName = () => {
+    setCustomName('');
+    const currentArc = AMERICAN_PSYCHO_ARCHETYPES.find(a => a.id === cardArchetype) || AMERICAN_PSYCHO_ARCHETYPES[0];
+    setCardHolder(currentArc.holder);
+  };
+
+  const handleCycleCard = () => {
+    const currentIndex = AMERICAN_PSYCHO_ARCHETYPES.findIndex(a => a.id === cardArchetype);
+    const nextIndex = (currentIndex + 1) % AMERICAN_PSYCHO_ARCHETYPES.length;
+    handleSelectCardArchetype(AMERICAN_PSYCHO_ARCHETYPES[nextIndex]);
+  };
+
   // Uploaded Image State
   const [uploadedImage, setUploadedImage] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef(null);
   const stageContainerRef = useRef(null);
 
-  // 5 Photorealistic Locations & Fabrication Specs (Trilingual: KA / RU / EN)
+  // Photorealistic Locations & Fabrication Specs (Trilingual: KA / RU / EN)
   const LOCATIONS = {
     letters: {
       id: 'letters',
@@ -66,26 +201,6 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
         borderRadius: '4px'
       }
     },
-    heroes: {
-      id: 'heroes',
-      name: t.mockupLocHeroes || 'მომრგვალებული LED მეგაკონსტრუქცია',
-      shortName: t.mockupLocations?.heroes?.shortName || 'Curved LED Screen',
-      scale: '15.0m × 8.0m (120 მ²)',
-      spec: t.mockupLocations?.heroes?.spec || 'Galvanized Steel S355 • P3.91 IP68 LED',
-      standard: t.mockupLocations?.heroes?.standard || 'Wind 180 km/h • ISO 9001',
-      leadTime: t.mockupLocations?.heroes?.leadTime || '14 Work Days • 5-Yr Warranty',
-      type: 'Curved Flyover LED Megastructure',
-      image: '/assets/mockups/heroes_square.jpg',
-      isCurved: true,
-      screenBox: {
-        top: '11.0%',
-        left: '21.0%',
-        width: '28.2%',
-        height: '32.5%',
-        clipPath: 'url(#heroesCurvedClip)',
-        WebkitClipPath: 'url(#heroesCurvedClip)'
-      }
-    },
     vake: {
       id: 'vake',
       name: t.mockupLocVake || 'ფასადის არქიტექტურული ეკრანი',
@@ -123,6 +238,17 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
         transform: 'perspective(1000px) rotateY(1deg) rotateX(1.5deg) skewY(-0.5deg)',
         borderRadius: '2px'
       }
+    },
+    card: {
+      id: 'card',
+      name: t.mockupLocCard || 'Executive Business Card (3D)',
+      shortName: t.mockupLocations?.card?.shortName || 'Executive Card (3D)',
+      scale: '90×50mm',
+      spec: t.mockupLocations?.card?.spec || '450 GSM Cotton Stock • Silian Rail Deboss',
+      standard: t.mockupLocations?.card?.standard || 'Heidelberg Offset • Multi-Layer Duplex',
+      leadTime: t.mockupLocations?.card?.leadTime || '2-3 Work Days • Luxury Packaging',
+      type: 'Executive Business Card Studio (American Psycho)',
+      isCardStudio: true
     }
   };
 
@@ -206,7 +332,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
       headline: 'NEXUS CAPITAL',
       subtext: 'WEALTH & CARDS INFRASTRUCTURE',
       theme: 'cyan',
-      loc: 'heroes'
+      loc: 'vake'
     }
   ];
 
@@ -376,6 +502,23 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
 
   // Transfer Custom Build Spec to Inquiry Form
   const handleBookBillboard = () => {
+    if (selectedLoc === 'card') {
+      const spec = {
+        productType: 'commercial_print',
+        inputMode: 'visualizer_spec',
+        brandText: `${cardHolder} • ${cardCompany} (${cardFormat === 'flyer' ? (t.cardFormatFlyer || 'Luxury Flyer A5') : (t.cardFormatBusiness || 'Executive Business Card')})`,
+        dimensions: cardFormat === 'flyer' ? '148mm × 210mm (A5)' : '90mm × 50mm (Executive)',
+        material: `${cardGsm} GSM ${cardStock.toUpperCase()} • ${cardFinish.toUpperCase().replace('_', ' ')} • Watermark: ${cardWatermark ? 'Active' : 'None'}`,
+        lighting: 'Executive Studio Illumination',
+        estimate: `Discipline 03 / Heidelberg Offset: ${cardHolder} (${cardGsm} GSM)`,
+        turnaround: currentLoc.leadTime
+      };
+      if (onBookBillboard) {
+        onBookBillboard(spec);
+      }
+      return;
+    }
+
     const spec = {
       productType: 'turnkey_structure',
       inputMode: 'visualizer_spec',
@@ -459,194 +602,150 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
               </div>
             </div>
 
-            {/* PHOTOREALISTIC PHOTO VIEWPORT WITH LIVE PROJECTION */}
-            <div className="mockup-photo-stage" ref={stageContainerRef}>
-              {/* Hidden SVG Definitions for Curved Clip-Paths */}
-              <svg style={{ position: 'absolute', width: 0, height: 0, pointerEvents: 'none' }} aria-hidden="true">
-                <defs>
-                  <clipPath id="heroesCurvedClip" clipPathUnits="objectBoundingBox">
-                    <path d="M 0,0 Q 0.50,0.16 1,0.28 L 1,0.99 Q 0.50,0.98 0,0.89 Z" />
-                  </clipPath>
-                </defs>
-              </svg>
+            {/* PHOTOREALISTIC PHOTO VIEWPORT WITH LIVE PROJECTION / 3D CARD STUDIO */}
+            <div className={`mockup-photo-stage ${currentLoc.isCardStudio ? 'card-studio-mode' : ''}`} ref={stageContainerRef}>
+              {currentLoc.isCardStudio ? (
+                <CardStage3D
+                  archetype={cardArchetype}
+                  format={cardFormat}
+                  stock={cardStock}
+                  finish={cardFinish}
+                  gsm={cardGsm}
+                  watermark={cardWatermark}
+                  isFlipped={cardFlipped}
+                  onToggleFlip={() => setCardFlipped(!cardFlipped)}
+                  nightMode={nightMode}
+                  phone={cardPhone}
+                  holder={cardHolder}
+                  role={cardRole}
+                  division={cardDivision}
+                  company={cardCompany}
+                  address={cardAddress}
+                  addressLine2={cardAddressLine2}
+                  isTwoLineAddress={cardIsTwoLineAddress}
+                  contact={cardContact}
+                  flyerHeadline={cardCompany || 'PIERCE & PIERCE'}
+                  flyerSub={`${cardDivision} • ${cardRole}`}
+                  flyerDate="OCTOBER 24 • TBILISI / MANHATTAN"
+                />
+              ) : (
+                <>
+                  {/* Background High-Resolution Tbilisi Architectural Scene Photo */}
+                  <img
+                    src={currentLoc.image}
+                    alt={currentLoc.name}
+                    className={`mockup-city-photo ${nightMode ? 'photo-night-grade' : 'photo-day-grade'}`}
+                  />
 
-              {/* Background High-Resolution Tbilisi Architectural Scene Photo */}
-              <img
-                src={currentLoc.image}
-                alt={currentLoc.name}
-                className={`mockup-city-photo ${nightMode ? 'photo-night-grade' : 'photo-day-grade'}`}
-              />
+                  {/* Day/Night Volumetric Atmosphere Overlay */}
+                  {nightMode && <div className="photo-night-ambience-overlay"></div>}
 
-              {/* Day/Night Volumetric Atmosphere Overlay */}
-              {nightMode && <div className="photo-night-ambience-overlay"></div>}
+                  {/* PERSPECTIVE PROJECTED DISPLAY / 3D LETTERS SIGNAGE */}
+                  <div
+                    className={`billboard-perspective-screen ${currentLoc.is3DLetters ? 'screen-3d-letters-mode' : ''} ${nightMode ? 'screen-night-glow' : 'screen-day-glare'}`}
+                    style={{
+                      top: currentLoc.screenBox.top,
+                      left: currentLoc.screenBox.left,
+                      width: currentLoc.screenBox.width,
+                      height: currentLoc.screenBox.height,
+                      transform: currentLoc.screenBox.transform,
+                      borderRadius: currentLoc.screenBox.borderRadius,
+                      clipPath: currentLoc.screenBox.clipPath,
+                      WebkitClipPath: currentLoc.screenBox.WebkitClipPath
+                    }}
+                  >
+                    {/* 1. Creative: 3D Facade Letters with Physical Return Walls & Halo Wall Wash */}
+                    {currentLoc.is3DLetters ? (
+                      <div className="facade-letters-container">
+                        {/* Layer 1: Ambient Halo Light Wash on Granite Wall */}
+                        {(lightingType === 'halo' || lightingType === 'dual') && (
+                          <div
+                            className="letters-wall-wash"
+                            style={{
+                              background: `radial-gradient(ellipse at 50% 50%, ${currentTheme.glowColor} 0%, transparent 70%)`,
+                              opacity: nightMode ? 0.85 : 0.4
+                            }}
+                          />
+                        )}
 
-              {/* PERSPECTIVE PROJECTED DISPLAY / 3D LETTERS SIGNAGE */}
-              <div
-                className={`billboard-perspective-screen ${currentLoc.isCurved ? 'screen-curved-megaboard' : ''} ${currentLoc.is3DLetters ? 'screen-3d-letters-mode' : ''} ${nightMode ? 'screen-night-glow' : 'screen-day-glare'}`}
-                style={{
-                  top: currentLoc.screenBox.top,
-                  left: currentLoc.screenBox.left,
-                  width: currentLoc.screenBox.width,
-                  height: currentLoc.screenBox.height,
-                  transform: currentLoc.screenBox.transform,
-                  borderRadius: currentLoc.screenBox.borderRadius,
-                  clipPath: currentLoc.screenBox.clipPath,
-                  WebkitClipPath: currentLoc.screenBox.WebkitClipPath
-                }}
-              >
-                {/* 1. Creative: 3D Facade Letters with Physical Return Walls & Halo Wall Wash */}
-                {currentLoc.is3DLetters ? (
-                  <div className="facade-letters-container">
-                    {/* Layer 1: Ambient Halo Light Wash on Granite Wall */}
-                    {(lightingType === 'halo' || lightingType === 'dual') && (
+                        {/* Layer 2: True 3D Physical Extruded Letters */}
+                        <div
+                          className="letters-3d-wrapper"
+                          style={{
+                            transform: `perspective(800px) rotateX(3deg) translateZ(${letterDepth / 5}px)`
+                          }}
+                        >
+                          <div
+                            className="facade-brand-title"
+                            style={get3DLetterStyles(currentTheme, letterDepth, lightingType, nightMode)}
+                          >
+                            {headline || 'VECTOR HUB'}
+                          </div>
+                          <div
+                            className="facade-brand-sub"
+                            style={{
+                              color: currentTheme.sub,
+                              backgroundImage: currentTheme.subGradient,
+                              textShadow: currentTheme.subShadow
+                            }}
+                          >
+                            {subtext || 'ARCHITECTURAL SIGNAGE STUDIO'}
+                          </div>
+                        </div>
+                      </div>
+                    ) : inputMode === 'upload' && uploadedImage ? (
                       <div
-                        className="letters-wall-wash"
+                        className="screen-content-wrapper"
                         style={{
-                          background: `radial-gradient(ellipse at 50% 50%, ${currentTheme.glowColor} 0%, transparent 70%)`,
-                          opacity: nightMode ? 0.85 : 0.4
+                          backgroundImage: `url(${uploadedImage})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center'
                         }}
                       />
-                    )}
-
-                    {/* Layer 2: True 3D Physical Extruded Letters */}
-                    <div
-                      className="letters-3d-wrapper"
-                      style={{
-                        transform: `perspective(800px) rotateX(3deg) translateZ(${letterDepth / 5}px)`
-                      }}
-                    >
+                    ) : (
                       <div
-                        className="facade-brand-title"
-                        style={get3DLetterStyles(currentTheme, letterDepth, lightingType, nightMode)}
-                      >
-                        {headline || 'VECTOR HUB'}
-                      </div>
-                      <div
-                        className="facade-brand-sub"
+                        className="screen-content-wrapper"
                         style={{
-                          color: currentTheme.sub,
-                          backgroundImage: currentTheme.subGradient,
-                          textShadow: currentTheme.subShadow
+                          background: currentTheme.bg,
+                          color: currentTheme.primary,
+                          border: `1px solid ${currentTheme.border}`
                         }}
                       >
-                        {subtext || 'ARCHITECTURAL SIGNAGE STUDIO'}
+                        <div
+                          className="screen-inner-border"
+                          style={{ borderColor: currentTheme.border }}
+                        />
+                        <div
+                          className="screen-brand-crest"
+                          style={{ borderColor: currentTheme.primary, color: currentTheme.primary }}
+                        >
+                          V
+                        </div>
+                        <div
+                          className="screen-headline-text"
+                          style={{ color: currentTheme.primary }}
+                        >
+                          {headline || 'VECTOR HUB'}
+                        </div>
+                        <div
+                          className="screen-subtext-text"
+                          style={{ color: currentTheme.sub }}
+                        >
+                          {subtext || 'OUTDOOR PRECISION'}
+                        </div>
                       </div>
-                    </div>
+                    )}
+
+                    {/* LED Subpixel Matrix Overlay */}
+                    {!currentLoc.is3DLetters && <div className="screen-led-matrix-overlay" />}
+
+                    {/* Photometric Glass Specular Reflection */}
+                    {!currentLoc.is3DLetters && (
+                      <div className={`screen-glass-reflection ${nightMode ? 'reflection-night' : 'reflection-day'}`} />
+                    )}
                   </div>
-                ) : inputMode === 'upload' && uploadedImage ? (
-                  <div
-                    className="screen-content-wrapper"
-                    style={{
-                      backgroundImage: `url(${uploadedImage})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center'
-                    }}
-                  />
-                ) : currentLoc.isCurved ? (
-                  /* TRUE 3D CURVED VECTOR TEXT & BORDER ENGINE */
-                  <svg
-                    viewBox="0 0 500 280"
-                    style={{ width: '100%', height: '100%', display: 'block' }}
-                  >
-                    <defs>
-                      <path id="heroesHeadlineArc" d="M 30,140 Q 250,205 470,175" fill="none" />
-                      <path id="heroesSubtextArc" d="M 30,190 Q 250,245 470,220" fill="none" />
-                    </defs>
-
-                    <path
-                      d="M 15,0 Q 245,80 485,80 L 485,280 Q 250,300 15,245 Z"
-                      fill={currentTheme.bg}
-                    />
-
-                    <path
-                      d="M 30,28 Q 250,94 470,100 L 470,260 Q 250,280 30,230 Z"
-                      fill="none"
-                      stroke={currentTheme.border}
-                      strokeWidth="2"
-                      strokeDasharray="6 6"
-                      opacity="0.8"
-                    />
-
-                    <g transform="translate(250, 95)">
-                      <circle cx="0" cy="30" r="16" fill="none" stroke={currentTheme.primary} strokeWidth="2" />
-                      <text x="0" y="35" fill={currentTheme.primary} fontSize="13" fontFamily="Syne, sans-serif" fontWeight="900" textAnchor="middle">V</text>
-                    </g>
-
-                    <text>
-                      <textPath
-                        href="#heroesHeadlineArc"
-                        startOffset="50%"
-                        textAnchor="middle"
-                        fill={currentTheme.primary}
-                        fontSize={headline.length > 14 ? '20' : '26'}
-                        fontFamily="TG Square, Noto Sans Georgian, Syne, sans-serif"
-                        fontWeight="900"
-                        letterSpacing="0.04em"
-                      >
-                        {headline || 'VECTOR HUB'}
-                      </textPath>
-                    </text>
-
-                    <text>
-                      <textPath
-                        href="#heroesSubtextArc"
-                        startOffset="50%"
-                        textAnchor="middle"
-                        fill={currentTheme.sub}
-                        fontSize="11"
-                        fontFamily="Space Mono, monospace"
-                        fontWeight="700"
-                        letterSpacing="0.08em"
-                      >
-                        {subtext || 'PRECISION ARCHITECTURAL ADVERTISING'}
-                      </textPath>
-                    </text>
-                  </svg>
-                ) : (
-                  <div
-                    className="screen-content-wrapper"
-                    style={{
-                      background: currentTheme.bg,
-                      color: currentTheme.primary,
-                      border: `1px solid ${currentTheme.border}`
-                    }}
-                  >
-                    <div
-                      className="screen-inner-border"
-                      style={{ borderColor: currentTheme.border }}
-                    />
-                    <div
-                      className="screen-brand-crest"
-                      style={{ borderColor: currentTheme.primary, color: currentTheme.primary }}
-                    >
-                      V
-                    </div>
-                    <div
-                      className="screen-headline-text"
-                      style={{ color: currentTheme.primary }}
-                    >
-                      {headline || 'VECTOR HUB'}
-                    </div>
-                    <div
-                      className="screen-subtext-text"
-                      style={{ color: currentTheme.sub }}
-                    >
-                      {subtext || 'OUTDOOR PRECISION'}
-                    </div>
-                  </div>
-                )}
-
-                {/* Cylindrical Curvature 3D Depth Shader */}
-                {currentLoc.isCurved && <div className="screen-cylindrical-depth-shader" />}
-
-                {/* LED Subpixel Matrix Overlay */}
-                {!currentLoc.is3DLetters && <div className="screen-led-matrix-overlay" />}
-
-                {/* Photometric Glass Specular Reflection */}
-                {!currentLoc.is3DLetters && (
-                  <div className={`screen-glass-reflection ${nightMode ? 'reflection-night' : 'reflection-day'}`} />
-                )}
-              </div>
+                </>
+              )}
             </div>
 
             {/* Streamlined Stage Footer Metrics */}
@@ -659,175 +758,286 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
 
           {/* Right: Clean Visualizer Controls & Booking */}
           <div className="mockup-controls-panel">
-            {/* Input Mode Selector */}
-            <div className="control-block">
-              <div className="control-title">
-                <span>{t.designModeStep}</span>
-                <span className="badge-tag-mini">{inputMode === 'upload' ? 'LOGO UPLOAD' : 'LIVE DESIGNER'}</span>
-              </div>
-              <div className="segmented-control mode-selector-bar">
-                <button
-                  className={`segment-btn ${inputMode === 'designer' ? 'active' : ''}`}
-                  onClick={() => setInputMode('designer')}
-                  data-cursor-text="DESIGNER"
-                  type="button"
-                >
-                  <Sparkles size={13} style={{ display: 'inline', marginRight: '4px' }} />
-                  {t.mockupModeDesigner}
-                </button>
-                <button
-                  className={`segment-btn ${inputMode === 'upload' ? 'active' : ''}`}
-                  onClick={() => setInputMode('upload')}
-                  data-cursor-text="UPLOAD"
-                  type="button"
-                >
-                  <Upload size={13} style={{ display: 'inline', marginRight: '4px' }} />
-                  {t.mockupModeUpload}
-                </button>
-              </div>
-            </div>
-
-            {/* If Upload Mode: Dropzone */}
-            {inputMode === 'upload' ? (
-              <div className="control-block">
-                <div
-                  className={`svg-dropzone ${isDragOver ? 'drag-over' : ''}`}
-                  onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
-                  onDragLeave={() => setIsDragOver(false)}
-                  onDrop={handleDrop}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    style={{ display: 'none' }}
-                    accept="image/*,.svg"
-                    onChange={(e) => e.target.files && handleImageUpload(e.target.files[0])}
-                  />
-                  <ImageIcon size={20} className="dropzone-icon" />
-                  <div className="dropzone-text">
-                    <strong>{uploadedImage ? t.fileLoadedChange : t.mockupUploadPrompt}</strong>
-                    <span>{t.autoProjectionSub}</span>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              /* If Designer Mode: Live Text & Themes */
+            {selectedLoc === 'card' ? (
+              /* ================= SIMPLIFIED & FUN AMERICAN PSYCHO CONTROLS ================= */
               <>
-                {/* Brand Headline */}
+                {/* 1. Pick a Character (The 4 Movie Cards + Cycle) */}
                 <div className="control-block">
-                  <div className="control-title">{t.mockupBrandInput}</div>
-                  <input
-                    type="text"
-                    className="swiss-input"
-                    value={headline}
-                    onChange={(e) => setHeadline(e.target.value)}
-                    placeholder="BRAND OR SIGNAGE TEXT..."
-                    maxLength={30}
-                  />
-                </div>
+                  <div className="control-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>{t.cardArchetypes || 'SELECT CHARACTER'}</span>
+                    <button
+                      type="button"
+                      onClick={handleCycleCard}
+                      className="btn-cycle-card"
+                      title="Next character card"
+                    >
+                      <Sparkles size={11} />
+                      <span>{t.cardNextCard || 'NEXT CARD 🎲'}</span>
+                    </button>
+                  </div>
 
-                {/* Subtext */}
-                <div className="control-block">
-                  <div className="control-title">{t.mockupTaglineInput}</div>
-                  <input
-                    type="text"
-                    className="swiss-input"
-                    value={subtext}
-                    onChange={(e) => setSubtext(e.target.value)}
-                    placeholder="SUBTITLE OR TAGLINE..."
-                    maxLength={40}
-                  />
-                </div>
-
-                {/* Curated Material / Color Styles */}
-                <div className="control-block">
-                  <div className="control-title">{t.mockupTheme}</div>
-                  <div className="color-themes-grid">
-                    {Object.values(THEMES).map((th) => (
-                      <button
-                        key={th.id}
-                        className={`theme-chip-btn ${activeTheme === th.id ? 'active' : ''}`}
-                        onClick={() => setActiveTheme(th.id)}
-                        type="button"
-                      >
-                        <span className="theme-color-swatch" style={{ background: th.primary, borderColor: th.border }}></span>
-                        <span>{th.name}</span>
-                      </button>
-                    ))}
+                  <div className="card-archetypes-simplified-grid">
+                    {AMERICAN_PSYCHO_ARCHETYPES.map((arc) => {
+                      const isSelected = cardArchetype === arc.id;
+                      return (
+                        <button
+                          key={arc.id}
+                          type="button"
+                          className={`card-archetype-fun-chip ${isSelected ? 'active' : ''}`}
+                          onClick={() => handleSelectCardArchetype(arc)}
+                        >
+                          <div className="archetype-chip-header">
+                            <span className="archetype-chip-name">{arc.name}</span>
+                            {isSelected && <span className="archetype-chip-active-dot" />}
+                          </div>
+                          <span className="archetype-chip-details">
+                            {arc.tag}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
-                {/* 3D Dimensional Channel Letters Customization */}
-                {selectedLoc === 'letters' && (
-                  <>
-                    {/* Depth Extrusion Selector */}
-                    <div className="control-block">
-                      <div className="control-title">
-                        <span>{t.depthTitle}</span>
-                        <span className="badge-tag-mini">{letterDepth} MM</span>
+                {/* 2. Iconic Film Quote */}
+                <div className="control-block">
+                  <div className="ap-film-quote-card">
+                    <Quote size={15} className="ap-quote-symbol" />
+                    <div className="ap-quote-body">
+                      <div className="ap-quote-film-tag">AMERICAN PSYCHO (2000)</div>
+                      <p className="ap-quote-dialogue">"{cardQuote}"</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Fun Personalization: Put Your Name on the Card */}
+                <div className="control-block">
+                  <div className="control-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>{t.cardPutYourName || 'PUT YOUR NAME ON THE CARD'}</span>
+                    {customName && (
+                      <button
+                        type="button"
+                        onClick={handleResetName}
+                        className="btn-reset-name-mini"
+                        title="Restore original character name"
+                      >
+                        {t.cardResetName || '↺ RESET NAME'}
+                      </button>
+                    )}
+                  </div>
+                  <div className="ap-name-input-row">
+                    <input
+                      type="text"
+                      className="swiss-input ap-fun-name-input"
+                      value={customName}
+                      onChange={(e) => handleCustomNameChange(e.target.value)}
+                      placeholder={`TYPE YOUR NAME (e.g. ${cardHolder})...`}
+                      maxLength={30}
+                    />
+                  </div>
+                  <span className="ap-name-hint">
+                    ⚡ Live preview in {cardStock.toUpperCase()} paper • {cardArchetype === 'bryce' ? 'Raised Thermography' : cardArchetype === 'allen' ? 'Copperplate Gothic' : cardArchetype === 'van_patten' ? 'Romalian' : 'Silian Rail'}
+                  </span>
+                </div>
+
+                {/* 4. Quick Toggles: Flip 3D & Watermark */}
+                <div className="control-block">
+                  <div className="ap-quick-actions-row">
+                    <button
+                      type="button"
+                      className={`segment-btn ${cardFlipped ? 'active' : ''}`}
+                      style={{ flex: 1, justifyContent: 'center' }}
+                      onClick={() => setCardFlipped(!cardFlipped)}
+                    >
+                      <RotateCw size={13} style={{ marginRight: '6px' }} className={cardFlipped ? 'rotated-flip' : ''} />
+                      {cardFlipped ? (t.cardFront || 'SEE FRONT FACE') : (t.cardBack || 'FLIP TO BACK')}
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`segment-btn ${cardWatermark ? 'active' : ''}`}
+                      style={{ flex: 1, justifyContent: 'center' }}
+                      onClick={() => setCardWatermark(!cardWatermark)}
+                    >
+                      <span>{cardWatermark ? '💧 WATERMARK ON' : '💧 WATERMARK OFF'}</span>
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              /* ================= EXISTING OUTDOOR BILLBOARD CONTROLS ================= */
+              <>
+                {/* Input Mode Selector */}
+                <div className="control-block">
+                  <div className="control-title">
+                    <span>{t.designModeStep}</span>
+                    <span className="badge-tag-mini">{inputMode === 'upload' ? 'LOGO UPLOAD' : 'LIVE DESIGNER'}</span>
+                  </div>
+                  <div className="segmented-control mode-selector-bar">
+                    <button
+                      className={`segment-btn ${inputMode === 'designer' ? 'active' : ''}`}
+                      onClick={() => setInputMode('designer')}
+                      data-cursor-text="DESIGNER"
+                      type="button"
+                    >
+                      <Sparkles size={13} style={{ display: 'inline', marginRight: '4px' }} />
+                      {t.mockupModeDesigner}
+                    </button>
+                    <button
+                      className={`segment-btn ${inputMode === 'upload' ? 'active' : ''}`}
+                      onClick={() => setInputMode('upload')}
+                      data-cursor-text="UPLOAD"
+                      type="button"
+                    >
+                      <Upload size={13} style={{ display: 'inline', marginRight: '4px' }} />
+                      {t.mockupModeUpload}
+                    </button>
+                  </div>
+                </div>
+
+                {/* If Upload Mode: Dropzone */}
+                {inputMode === 'upload' ? (
+                  <div className="control-block">
+                    <div
+                      className={`svg-dropzone ${isDragOver ? 'drag-over' : ''}`}
+                      onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+                      onDragLeave={() => setIsDragOver(false)}
+                      onDrop={handleDrop}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        style={{ display: 'none' }}
+                        accept="image/*,.svg"
+                        onChange={(e) => e.target.files && handleImageUpload(e.target.files[0])}
+                      />
+                      <ImageIcon size={20} className="dropzone-icon" />
+                      <div className="dropzone-text">
+                        <strong>{uploadedImage ? t.fileLoadedChange : t.mockupUploadPrompt}</strong>
+                        <span>{t.autoProjectionSub}</span>
                       </div>
-                      <div className="segmented-control">
-                        {[
-                          { val: 30, label: t.depth30 },
-                          { val: 60, label: t.depth60 },
-                          { val: 100, label: t.depth100 }
-                        ].map((d) => (
+                    </div>
+                  </div>
+                ) : (
+                  /* If Designer Mode: Live Text & Themes */
+                  <>
+                    {/* Brand Headline */}
+                    <div className="control-block">
+                      <div className="control-title">{t.mockupBrandInput}</div>
+                      <input
+                        type="text"
+                        className="swiss-input"
+                        value={headline}
+                        onChange={(e) => setHeadline(e.target.value)}
+                        placeholder="BRAND OR SIGNAGE TEXT..."
+                        maxLength={30}
+                      />
+                    </div>
+
+                    {/* Subtext */}
+                    <div className="control-block">
+                      <div className="control-title">{t.mockupTaglineInput}</div>
+                      <input
+                        type="text"
+                        className="swiss-input"
+                        value={subtext}
+                        onChange={(e) => setSubtext(e.target.value)}
+                        placeholder="SUBTITLE OR TAGLINE..."
+                        maxLength={40}
+                      />
+                    </div>
+
+                    {/* Curated Material / Color Styles */}
+                    <div className="control-block">
+                      <div className="control-title">{t.mockupTheme}</div>
+                      <div className="color-themes-grid">
+                        {Object.values(THEMES).map((th) => (
                           <button
-                            key={d.val}
-                            className={`segment-btn ${letterDepth === d.val ? 'active' : ''}`}
-                            onClick={() => setLetterDepth(d.val)}
+                            key={th.id}
+                            className={`theme-chip-btn ${activeTheme === th.id ? 'active' : ''}`}
+                            onClick={() => setActiveTheme(th.id)}
                             type="button"
                           >
-                            {d.label}
+                            <span className="theme-color-swatch" style={{ background: th.primary, borderColor: th.border }}></span>
+                            <span>{th.name}</span>
                           </button>
                         ))}
                       </div>
                     </div>
 
-                    {/* Lighting System Selector */}
+                    {/* 3D Dimensional Channel Letters Customization */}
+                    {selectedLoc === 'letters' && (
+                      <>
+                        {/* Depth Extrusion Selector */}
+                        <div className="control-block">
+                          <div className="control-title">
+                            <span>{t.depthTitle}</span>
+                            <span className="badge-tag-mini">{letterDepth} MM</span>
+                          </div>
+                          <div className="segmented-control">
+                            {[
+                              { val: 30, label: t.depth30 },
+                              { val: 60, label: t.depth60 },
+                              { val: 100, label: t.depth100 }
+                            ].map((d) => (
+                              <button
+                                key={d.val}
+                                className={`segment-btn ${letterDepth === d.val ? 'active' : ''}`}
+                                onClick={() => setLetterDepth(d.val)}
+                                type="button"
+                              >
+                                {d.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Lighting System Selector */}
+                        <div className="control-block">
+                          <div className="control-title">
+                            <span>{t.lightingTitle}</span>
+                          </div>
+                          <div className="segmented-control">
+                            {[
+                              { val: 'halo', label: t.lightingHalo },
+                              { val: 'front', label: t.lightingFront },
+                              { val: 'dual', label: t.lightingDual }
+                            ].map((l) => (
+                              <button
+                                key={l.val}
+                                className={`segment-btn ${lightingType === l.val ? 'active' : ''}`}
+                                onClick={() => setLightingType(l.val)}
+                                type="button"
+                              >
+                                {l.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Sample Presets */}
                     <div className="control-block">
-                      <div className="control-title">
-                        <span>{t.lightingTitle}</span>
-                      </div>
-                      <div className="segmented-control">
-                        {[
-                          { val: 'halo', label: t.lightingHalo },
-                          { val: 'front', label: t.lightingFront },
-                          { val: 'dual', label: t.lightingDual }
-                        ].map((l) => (
-                          <button
-                            key={l.val}
-                            className={`segment-btn ${lightingType === l.val ? 'active' : ''}`}
-                            onClick={() => setLightingType(l.val)}
-                            type="button"
-                          >
-                            {l.label}
-                          </button>
-                        ))}
+                      <div className="presets-row">
+                        <span className="presets-label">{t.mockupPresetLabel}</span>
+                        <div className="presets-buttons">
+                          {PRESETS.map((p) => (
+                            <button
+                              key={p.id}
+                              className={`preset-btn ${activePreset === p.id ? 'active' : ''}`}
+                              onClick={() => handleSelectPreset(p)}
+                              type="button"
+                            >
+                              {p.name}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </>
                 )}
-
-                {/* Sample Presets */}
-                <div className="control-block">
-                  <div className="presets-row">
-                    <span className="presets-label">{t.mockupPresetLabel}</span>
-                    <div className="presets-buttons">
-                      {PRESETS.map((p) => (
-                        <button
-                          key={p.id}
-                          className={`preset-btn ${activePreset === p.id ? 'active' : ''}`}
-                          onClick={() => handleSelectPreset(p)}
-                          type="button"
-                        >
-                          {p.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
               </>
             )}
 
@@ -846,10 +1056,14 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
               <button
                 className="btn-swiss btn-swiss-solid visualizer-submit-btn"
                 onClick={handleBookBillboard}
-                data-cursor-text="INQUIRE BUILD"
+                data-cursor-text={selectedLoc === 'card' ? 'PRINT RUN' : 'INQUIRE BUILD'}
                 type="button"
               >
-                <span>{t.mockupBookBtn || 'კონსტრუქციის დამზადება & მონტაჟი →'}</span>
+                <span>
+                  {selectedLoc === 'card'
+                    ? (t.cardBookBtn || 'Order Print Run on Heidelberg →')
+                    : (t.mockupBookBtn || 'კონსტრუქციის დამზადება & მონტაჟი →')}
+                </span>
                 <ArrowRight size={15} />
               </button>
             </div>
