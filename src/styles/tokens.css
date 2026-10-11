@@ -26,7 +26,7 @@
 
   --ink-primary: #000000;
   --ink-secondary: #495057;
-  --ink-muted: #868e96;
+  --ink-muted: #666e76; /* ≥4.5:1 on bg-main and bg-subtle (WCAG AA) */
   --ink-hairline: #ced4da;
   --ink-border: #000000;
   --ink-border-subtle: #e9ecef;
@@ -82,7 +82,7 @@
 
   --ink-primary: #ffffff;
   --ink-secondary: #adb5bd;
-  --ink-muted: #6c757d;
+  --ink-muted: #808a93; /* ≥4.5:1 on dark bg-main and bg-subtle */
   --ink-hairline: #343a40;
   --ink-border: #ffffff;
   --ink-border-subtle: #212529;

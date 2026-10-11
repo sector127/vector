@@ -1011,10 +1011,11 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
                 </div>
                 <div className="slider-pair">
                   <div>
-                    <label className="slider-label">
+                    <label className="slider-label" htmlFor="wb-width">
                       {t.widthLabelUpper}: {width}m
                     </label>
                     <input
+                      id="wb-width"
                       type="range"
                       min="1.0"
                       max="15.0"
@@ -1025,10 +1026,11 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
                     />
                   </div>
                   <div>
-                    <label className="slider-label">
+                    <label className="slider-label" htmlFor="wb-height">
                       {t.heightLabelUpper}: {height}m
                     </label>
                     <input
+                      id="wb-height"
                       type="range"
                       min="0.4"
                       max="5.0"
@@ -1097,6 +1099,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
                   <span className="control-value">{depthMm} mm</span>
                 </div>
                 <input
+                  aria-label={t.returnDepth || 'Return Depth'}
                   type="range"
                   min="30"
                   max="150"

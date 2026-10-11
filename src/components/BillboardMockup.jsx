@@ -445,6 +445,11 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
         backgroundColor: '#06080d',
         logging: false,
         onclone: (clonedDoc) => {
+          // The page may show the 768px variant; the 2x export always uses the full-size photo
+          clonedDoc.querySelectorAll('.mockup-city-photo').forEach((img) => {
+            img.removeAttribute('srcset');
+            img.removeAttribute('loading');
+          });
           // 1. Flatten 3D perspective wrapper in clone so perspective rotate doesn't distort html2canvas
           const lettersWrapper = clonedDoc.querySelector('.letters-3d-wrapper');
           if (lettersWrapper) {
@@ -650,6 +655,12 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
                   {/* Background High-Resolution Tbilisi Architectural Scene Photo */}
                   <img
                     src={currentLoc.image}
+                    srcSet={`${currentLoc.image.replace('.webp', '-768.webp')} 768w, ${currentLoc.image} 1376w`}
+                    sizes="(max-width: 1024px) 100vw, 720px"
+                    width="1376"
+                    height="768"
+                    loading="lazy"
+                    decoding="async"
                     alt={currentLoc.name}
                     className={`mockup-city-photo ${nightMode ? 'photo-night-grade' : 'photo-day-grade'}`}
                   />

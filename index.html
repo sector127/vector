@@ -68,7 +68,10 @@
          Card-studio serif fonts are loaded on demand from BillboardMockup.jsx. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600&family=Exo+2:wght@500;600&family=Inter:wght@400;500;600&family=Noto+Sans+Georgian:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Loaded without blocking first paint: text renders in the system fallback, then swaps (display=swap) -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600&family=Exo+2:wght@500;600&family=Inter:wght@400;500;600&family=Noto+Sans+Georgian:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600&family=Exo+2:wght@500;600&family=Inter:wght@400;500;600&family=Noto+Sans+Georgian:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600&family=Exo+2:wght@500;600&family=Inter:wght@400;500;600&family=Noto+Sans+Georgian:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
   </head>
   <body>
     <div id="root"></div>

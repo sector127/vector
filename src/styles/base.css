@@ -236,3 +236,8 @@ button {
   display: inline;
   margin-right: 6px;
 }
+
+/* Holds space for a lazily loaded studio section so the page doesn't jump when it arrives */
+.section-placeholder {
+  min-height: 100vh;
+}

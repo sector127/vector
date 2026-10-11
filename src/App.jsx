@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Disciplines from './components/Disciplines';
-import VectorWorkbench from './components/VectorWorkbench';
-import BillboardMockup from './components/BillboardMockup';
 import Archive from './components/Archive';
 import Machinery from './components/Machinery';
 import SpecInquiry from './components/SpecInquiry';
@@ -13,7 +11,35 @@ import VectorCursor from './components/VectorCursor';
 import VectorFieldCanvas from './components/VectorFieldCanvas';
 import { getTranslation } from './i18n/translations';
 
+// The two interactive studios are the heaviest components and sit below the fold;
+// splitting them out lets the hero paint before their code has downloaded.
+const loadWorkbench = () => import('./components/VectorWorkbench');
+const loadMockup = () => import('./components/BillboardMockup');
+const VectorWorkbench = lazy(loadWorkbench);
+const BillboardMockup = lazy(loadMockup);
+
+// Keeps the anchor target and roughly the final height in place while a studio chunk loads
+function SectionPlaceholder({ id }) {
+  return <section id={id} className="section-block section-placeholder" aria-busy="true" />;
+}
+
 export default function App() {
+  // A deep link (#mockup-studio, #archive, …) is resolved by the browser before the lazy
+  // studios exist, so re-apply it once their real heights are in the layout
+  useEffect(() => {
+    const { hash } = window.location;
+    if (!hash || hash.length < 2) return;
+    let tries = 0;
+    const timer = setInterval(() => {
+      tries += 1;
+      if (!document.querySelector('.section-placeholder') || tries > 50) {
+        clearInterval(timer);
+        document.getElementById(hash.slice(1))?.scrollIntoView();
+      }
+    }, 100);
+    return () => clearInterval(timer);
+  }, []);
+
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('vector_hub_theme');
@@ -153,17 +179,21 @@ export default function App() {
 
         <Disciplines lang={lang} />
 
-        <VectorWorkbench
-          lang={lang}
-          onTransferSpec={handleTransferSpec}
-          onShowToast={showToast}
-        />
+        <Suspense fallback={<SectionPlaceholder id="workbench" />}>
+          <VectorWorkbench
+            lang={lang}
+            onTransferSpec={handleTransferSpec}
+            onShowToast={showToast}
+          />
+        </Suspense>
 
-        <BillboardMockup
-          lang={lang}
-          onBookBillboard={handleTransferSpec}
-          onShowToast={showToast}
-        />
+        <Suspense fallback={<SectionPlaceholder id="mockup-studio" />}>
+          <BillboardMockup
+            lang={lang}
+            onBookBillboard={handleTransferSpec}
+            onShowToast={showToast}
+          />
+        </Suspense>
 
         <Archive lang={lang} />
 

@@ -23,6 +23,7 @@ export default function VectorFieldCanvas({ theme }) {
       height = canvas.height = window.innerHeight;
       initGrid();
       if (reduceMotion) render();
+      else wake();
     };
 
     const handleMouseMove = (e) => {
@@ -33,6 +34,7 @@ export default function VectorFieldCanvas({ theme }) {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
       mouse.isMoving = true;
+      wake();
     };
 
     window.addEventListener('resize', handleResize);
@@ -66,9 +68,19 @@ export default function VectorFieldCanvas({ theme }) {
 
     initGrid();
 
+    // The loop only runs while something moves: once the cursor rests and every node has
+    // sprung back, it stops, and the next mousemove wakes it. Touch devices draw once and idle.
+    let running = false;
+    const wake = () => {
+      if (running || reduceMotion || document.hidden) return;
+      running = true;
+      animationFrameId = requestAnimationFrame(render);
+    };
+
     // Render loop
     const render = () => {
       ctx.clearRect(0, 0, width, height);
+      let maxMove = 0;
 
       const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
       const strokeColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
@@ -92,8 +104,11 @@ export default function VectorFieldCanvas({ theme }) {
           p.angle = angle;
         } else {
           // Spring back to origin
-          p.x += (p.originX - p.x) * 0.1;
-          p.y += (p.originY - p.y) * 0.1;
+          const stepX = (p.originX - p.x) * 0.1;
+          const stepY = (p.originY - p.y) * 0.1;
+          p.x += stepX;
+          p.y += stepY;
+          maxMove = Math.max(maxMove, Math.abs(stepX), Math.abs(stepY));
         }
 
         // Draw crosshair node
@@ -139,13 +154,20 @@ export default function VectorFieldCanvas({ theme }) {
       }
       ctx.setLineDash([]);
 
-      if (!document.hidden && !reduceMotion) {
+      const settled = !mouse.isMoving && maxMove < 0.05;
+      mouse.isMoving = false;
+      if (!document.hidden && !reduceMotion && !settled) {
+        running = true;
         animationFrameId = requestAnimationFrame(render);
+      } else {
+        running = false;
       }
     };
 
     const handleVisibilityChange = () => {
       if (!document.hidden) {
+        cancelAnimationFrame(animationFrameId);
+        running = false;
         render();
       }
     };
