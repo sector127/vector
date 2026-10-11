@@ -1,13 +1,17 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, lazy, Suspense } from 'react';
 import { Download, Sun, Moon, Upload, ArrowRight, Sparkles, Image as ImageIcon, ShieldCheck, Wrench, Layers, Loader2, RotateCw, Quote } from 'lucide-react';
-import CardStage3D from './CardStage3D';
 import { getTranslation } from '../i18n/translations';
+import { CARD_STUDIO_ENABLED } from '../config/features';
+
+// Loaded on demand so the card studio costs nothing while it is switched off
+const CardStage3D = lazy(() => import('./CardStage3D'));
+const CARD_FONTS_HREF = 'https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Cinzel:wght@400;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap';
 
 export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) {
   const t = getTranslation(lang);
 
   // Selected Location: 'letters', 'rustaveli', 'vake', 'kakheti', 'card'
-  const [selectedLoc, setSelectedLoc] = useState('card');
+  const [selectedLoc, setSelectedLoc] = useState(CARD_STUDIO_ENABLED ? 'card' : 'letters');
   const [nightMode, setNightMode] = useState(false);
   const [inputMode, setInputMode] = useState('designer'); // 'designer' or 'upload'
   const [isExporting, setIsExporting] = useState(false);
@@ -251,6 +255,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
       isCardStudio: true
     }
   };
+  if (!CARD_STUDIO_ENABLED) delete LOCATIONS.card;
 
   // Color Theme Definitions with Physical 3D Extrusion & Bevel Shaders
   const THEMES = {
@@ -383,6 +388,15 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
   };
 
   const currentLoc = LOCATIONS[selectedLoc] || LOCATIONS.letters;
+
+  useEffect(() => {
+    if (!currentLoc.isCardStudio || document.querySelector('link[data-card-fonts]')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = CARD_FONTS_HREF;
+    link.dataset.cardFonts = '';
+    document.head.appendChild(link);
+  }, [currentLoc.isCardStudio]);
   const currentTheme = THEMES[activeTheme] || THEMES.gold;
 
   // Handle Preset Select
@@ -605,6 +619,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
             {/* PHOTOREALISTIC PHOTO VIEWPORT WITH LIVE PROJECTION / 3D CARD STUDIO */}
             <div className={`mockup-photo-stage ${currentLoc.isCardStudio ? 'card-studio-mode' : ''}`} ref={stageContainerRef}>
               {currentLoc.isCardStudio ? (
+                <Suspense fallback={null}>
                 <CardStage3D
                   archetype={cardArchetype}
                   format={cardFormat}
@@ -628,6 +643,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
                   flyerSub={`${cardDivision} • ${cardRole}`}
                   flyerDate="OCTOBER 24 • TBILISI / MANHATTAN"
                 />
+                </Suspense>
               ) : (
                 <>
                   {/* Background High-Resolution Tbilisi Architectural Scene Photo */}
