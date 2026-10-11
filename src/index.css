@@ -3,16 +3,18 @@
    ========================================================================== */
 
 /* ==========================================================================
-   PRIMARY GEORGIAN FONT: TG SQUARE REGULAR
+   DISPLAY GEORGIAN FONT: TG SQUARE REGULAR
    (https://typeface.ge/ka/font/TG+Square+Regular)
+   Georgian glyphs only — Latin letters, digits and punctuation fall through
+   to the paired Latin face so a single word never mixes two typefaces.
    ========================================================================== */
 @font-face {
   font-family: 'TG Square';
   src: url('/fonts/TG-Square-Regular.ttf') format('truetype');
-  font-weight: 100 900;
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
-  unicode-range: U+10A0-10FF, U+1C90-1CBF, U+2D00-2D2F, U+0020-007E;
+  unicode-range: U+10A0-10FF, U+1C90-1CBF, U+2D00-2D2F;
 }
 
 :root {
@@ -34,11 +36,14 @@
   --grid-line: rgba(0, 0, 0, 0.05);
   --vector-active: #000000;
 
-  /* Typography with TG Square as Primary Georgian Font */
-  --font-display: 'TG Square', 'Syne', 'Noto Sans Georgian', sans-serif;
-  --font-heading: 'TG Square', 'Space Grotesk', 'Noto Sans Georgian', sans-serif;
-  --font-body: 'TG Square', 'Inter', 'Noto Sans Georgian', sans-serif;
-  --font-mono: 'TG Square', 'Space Mono', 'Noto Sans Georgian', monospace;
+  /* Typography
+     display / heading — TG Square (Georgian) + Oxanium (Latin, same rounded-square geometry) + Exo 2 (Cyrillic)
+     body             — Noto Sans Georgian + Inter: readable text faces with real weights
+     mono             — JetBrains Mono (Latin, digits) + TG Square (Georgian labels) */
+  --font-display: 'TG Square', 'Oxanium', 'Exo 2', sans-serif;
+  --font-heading: var(--font-display);
+  --font-body: 'Inter', 'Noto Sans Georgian', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'TG Square', ui-monospace, monospace;
 
   /* Layout Spacing */
   --container-width: 1400px;
@@ -51,19 +56,10 @@
 }
 
 /* Georgian Mtavruli & Mkhedruli Typography Enhancements */
-:lang(ka),
-[lang="ka"] {
-  font-feature-settings: "case" 1, "c2sc" 1;
-}
-
-:lang(ka) .hero-headline-massive,
 :lang(ka) .editorial-headline,
 :lang(ka) .d-title,
 :lang(ka) .footer-huge-title {
-  font-family: 'TG Square', 'Noto Sans Georgian', 'Syne', sans-serif;
-  font-weight: 900;
   letter-spacing: -0.01em;
-  text-transform: uppercase;
 }
 
 :lang(ka) .header-nav-item,
@@ -74,10 +70,7 @@
 :lang(ka) .form-label-mono,
 :lang(ka) .tag-swiss,
 :lang(ka) .footer-col-head {
-  font-family: 'TG Square', 'Noto Sans Georgian', 'Space Mono', sans-serif;
-  font-weight: 700;
   letter-spacing: 0.03em;
-  text-transform: uppercase;
 }
 
 /* Inverted Dark Mode */
@@ -99,6 +92,14 @@
   --vector-active: #ffffff;
 }
 
+/* Instant theme inversion (class toggled for two frames by App) */
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+}
+
 /* --- Base & Reset --- */
 *,
 *::before,
@@ -110,6 +111,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* TG Square ships a single weight — never smear it with faux bold */
+  font-synthesis-weight: none;
   font-size: 16px;
   background-color: var(--bg-main);
   color: var(--ink-primary);
@@ -206,6 +209,7 @@ button {
 .section-header-editorial {
   display: grid;
   grid-template-columns: 240px 1fr;
+  align-items: start;
   gap: 40px;
   margin-bottom: 50px;
   padding-bottom: 24px;
@@ -215,6 +219,8 @@ button {
 .editorial-tag {
   font-family: var(--font-mono);
   font-size: 0.8rem;
+  /* sit on the headline's first line instead of floating mid-block */
+  padding-top: 0.9em;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -304,7 +310,7 @@ button {
 .tag-swiss {
   display: inline-block;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   padding: 3px 8px;
   border: 1px solid var(--ink-hairline);
   text-transform: uppercase;
@@ -356,8 +362,9 @@ button {
   background: var(--ink-primary);
   color: var(--ink-inverse);
   font-family: var(--font-display);
-  font-weight: 900;
-  font-size: 1.1rem;
+  font-weight: 600;
+  font-size: 1.35rem;
+  line-height: 1;
 }
 
 .brand-info-col {
@@ -367,19 +374,20 @@ button {
 
 .brand-title {
   font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 900;
-  letter-spacing: -0.01em;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   line-height: 1;
   text-transform: uppercase;
 }
 
 .brand-location {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   color: var(--ink-secondary);
   text-transform: uppercase;
-  margin-top: 2px;
+  letter-spacing: 0.04em;
+  margin-top: 4px;
 }
 
 /* Single Line Top Menu Items */
@@ -436,7 +444,7 @@ button {
 }
 
 .time-badge-digits {
-  font-family: 'Space Mono', monospace !important;
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
   display: inline-block;
@@ -582,7 +590,7 @@ button {
 
 .telemetry-coordinates {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   color: var(--ink-muted);
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -665,7 +673,7 @@ button {
 
 .capabilities-label {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   color: var(--ink-muted);
   text-transform: uppercase;
   font-weight: 700;
@@ -686,7 +694,7 @@ button {
   border: 1px solid var(--ink-hairline);
   background: var(--bg-subtle);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   color: var(--ink-primary);
   border-radius: 2px;
   transition: border-color var(--trans-quick);
@@ -732,7 +740,7 @@ button {
 
 .pillar-lbl {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--ink-secondary);
   line-height: 1.4;
   text-transform: uppercase;
@@ -895,7 +903,53 @@ button {
   padding: 28px;
   display: flex;
   flex-direction: column;
+  /* keep the drawing in view while the longer controls column scrolls */
+  position: sticky;
+  top: calc(var(--header-height) + 24px);
+  align-self: start;
+}
+
+.canvas-header-bar {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.canvas-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.canvas-header-title {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.canvas-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.canvas-footer-hud {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 6px 20px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.canvas-footer-hud strong {
+  color: var(--ink-primary);
+  font-weight: 500;
 }
 
 .cad-toolbar-btn {
@@ -906,7 +960,7 @@ button {
   height: 28px;
   padding: 0 10px;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
   border: 1px solid var(--ink-hairline);
   background: var(--bg-subtle);
@@ -936,7 +990,7 @@ button {
 }
 
 .stage-cad-view {
-  min-height: 320px;
+  aspect-ratio: 460 / 300;
   background: var(--bg-elevated);
   border: 1px dashed var(--ink-hairline);
   margin: 24px 0;
@@ -1084,7 +1138,7 @@ button {
 
 /* Mini Tag Badge */
 .badge-tag-mini {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-family: var(--font-mono);
   font-weight: 700;
   padding: 2px 6px;
@@ -1132,7 +1186,7 @@ button {
 
 .dropzone-text span {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   color: var(--ink-muted);
 }
 
@@ -1147,7 +1201,7 @@ button {
 
 .presets-label {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--ink-muted);
   font-weight: 600;
 }
@@ -1160,7 +1214,7 @@ button {
 
 .preset-btn {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 700;
   padding: 4px 8px;
   border: 1px solid var(--ink-hairline);
@@ -1300,7 +1354,7 @@ button {
 .arch-specs {
   margin-top: auto;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   display: flex;
   justify-content: space-between;
   border-top: 1px solid var(--ink-border-subtle);
@@ -1723,6 +1777,10 @@ button {
     grid-template-columns: 1fr;
   }
 
+  .workbench-stage-box {
+    position: static;
+  }
+
   .tbilisi-grid-layout {
     grid-template-columns: 1fr;
   }
@@ -1969,7 +2027,7 @@ button {
 
 .tab-loc-dimension {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   color: var(--ink-secondary);
   white-space: nowrap;
 }
@@ -2020,7 +2078,7 @@ button {
   align-items: center;
   gap: 8px;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
   overflow: hidden;
 }
@@ -2261,7 +2319,7 @@ button {
   background: var(--bg-main);
   border-top: 1px solid var(--ink-hairline);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   color: var(--ink-secondary);
   z-index: 10;
   gap: 14px;
@@ -2307,7 +2365,7 @@ button {
   background: var(--bg-surface);
   border: 1px solid var(--ink-hairline);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--ink-primary);
   cursor: pointer;
@@ -2369,7 +2427,7 @@ button {
 
 .cta-spec-line {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   color: var(--ink-secondary);
 }
 
@@ -2425,7 +2483,7 @@ button {
   border: none;
   cursor: pointer;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   color: var(--ink-primary);
@@ -2452,7 +2510,7 @@ button {
   justify-content: space-between;
   gap: 12px;
   font-family: var(--font-mono);
-  font-size: 0.73rem;
+  font-size: 0.75rem;
   line-height: 1.4;
 }
 
@@ -2748,7 +2806,7 @@ button {
 }
 
 .watermark-seal-sub {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.52rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -3128,7 +3186,7 @@ button {
 }
 
 .flyer-firm-tag {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.55rem;
   letter-spacing: 0.12em;
   font-weight: 700;
@@ -3140,7 +3198,7 @@ button {
 }
 
 .flyer-edition-pill {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.58rem;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -3166,7 +3224,7 @@ button {
 }
 
 .flyer-sub-desc {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.62rem;
   line-height: 1.4;
   letter-spacing: 0.04em;
@@ -3190,14 +3248,14 @@ button {
 }
 
 .flyer-spec-label {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.5rem;
   letter-spacing: 0.08em;
   opacity: 0.6;
 }
 
 .flyer-spec-val {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -3211,7 +3269,7 @@ button {
 }
 
 .flyer-date-venue {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.58rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -3233,7 +3291,7 @@ button {
 }
 
 .flyer-host-title {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.52rem;
   letter-spacing: 0.06em;
   opacity: 0.7;
@@ -3282,7 +3340,7 @@ button {
 }
 
 .card-back-motto {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.58rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -3305,14 +3363,14 @@ button {
 }
 
 .back-grid-coords {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.52rem;
   letter-spacing: 0.1em;
   opacity: 0.6;
 }
 
 .card-back-security-stamp {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.54rem;
   letter-spacing: 0.14em;
   font-weight: 700;
@@ -3491,7 +3549,7 @@ button {
 }
 
 .ap-quote-dialogue {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.72rem;
   font-style: italic;
   color: #f1ede3;

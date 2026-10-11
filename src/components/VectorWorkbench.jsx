@@ -409,11 +409,11 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
     .border-box { fill: #ffffff; stroke: #000000; stroke-width: 3; }
     .title-box { fill: #f8f9fa; stroke: #000000; stroke-width: 1; }
     .title-text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 800; font-size: 16px; letter-spacing: 0.05em; fill: #000000; }
-    .spec-text { font-family: "Space Mono", monospace; font-size: 11px; fill: #333333; }
+    .spec-text { font-family: "JetBrains Mono", monospace; font-size: 11px; fill: #333333; }
     .dim-line { stroke: #000000; stroke-width: 1.5; }
-    .dim-text { font-family: "Space Mono", monospace; font-size: 13px; font-weight: bold; fill: #000000; }
-    .contour-front { fill: none; stroke: #000000; stroke-width: 3; font-family: "Syne", "Space Grotesk", sans-serif; font-weight: 900; font-size: 64px; text-anchor: middle; }
-    .contour-extrusion { fill: none; stroke: #777777; stroke-width: 1.5; stroke-dasharray: 4,4; font-family: "Syne", "Space Grotesk", sans-serif; font-weight: 900; font-size: 64px; text-anchor: middle; }
+    .dim-text { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: bold; fill: #000000; }
+    .contour-front { fill: none; stroke: #000000; stroke-width: 3; font-family: "Oxanium", sans-serif; font-weight: 900; font-size: 64px; text-anchor: middle; }
+    .contour-extrusion { fill: none; stroke: #777777; stroke-width: 1.5; stroke-dasharray: 4,4; font-family: "Oxanium", sans-serif; font-weight: 900; font-size: 64px; text-anchor: middle; }
   </style>
   <rect width="100%" height="100%" class="border-box"/>
   <!-- Title Block Header -->
@@ -782,14 +782,14 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
                   <line x1="60" y1="35" x2="400" y2="35" stroke="var(--ink-primary)" strokeWidth="1" />
                   <line x1="60" y1="30" x2="60" y2="40" stroke="var(--ink-primary)" strokeWidth="1" />
                   <line x1="400" y1="30" x2="400" y2="40" stroke="var(--ink-primary)" strokeWidth="1" />
-                  <text x="230" y="28" fill="var(--ink-primary)" fontSize="10" fontFamily="Space Mono" textAnchor="middle" fontWeight="700">
+                  <text x="230" y="28" fill="var(--ink-primary)" fontSize="10" fontFamily="JetBrains Mono, TG Square" textAnchor="middle" fontWeight="700">
                     {t.widthLabelUpper}: {width} m
                   </text>
 
                   <line x1="420" y1="55" x2="420" y2="245" stroke="var(--ink-primary)" strokeWidth="1" />
                   <line x1="415" y1="55" x2="425" y2="55" stroke="var(--ink-primary)" strokeWidth="1" />
                   <line x1="415" y1="245" x2="425" y2="245" stroke="var(--ink-primary)" strokeWidth="1" />
-                  <text x="440" y="150" fill="var(--ink-primary)" fontSize="10" fontFamily="Space Mono" transform="rotate(90 440,150)" textAnchor="middle" fontWeight="700">
+                  <text x="440" y="150" fill="var(--ink-primary)" fontSize="10" fontFamily="JetBrains Mono, TG Square" transform="rotate(90 440,150)" textAnchor="middle" fontWeight="700">
                     {t.heightLabelUpper}: {height} m
                   </text>
 
@@ -833,7 +833,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
                         stroke="var(--ink-muted)"
                         strokeWidth="3"
                         fontSize={brandText.length > 8 ? "28" : "38"}
-                        fontFamily="TG Square, Noto Sans Georgian, Syne"
+                        fontFamily="TG Square, Oxanium"
                         fontWeight="900"
                         textAnchor="middle"
                         letterSpacing="0.04em"
@@ -851,7 +851,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
                         stroke="var(--ink-primary)"
                         strokeWidth="2.5"
                         fontSize={brandText.length > 8 ? "28" : "38"}
-                        fontFamily="TG Square, Noto Sans Georgian, Syne"
+                        fontFamily="TG Square, Oxanium"
                         fontWeight="900"
                         textAnchor="middle"
                         letterSpacing="0.04em"
@@ -873,7 +873,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
                         strokeWidth="2.5"
                       />
                       <rect x="80" y="70" width="300" height="150" fill="none" stroke="var(--ink-muted)" strokeWidth="1" strokeDasharray="4 4" />
-                      <text x="230" y="155" fill="var(--ink-primary)" fontSize="26" fontFamily="TG Square, Noto Sans Georgian, Syne" fontWeight="800" textAnchor="middle">
+                      <text x="230" y="155" fill="var(--ink-primary)" fontSize="26" fontFamily="TG Square, Oxanium" fontWeight="800" textAnchor="middle">
                         {brandText || t.fallbackLightbox}
                       </text>
                     </g>
@@ -897,7 +897,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
                         y="130"
                         fill="var(--ink-primary)"
                         fontSize="22"
-                        fontFamily="TG Square, Noto Sans Georgian, Syne"
+                        fontFamily="TG Square, Oxanium"
                         fontWeight="900"
                         textAnchor="middle"
                       >
@@ -910,7 +910,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
                     <g>
                       <rect x="110" y="60" width="240" height="170" fill="var(--bg-main)" stroke="var(--ink-primary)" strokeWidth="1.5" />
                       <rect x="100" y="50" width="260" height="190" fill="none" stroke="var(--ink-hairline)" strokeWidth="1" strokeDasharray="2 2" />
-                      <text x="230" y="150" fill="var(--ink-primary)" fontSize="20" fontFamily="TG Square, Noto Sans Georgian, Space Grotesk" fontWeight="700" textAnchor="middle">
+                      <text x="230" y="150" fill="var(--ink-primary)" fontSize="20" fontFamily="TG Square, Oxanium" fontWeight="700" textAnchor="middle">
                         {t('flyerUnitsCount', { count: printUnits.toLocaleString() })}
                       </text>
                     </g>
@@ -1082,7 +1082,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <div>
-                    <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--ink-muted)' }}>
+                    <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--ink-muted)' }}>
                       {t.widthLabelUpper}: {width}m
                     </label>
                     <input
@@ -1096,7 +1096,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
                     />
                   </div>
                   <div>
-                    <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--ink-muted)' }}>
+                    <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--ink-muted)' }}>
                       {t.heightLabelUpper}: {height}m
                     </label>
                     <input
@@ -1209,13 +1209,13 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
             {/* Output Estimate Summary Card */}
             <div className="estimate-display-card">
               <div className="estimate-col">
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--ink-muted)', textTransform: 'uppercase' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--ink-muted)', textTransform: 'uppercase' }}>
                   {t.estBudgetLbl}
                 </span>
                 <span className="est-currency-val">
                   {currencySymbols[currency]} {convertedPrice.toLocaleString()}
                 </span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--ink-secondary)', marginTop: '4px' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--ink-secondary)', marginTop: '4px' }}>
                   ✓ {estDays}
                 </span>
               </div>

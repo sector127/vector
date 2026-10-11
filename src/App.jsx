@@ -48,10 +48,18 @@ export default function App() {
   const t = getTranslation(lang);
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
+    // Swap every color in one frame — per-element `transition: all` would otherwise
+    // fade each surface at its own pace and show a half-inverted page.
+    const root = document.documentElement;
+    root.classList.add('theme-switching');
+    root.setAttribute('data-theme', theme);
+    const frame = requestAnimationFrame(() => {
+      requestAnimationFrame(() => root.classList.remove('theme-switching'));
+    });
     try {
       localStorage.setItem('vector_hub_theme', theme);
     } catch { }
+    return () => cancelAnimationFrame(frame);
   }, [theme]);
 
   useEffect(() => {

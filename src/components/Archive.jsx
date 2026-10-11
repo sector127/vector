@@ -5,41 +5,41 @@ import { getTranslation } from '../i18n/translations';
 const SCHEMATICS = {
   0: (
     <svg viewBox="0 0 280 160" style={{ width: '100%', height: '100%' }}>
-      <text x="140" y="85" fill="var(--bg-main)" stroke="var(--ink-primary)" strokeWidth="2" fontSize="34" fontFamily="Syne" fontWeight="900" textAnchor="middle">
+      <text x="140" y="85" fill="var(--bg-main)" stroke="var(--ink-primary)" strokeWidth="2" fontSize="34" fontFamily="Oxanium" fontWeight="900" textAnchor="middle">
         AURA
       </text>
       <line x1="30" y1="120" x2="250" y2="120" stroke="var(--ink-hairline)" strokeWidth="1" />
       <line x1="30" y1="115" x2="30" y2="125" stroke="var(--ink-primary)" strokeWidth="1" />
       <line x1="250" y1="115" x2="250" y2="125" stroke="var(--ink-primary)" strokeWidth="1" />
-      <text x="140" y="138" fill="var(--ink-muted)" fontSize="9" fontFamily="Space Mono" textAnchor="middle">Span 4600mm • Brass 2.5mm</text>
+      <text x="140" y="138" fill="var(--ink-muted)" fontSize="9" fontFamily="JetBrains Mono" textAnchor="middle">Span 4600mm • Brass 2.5mm</text>
     </svg>
   ),
   1: (
     <svg viewBox="0 0 280 160" style={{ width: '100%', height: '100%' }}>
       <path d="M 40 40 Q 140 20, 240 40 L 240 100 Q 140 80, 40 100 Z" fill="none" stroke="var(--ink-primary)" strokeWidth="2" />
       <line x1="140" y1="100" x2="140" y2="145" stroke="var(--ink-primary)" strokeWidth="3" />
-      <text x="140" y="70" fill="var(--ink-primary)" fontSize="16" fontFamily="Space Grotesk" fontWeight="700" textAnchor="middle">120 m² Curved LED</text>
-      <text x="140" y="152" fill="var(--ink-muted)" fontSize="9" fontFamily="Space Mono" textAnchor="middle">P3.9 LED • 8500 Nits</text>
+      <text x="140" y="70" fill="var(--ink-primary)" fontSize="16" fontFamily="Oxanium" fontWeight="700" textAnchor="middle">120 m² Curved LED</text>
+      <text x="140" y="152" fill="var(--ink-muted)" fontSize="9" fontFamily="JetBrains Mono" textAnchor="middle">P3.9 LED • 8500 Nits</text>
     </svg>
   ),
   2: (
     <svg viewBox="0 0 280 160" style={{ width: '100%', height: '100%' }}>
       <rect x="50" y="25" width="180" height="100" fill="none" stroke="var(--ink-primary)" strokeWidth="2" />
       <rect x="58" y="33" width="164" height="84" fill="none" stroke="var(--ink-hairline)" strokeWidth="1" strokeDasharray="3 3" />
-      <text x="140" y="80" fill="var(--ink-primary)" fontSize="14" fontFamily="Space Mono" textAnchor="middle">22mm Profile</text>
-      <text x="140" y="145" fill="var(--ink-muted)" fontSize="9" fontFamily="Space Mono" textAnchor="middle">SEG Fabric • 5500K</text>
+      <text x="140" y="80" fill="var(--ink-primary)" fontSize="14" fontFamily="JetBrains Mono" textAnchor="middle">22mm Profile</text>
+      <text x="140" y="145" fill="var(--ink-muted)" fontSize="9" fontFamily="JetBrains Mono" textAnchor="middle">SEG Fabric • 5500K</text>
     </svg>
   ),
   3: (
     <svg viewBox="0 0 280 160" style={{ width: '100%', height: '100%' }}>
-      <text x="140" y="70" fill="var(--bg-main)" stroke="var(--ink-primary)" strokeWidth="2" fontSize="22" fontFamily="Syne" fontWeight="900" textAnchor="middle">
+      <text x="140" y="70" fill="var(--bg-main)" stroke="var(--ink-primary)" strokeWidth="2" fontSize="22" fontFamily="Oxanium" fontWeight="900" textAnchor="middle">
         AETHELRED
       </text>
       <line x1="30" y1="85" x2="250" y2="85" stroke="var(--ink-primary)" strokeWidth="2" />
       <line x1="50" y1="85" x2="70" y2="135" stroke="var(--ink-hairline)" strokeWidth="1" />
       <line x1="140" y1="85" x2="140" y2="135" stroke="var(--ink-hairline)" strokeWidth="1" />
       <line x1="230" y1="85" x2="210" y2="135" stroke="var(--ink-hairline)" strokeWidth="1" />
-      <text x="140" y="150" fill="var(--ink-muted)" fontSize="9" fontFamily="Space Mono" textAnchor="middle">Elevation +90m • Crane Lift</text>
+      <text x="140" y="150" fill="var(--ink-muted)" fontSize="9" fontFamily="JetBrains Mono" textAnchor="middle">Elevation +90m • Crane Lift</text>
     </svg>
   ),
   4: (
@@ -47,15 +47,15 @@ const SCHEMATICS = {
       <rect x="60" y="25" width="160" height="100" fill="none" stroke="var(--ink-primary)" strokeWidth="1.5" />
       <line x1="140" y1="25" x2="140" y2="125" stroke="var(--ink-hairline)" strokeWidth="1" strokeDasharray="3 3" />
       <circle cx="140" cy="75" r="16" fill="none" stroke="var(--ink-primary)" strokeWidth="1" />
-      <text x="140" y="145" fill="var(--ink-muted)" fontSize="9" fontFamily="Space Mono" textAnchor="middle">450 GSM • Gold Foil Stamp</text>
+      <text x="140" y="145" fill="var(--ink-muted)" fontSize="9" fontFamily="JetBrains Mono" textAnchor="middle">450 GSM • Gold Foil Stamp</text>
     </svg>
   ),
   5: (
     <svg viewBox="0 0 280 160" style={{ width: '100%', height: '100%' }}>
       <rect x="40" y="30" width="200" height="70" fill="none" stroke="var(--ink-primary)" strokeWidth="2" />
       <line x1="140" y1="100" x2="140" y2="145" stroke="var(--ink-primary)" strokeWidth="4" />
-      <text x="140" y="70" fill="var(--ink-primary)" fontSize="14" fontFamily="Space Grotesk" fontWeight="700" textAnchor="middle">14m × 5m Unipolar</text>
-      <text x="140" y="152" fill="var(--ink-muted)" fontSize="9" fontFamily="Space Mono" textAnchor="middle">Highway • Airport Route</text>
+      <text x="140" y="70" fill="var(--ink-primary)" fontSize="14" fontFamily="Oxanium" fontWeight="700" textAnchor="middle">14m × 5m Unipolar</text>
+      <text x="140" y="152" fill="var(--ink-muted)" fontSize="9" fontFamily="JetBrains Mono" textAnchor="middle">Highway • Airport Route</text>
     </svg>
   )
 };

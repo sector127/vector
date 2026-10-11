@@ -23,7 +23,7 @@ export default function Disciplines({ lang }) {
           <circle cx="150" cy="130" r="14" fill="none" stroke="var(--ink-hairline)" strokeWidth="1" strokeDasharray="2 2" />
           <circle cx="80" cy="30" r="14" fill="none" stroke="var(--ink-hairline)" strokeWidth="1" strokeDasharray="2 2" />
           <circle cx="220" cy="30" r="14" fill="none" stroke="var(--ink-hairline)" strokeWidth="1" strokeDasharray="2 2" />
-          <text x="15" y="150" fill="var(--ink-muted)" fontSize="9" fontFamily="Space Mono">Extrusion 80mm • Warm 3000K Halo</text>
+          <text x="15" y="150" fill="var(--ink-muted)" fontSize="9" fontFamily="JetBrains Mono">Extrusion 80mm • Warm 3000K Halo</text>
         </svg>
       )
     },
@@ -43,7 +43,7 @@ export default function Disciplines({ lang }) {
           <line x1="50" y1="110" x2="150" y2="80" stroke="var(--ink-muted)" strokeWidth="1" strokeDasharray="2 2" />
           <line x1="250" y1="50" x2="150" y2="80" stroke="var(--ink-muted)" strokeWidth="1" strokeDasharray="2 2" />
           <line x1="250" y1="110" x2="150" y2="80" stroke="var(--ink-muted)" strokeWidth="1" strokeDasharray="2 2" />
-          <text x="15" y="150" fill="var(--ink-muted)" fontSize="9" fontFamily="Space Mono">SEG Profile • 22mm Slim • CRI 95+</text>
+          <text x="15" y="150" fill="var(--ink-muted)" fontSize="9" fontFamily="JetBrains Mono">SEG Profile • 22mm Slim • CRI 95+</text>
         </svg>
       )
     },
@@ -65,7 +65,7 @@ export default function Disciplines({ lang }) {
           <circle cx="150" cy="80" r="10" fill="none" stroke="var(--ink-primary)" strokeWidth="1" />
           <line x1="135" y1="80" x2="165" y2="80" stroke="var(--ink-primary)" strokeWidth="1" />
           <line x1="150" y1="65" x2="150" y2="95" stroke="var(--ink-primary)" strokeWidth="1" />
-          <text x="15" y="152" fill="var(--ink-muted)" fontSize="9" fontFamily="Space Mono">3mm Bleed • Heidelberg Offset • Foil</text>
+          <text x="15" y="152" fill="var(--ink-muted)" fontSize="9" fontFamily="JetBrains Mono">3mm Bleed • Heidelberg Offset • Foil</text>
         </svg>
       )
     },
@@ -84,7 +84,7 @@ export default function Disciplines({ lang }) {
           <line x1="260" y1="20" x2="150" y2="110" stroke="var(--ink-hairline)" strokeWidth="1" strokeDasharray="3 3" />
           <line x1="40" y1="110" x2="150" y2="20" stroke="var(--ink-hairline)" strokeWidth="1" strokeDasharray="3 3" />
           <line x1="260" y1="110" x2="150" y2="20" stroke="var(--ink-hairline)" strokeWidth="1" strokeDasharray="3 3" />
-          <text x="15" y="152" fill="var(--ink-muted)" fontSize="9" fontFamily="Space Mono">Unipolar Truss • P3.9 LED • 8500 Nits</text>
+          <text x="15" y="152" fill="var(--ink-muted)" fontSize="9" fontFamily="JetBrains Mono">Unipolar Truss • P3.9 LED • 8500 Nits</text>
         </svg>
       )
     },
@@ -102,7 +102,7 @@ export default function Disciplines({ lang }) {
           <line x1="70" y1="20" x2="150" y2="20" stroke="var(--ink-primary)" strokeWidth="2" />
           <line x1="150" y1="20" x2="150" y2="70" stroke="var(--ink-primary)" strokeWidth="1" strokeDasharray="2 2" />
           <rect x="130" y="70" width="40" height="20" fill="none" stroke="var(--ink-primary)" strokeWidth="1.5" />
-          <text x="15" y="152" fill="var(--ink-muted)" fontSize="9" fontFamily="Space Mono">Municipal Permits • 60m Crane • CAD Certified</text>
+          <text x="15" y="152" fill="var(--ink-muted)" fontSize="9" fontFamily="JetBrains Mono">Municipal Permits • 60m Crane • CAD Certified</text>
         </svg>
       )
     }
