@@ -8,6 +8,8 @@ export default function VectorFieldCanvas({ theme }) {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let animationFrameId;
+    // Reduced motion: draw the grid once (and on resize) instead of running the loop
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
@@ -20,6 +22,7 @@ export default function VectorFieldCanvas({ theme }) {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
       initGrid();
+      if (reduceMotion) render();
     };
 
     const handleMouseMove = (e) => {
@@ -136,7 +139,7 @@ export default function VectorFieldCanvas({ theme }) {
       }
       ctx.setLineDash([]);
 
-      if (!document.hidden) {
+      if (!document.hidden && !reduceMotion) {
         animationFrameId = requestAnimationFrame(render);
       }
     };

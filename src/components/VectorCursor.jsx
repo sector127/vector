@@ -1,5 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 
+// The trailing reticle is pure motion — users who ask for reduced motion keep the native cursor
+const CURSOR_QUERY = '(pointer: fine) and (prefers-reduced-motion: no-preference)';
+
 export default function VectorCursor() {
   const dotRef = useRef(null);
   const reticleWrapperRef = useRef(null);
@@ -14,13 +17,13 @@ export default function VectorCursor() {
   const [visible, setVisible] = useState(false);
   const [isPointerFine, setIsPointerFine] = useState(() => {
     return typeof window !== 'undefined' && window.matchMedia 
-      ? window.matchMedia('(pointer: fine)').matches 
+      ? window.matchMedia(CURSOR_QUERY).matches 
       : true;
   });
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return;
-    const mediaQuery = window.matchMedia('(pointer: fine)');
+    const mediaQuery = window.matchMedia(CURSOR_QUERY);
     const handler = (e) => setIsPointerFine(e.matches);
     mediaQuery.addEventListener('change', handler);
     return () => mediaQuery.removeEventListener('change', handler);

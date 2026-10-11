@@ -125,7 +125,7 @@ export default function App() {
     showToast(t.toastSpecTransferred);
     const el = document.getElementById('inquiry');
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
+      el.scrollIntoView(); // smoothness comes from CSS scroll-behavior (off under reduced motion)
     }
   };
 

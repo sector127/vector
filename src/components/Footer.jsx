@@ -6,7 +6,8 @@ export default function Footer({ lang }) {
   const t = getTranslation(lang);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // 'auto' defers to the CSS scroll-behavior, which honours prefers-reduced-motion
+    window.scrollTo({ top: 0 });
   };
 
   return (

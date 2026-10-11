@@ -518,7 +518,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
   const handleBookBillboard = () => {
     if (selectedLoc === 'card') {
       const spec = {
-        productType: 'commercial_print',
+        productType: 'print',
         inputMode: 'visualizer_spec',
         brandText: `${cardHolder} • ${cardCompany} (${cardFormat === 'flyer' ? (t.cardFormatFlyer || 'Luxury Flyer A5') : (t.cardFormatBusiness || 'Executive Business Card')})`,
         dimensions: cardFormat === 'flyer' ? '148mm × 210mm (A5)' : '90mm × 50mm (Executive)',
@@ -534,7 +534,8 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
     }
 
     const spec = {
-      productType: 'turnkey_structure',
+      // Must match an <option> value in SpecInquiry's medium select
+      productType: { letters: 'letters', rustaveli: 'lightbox', vake: 'billboard', kakheti: 'billboard' }[selectedLoc] || 'turnkey',
       inputMode: 'visualizer_spec',
       brandText: inputMode === 'upload' ? 'Custom Uploaded Design' : `${headline} (${currentLoc.name})`,
       dimensions: currentLoc.scale,

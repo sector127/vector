@@ -81,9 +81,11 @@ export default function Header({ theme, toggleTheme, gridActive, toggleGrid, lan
 
           {/* Grid Toggle */}
           <button 
-            className="theme-toggle-btn" 
+            className="theme-toggle-btn header-grid-toggle" 
             onClick={toggleGrid} 
             title="Toggle Vector Grid"
+            aria-label="Toggle Vector Grid"
+            aria-pressed={gridActive}
             data-cursor-text="GRID"
           >
             <Grid size={15} strokeWidth={gridActive ? 2.5 : 1.5} />
@@ -94,6 +96,7 @@ export default function Header({ theme, toggleTheme, gridActive, toggleGrid, lan
             className="theme-toggle-btn" 
             onClick={toggleTheme} 
             title="Toggle Theme Inversion"
+            aria-label="Toggle Theme Inversion"
             data-cursor-text="THEME"
           >
             {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}

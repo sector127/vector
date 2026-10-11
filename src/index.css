@@ -132,7 +132,7 @@ body {
 }
 
 /* Hide default cursor on desktop when vector cursor is active, but preserve native text carets on form fields */
-@media (pointer: fine) {
+@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
   body {
     cursor: none;
   }
@@ -1123,6 +1123,28 @@ button {
   margin-top: 8px;
 }
 
+/* Grid items default to min-width:auto, so wide content (SVGs, nowrap labels)
+   pushes single-column mobile layouts past the viewport */
+.disciplines-grid > *,
+.workbench-layout > *,
+.mockup-studio-layout > * {
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* CAD PDF Export Button & Spinner */
 .cad-toolbar-btn.export-pdf-btn {
   background: var(--ink-primary);
@@ -1492,11 +1514,12 @@ button {
 
 .footer-huge-title {
   font-family: var(--font-display);
-  font-size: 2.2rem;
-  font-weight: 900;
-  line-height: 1;
+  font-size: clamp(2.4rem, 3.6vw, 3.4rem);
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
   text-transform: uppercase;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
 }
 
 .footer-col-head {
@@ -1866,8 +1889,15 @@ button {
     margin-bottom: 32px;
   }
 
-  .hero-cta-strip .btn-swiss {
+  .hero-cta-strip .btn-swiss,
+  .hero-buttons-row .btn-swiss {
     width: 100%;
+  }
+
+  /* Long Georgian CTAs must wrap rather than clip */
+  .btn-swiss {
+    white-space: normal;
+    text-align: center;
   }
 
   .hero-metrics-grid {
@@ -1898,6 +1928,31 @@ button {
 
   .segmented-control .segment-btn {
     border-bottom: 1px solid var(--ink-primary);
+  }
+
+  /* Georgian labels run long — let them wrap instead of widening the page */
+  .mockup-stage-header .stage-header-info {
+    flex-wrap: wrap;
+    gap: 6px 10px;
+  }
+
+  .mockup-stage-header .live-badge {
+    white-space: nowrap;
+  }
+
+  .segment-btn,
+  .discipline-card-header .tag-swiss,
+  .mockup-stage-footer .stage-foot-item {
+    white-space: normal;
+  }
+
+  .mockup-stage-header,
+  .discipline-card-header,
+  .mockup-stage-footer,
+  .canvas-header-bar,
+  .canvas-header-actions {
+    flex-wrap: wrap;
+    gap: 6px 16px;
   }
 
   .segmented-control .segment-btn:nth-child(2n) {
@@ -1956,6 +2011,11 @@ button {
 
   .header-hud {
     gap: 8px;
+  }
+
+  /* Brand + lang + theme + menu already fill a 360–390px header */
+  .header-grid-toggle {
+    display: none;
   }
 
   .canvas-interactive-area {

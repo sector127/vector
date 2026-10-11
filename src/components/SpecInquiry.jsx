@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Phone, MessageSquare, Mail, MapPin, Send, X } from 'lucide-react';
-import { getTranslation, formatTransferredNotes, formatWaMessage } from '../i18n/translations';
+import { translations, getTranslation, formatTransferredNotes, formatWaMessage } from '../i18n/translations';
 import { sendInquiryNotification } from '../services/telegram';
 import { PHONE_DISPLAY, PHONE_TEL, WHATSAPP_NUMBER, EMAIL } from '../config/contact';
+
+// An untouched city field holds some language's default — show it in the current language instead
+const DEFAULT_CITIES = Object.values(translations).map(l => l.defaultCity);
 
 export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
   const t = getTranslation(lang);
@@ -27,6 +30,7 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
     };
   });
   const fileInputRef = useRef(null);
+  const localizedForm = DEFAULT_CITIES.includes(formData.city) ? { ...formData, city: t.defaultCity } : formData;
   const [attachedFile, setAttachedFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -109,7 +113,7 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
 
     try {
       const payload = {
-        ...formData,
+        ...localizedForm,
         fileAttached: attachedFile ? attachedFile.name : null,
         fileName: attachedFile ? attachedFile.name : null,
         fileType: attachedFile ? attachedFile.type : null,
@@ -155,7 +159,7 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
   };
 
   const handleWhatsAppSend = () => {
-    const message = formatWaMessage(lang, formData);
+    const message = formatWaMessage(lang, localizedForm);
 
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
     onShowToast(t.toastWaOpened);
@@ -266,7 +270,7 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
                   className="swiss-input"
                   required
                   placeholder={t.placeholderCity}
-                  value={formData.city}
+                  value={localizedForm.city}
                   onChange={handleChange}
                 />
               </div>
