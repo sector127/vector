@@ -40,7 +40,7 @@ export default {
   heroMetric1Lbl: 'საკუთარი საწარმოო კომპლექსი თბილისში',
   heroMetric2Lbl: 'ბოჭკოვანი ლაზერით ჭრის სიზუსტე',
   heroMetric3Lbl: 'ავტოამწით მონტაჟის სიმაღლე',
-  heroMetric4Val: '5 წელი',
+  heroMetric4Val: '5 წლამდე',
   heroMetric4Lbl: 'სრული საინჟინრო და საგარანტიო SLA',
   heroCapabilities: [
     '3D მოცულობითი თითბერი (Halo 3000K)',
@@ -318,7 +318,7 @@ export default {
       shortName: '3D თითბერის ასოები',
       spec: 'ხაოიანი თითბერი CuZn37 • 3000K Halo • AISI 316',
       standard: 'IP67 წყალგაუმტარი • AISI 316 ანკერები',
-      leadTime: '7 სამუშაო დღე • 5 წელი გარანტია'
+      leadTime: '7 სამუშაო დღე • გარანტია 5 წლამდე'
     },
     rustaveli: {
       shortName: 'სითილაითის ლაითბოქსი',
@@ -330,7 +330,7 @@ export default {
       shortName: 'ფასადის ეკრანი',
       spec: 'ბაზალტის ანკერირება • P2.5 Ultra-Black • AISI 316',
       standard: 'IP65 ფრონტალური დაცვა • 4,500 Nits',
-      leadTime: '10 სამუშაო დღე • გარანტია 5 წელი'
+      leadTime: '10 სამუშაო დღე • გარანტია 5 წლამდე'
     },
     kakheti: {
       shortName: 'მაგისტრალური მონოპოლი',

@@ -40,7 +40,7 @@ export default {
   heroMetric1Lbl: 'Heavy Fabrication Complex in Tbilisi',
   heroMetric2Lbl: 'Fiber Laser Cutting Accuracy',
   heroMetric3Lbl: 'Boom-Crane Installation Height',
-  heroMetric4Val: '5 Years',
+  heroMetric4Val: 'Up to 5 Yrs',
   heroMetric4Lbl: 'Full Engineering & Warranty SLA',
   heroCapabilities: [
     '3D Dimensional Brass (Halo 3000K)',
@@ -317,7 +317,7 @@ export default {
       shortName: '3D Brass Letters',
       spec: 'Brushed Brass CuZn37 • 3000K Halo • AISI 316',
       standard: 'IP67 Waterproof • AISI 316',
-      leadTime: '7 Work Days • 5-Yr Warranty'
+      leadTime: '7 Work Days • Up to 5-Yr Warranty'
     },
     rustaveli: {
       shortName: 'Citylight Lightbox',
@@ -329,13 +329,13 @@ export default {
       shortName: 'Curved LED Screen',
       spec: 'Galvanized Steel S355 • P3.91 IP68',
       standard: 'IP68 Modules • Site Static Calculation',
-      leadTime: '14 Work Days • 5-Yr Warranty'
+      leadTime: '14 Work Days • Up to 5-Yr Warranty'
     },
     vake: {
       shortName: 'Facade LED Display',
       spec: 'Basalt Rigging • P2.5 Ultra-Black',
       standard: 'IP65 Frontal Seal • 4,500 Nits',
-      leadTime: '10 Work Days • 5-Yr Warranty'
+      leadTime: '10 Work Days • Up to 5-Yr Warranty'
     },
     kakheti: {
       shortName: 'Highway Monopole',

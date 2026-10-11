@@ -40,7 +40,7 @@ export default {
   heroMetric1Lbl: 'Собственный производственный комплекс в Тбилиси',
   heroMetric2Lbl: 'Точность волоконной лазерной резки',
   heroMetric3Lbl: 'Высота монтажа автокраном',
-  heroMetric4Val: '5 лет',
+  heroMetric4Val: 'До 5 лет',
   heroMetric4Lbl: 'Полный инженерный и гарантийный SLA',
   heroCapabilities: [
     'Объемная латунь 3D (Halo 3000K)',
@@ -318,7 +318,7 @@ export default {
       shortName: 'Объемные 3D-буквы',
       spec: 'Шлифованная латунь CuZn37 • 3000K Halo • AISI 316',
       standard: 'IP67 Герметичный • Анкеры AISI 316',
-      leadTime: '7 рабочих дней • Гарантия 5 лет'
+      leadTime: '7 рабочих дней • Гарантия до 5 лет'
     },
     rustaveli: {
       shortName: 'Ситилайт лайтбокс',
@@ -330,7 +330,7 @@ export default {
       shortName: 'Фасадный LED-экран',
       spec: 'Базальтовые анкеры • P2.5 Ultra-Black • AISI 316',
       standard: 'IP65 Фронтальная защита • 4 500 нит',
-      leadTime: '10 рабочих дней • Гарантия 5 лет'
+      leadTime: '10 рабочих дней • Гарантия до 5 лет'
     },
     kakheti: {
       shortName: 'Магистральный монополь',

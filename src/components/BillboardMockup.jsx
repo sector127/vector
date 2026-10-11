@@ -173,7 +173,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
       scale: '4.5m × 0.8m',
       spec: t.mockupLocations?.letters?.spec || 'Brushed Brass CuZn37 • 3000K Halo • AISI 316',
       standard: t.mockupLocations?.letters?.standard || 'IP67 Waterproof • AISI 316',
-      leadTime: t.mockupLocations?.letters?.leadTime || '7 Work Days • 5-Yr Warranty',
+      leadTime: t.mockupLocations?.letters?.leadTime || '7 Work Days • Up to 5-Yr Warranty',
       type: '3D Dimensional Facade Lettering',
       image: '/assets/mockups/letters_facade.webp',
       is3DLetters: true,
@@ -212,7 +212,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
       scale: '9.0m × 5.0m (45 მ²)',
       spec: t.mockupLocations?.vake?.spec || 'Basalt Rigging • P2.5 Ultra-Black • AISI 316',
       standard: t.mockupLocations?.vake?.standard || 'IP65 Frontal Seal • 4,500 Nits',
-      leadTime: t.mockupLocations?.vake?.leadTime || '10 Work Days • 5-Yr Warranty',
+      leadTime: t.mockupLocations?.vake?.leadTime || '10 Work Days • Up to 5-Yr Warranty',
       type: 'Architectural Facade Display & Signage',
       image: '/assets/mockups/vake_facade.webp',
       screenBox: {
