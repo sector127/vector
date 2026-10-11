@@ -20,33 +20,24 @@ export async function sendInquiryNotification(inquiryData) {
     });
 
     const contentType = response.headers.get('content-type') || '';
-    if (contentType.includes('application/json')) {
-      const data = await response.json();
-      if (data.ok || data.success) {
-        return { 
-          success: true, 
-          mode: 'api', 
-          simulated: Boolean(data.simulated),
-          data 
-        };
-      } else {
-        return { 
-          success: false, 
-          error: data.description || data.error || 'Telegram dispatch failed' 
-        };
-      }
-    } else {
+    const data = contentType.includes('application/json') ? await response.json() : null;
+
+    if (data && (data.ok || data.success)) {
       return {
-        success: false,
-        error: `Server returned unexpected response (${response.status})`
+        success: true,
+        mode: 'api',
+        simulated: Boolean(data.simulated),
+        data
       };
     }
+
+    // Vercel answers an oversized body with a plain-text 413 before our handler runs
+    const code = data?.error || (response.status === 413 ? 'file_too_large' : 'dispatch_failed');
+    console.error('Inquiry dispatch failed:', response.status, data);
+    return { success: false, code };
   } catch (err) {
     console.error('Inquiry dispatch error:', err);
-    return { 
-      success: false, 
-      error: err.message || 'Network error connecting to inquiry service' 
-    };
+    return { success: false, code: 'network_error' };
   }
 }
 

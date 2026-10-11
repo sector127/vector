@@ -66,9 +66,10 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
 
-    const MAX_SIZE_MB = 15;
+    // Must match MAX_FILE_BASE64_LENGTH in api/inquiry.js (Vercel 4.5 MB body cap)
+    const MAX_SIZE_MB = 3;
     if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-      onShowToast(`⚠️ ${t.fileTooLarge || 'ფაილის ზომა აღემატება 15MB ლიმიტს.'}`);
+      onShowToast(`⚠️ ${t.fileTooLarge}`);
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
@@ -141,11 +142,12 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
           // ignore
         }
       } else {
-        onShowToast(`⚠️ ${result.error || t.telegramError || 'შეტყობინების გაგზავნა ვერ მოხერხდა.'}`);
+        // Keep the draft intact so the client can resend or switch to WhatsApp without retyping
+        onShowToast(result.code === 'file_too_large' ? `⚠️ ${t.fileTooLarge}` : t.telegramError);
       }
     } catch (err) {
       console.error('Error submitting inquiry:', err);
-      onShowToast(`⚠️ ${err.message || t.telegramError || 'შეტყობინების გაგზავნა ვერ მოხერხდა.'}`);
+      onShowToast(t.telegramError);
     } finally {
       setIsSubmitting(false);
     }

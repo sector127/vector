@@ -181,8 +181,9 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
   const [currency, setCurrency] = useState(() => getInitialParam('curr', ['GEL', 'USD', 'EUR'], 'GEL'));
   const [brandText, setBrandText] = useState(() => {
     if (typeof window !== 'undefined') {
+      // URLSearchParams already decodes — decoding again throws on a literal "%" and blanks the page
       const txt = new URLSearchParams(window.location.search).get('text');
-      if (txt) return decodeURIComponent(txt);
+      if (txt) return txt.slice(0, 24);
     }
     return t.brandTextDefault || 'თბილისი';
   });
@@ -419,7 +420,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
   <!-- Title Block Header -->
   <rect x="20" y="20" width="760" height="56" class="title-box"/>
   <text x="40" y="52" class="title-text">VECTOR HUB GEORGIA — CAD TOOLPATH SPECIFICATION</text>
-  <text x="540" y="52" class="spec-text">SCALE 1:10 • TOLERANCE ±0.02mm</text>
+  <text x="540" y="52" class="spec-text">PRELIMINARY • NOT TO SCALE</text>
   
   <!-- Dimension Guidelines -->
   <line x1="100" y1="130" x2="700" y2="130" class="dim-line"/>
@@ -532,7 +533,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(8);
       doc.text(`DATE: ${dateStr}`, 220, 23);
-      doc.text('TOLERANCE: ±0.02 mm • SCALE: 1:10', 220, 27.5);
+      doc.text('PRELIMINARY • NOT TO SCALE', 220, 27.5);
 
       // Main CAD Geometry Drawing Zone (Left Box: 10 to 195 mm)
       doc.setDrawColor(20, 24, 33);
@@ -628,7 +629,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
         ['Material Finish', material === 'brass' ? 'Brushed Brass 2.5mm' : (material === 'stainless' ? 'AISI 316 Stainless' : (material === 'acrylic' ? 'Opal Cast Acrylic' : 'Carbon Matte'))],
         ['Illumination Tech', lighting === 'halo3000' ? '3000K Halo Warm LED' : (lighting === 'front6500' ? '6500K Front Cool LED' : 'Non-Illuminated')],
         ['LED IP Rating', 'IP67 Waterproof (50,000h)'],
-        ['Wind Load Rating', 'Certified up to 160 km/h'],
+        ['Wind Load Rating', 'Calculated per site survey'],
         ['Est. Production SLA', slaBlueprint],
         ['Calculated Budget', `${currencySymbols[currency]} ${convertedPrice.toLocaleString()}`]
       ];
@@ -652,31 +653,33 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
         rowY += 8.2;
       });
 
-      // Bottom Engineering Stamp & Approval Block (Height: 175 to 200 mm)
+      // Bottom Status & Review Block (Height: 175 to 200 mm)
+      // This sheet is generated in the browser from configurator inputs — it must never
+      // read as an approved or certified engineering document.
       doc.setDrawColor(20, 24, 33);
       doc.setLineWidth(0.4);
       doc.line(10, 175, 287, 175);
 
-      // Left Stamp: Engineering Department Seal
-      doc.setDrawColor(180, 30, 30);
+      // Left: Document Status
+      doc.setDrawColor(20, 24, 33);
       doc.setLineWidth(0.6);
       doc.rect(15, 178, 65, 18);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(8);
-      doc.setTextColor(180, 30, 30);
-      doc.text('VECTOR HUB TBILISI', 47.5, 183, { align: 'center' });
+      doc.setTextColor(20, 24, 33);
+      doc.text('PRELIMINARY ESTIMATE', 47.5, 183, { align: 'center' });
       doc.setFontSize(6.5);
-      doc.text('STRUCTURAL & CAD APPROVED', 47.5, 187.5, { align: 'center' });
+      doc.text('NOT FOR CONSTRUCTION', 47.5, 187.5, { align: 'center' });
       doc.setFont('courier', 'normal');
-      doc.text(`VERIFY: ${docNum}`, 47.5, 192.5, { align: 'center' });
+      doc.text(`REF: ${docNum}`, 47.5, 192.5, { align: 'center' });
 
-      // Middle: Legal & Permitting Note
+      // Middle: Scope Note
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(6.5);
       doc.setTextColor(100, 115, 130);
-      doc.text('This technical specification sheet is engineered by Vector Hub Georgia in full compliance with Tbilisi Municipality', 90, 184);
-      doc.text('architectural and outdoor advertising guidelines. Structural calculations certified for wind, snow, and seismic loads.', 90, 188);
-      doc.text('All rights reserved © Vector Hub 2026. Akaki Tsereteli Ave 88, Didube District, Tbilisi, Georgia.', 90, 192);
+      doc.text('Automatically generated from the Vector Studio configurator. Budget, dimensions and materials are indicative only.', 90, 184);
+      doc.text('Final pricing, structural calculations and municipal permits are confirmed by Vector Hub engineers after a site survey.', 90, 188);
+      doc.text(`© ${new Date().getFullYear()} Vector Hub. Akaki Tsereteli Ave 88, Didube District, Tbilisi, Georgia.`, 90, 192);
 
       // Right: Signature Block
       doc.setDrawColor(20, 24, 33);
@@ -685,7 +688,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(7);
       doc.setTextColor(20, 24, 33);
-      doc.text('CHIEF FABRICATION ENGINEER', 250, 195, { align: 'center' });
+      doc.text('ENGINEERING REVIEW — PENDING', 250, 195, { align: 'center' });
 
       // Save PDF directly to user workstation
       doc.save(`vector_hub_${title}_cad_blueprint.pdf`);
@@ -1290,7 +1293,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
 }
 
 function generateCadDocNumber() {
-  return `VH-CAD-2026-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+  return `VH-EST-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
 }
 
 function getTodayIsoDateString() {

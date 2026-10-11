@@ -1,4 +1,8 @@
 // Vercel Serverless Function: Telegram Notification Handler
+
+// 3 MB raw file → ~4 MB base64, safely under Vercel's 4.5 MB request body limit
+const MAX_FILE_BASE64_LENGTH = Math.ceil((3 * 1024 * 1024 * 4) / 3) + 1024;
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
@@ -24,13 +28,21 @@ export default async function handler(req, res) {
     const token = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.TELEGRAM_CHAT_ID;
 
-    // If environment variables are not configured yet, return a graceful simulated response
+    // Never report success when the inquiry can't actually be delivered —
+    // the client falls back to WhatsApp / phone instead of losing the lead.
     if (!token || !chatId) {
-      console.warn('TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is not configured in environment variables.');
-      return res.status(200).json({
-        success: true,
-        simulated: true,
-        message: 'Inquiry received in local simulation mode. Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID to enable live Telegram alerts.'
+      console.error('TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is not configured — inquiry not delivered.');
+      return res.status(503).json({
+        success: false,
+        error: 'not_configured'
+      });
+    }
+
+    // Base64 inflates files by ~33%; reject before Vercel's 4.5 MB body cap truncates the request
+    if (fileData && fileData.length > MAX_FILE_BASE64_LENGTH) {
+      return res.status(413).json({
+        success: false,
+        error: 'file_too_large'
       });
     }
 
@@ -86,7 +98,7 @@ ${fileAttached || fileName ? `📎 <b>მიმაგრებული ფა�
       console.error('Telegram API Error:', result);
       return res.status(502).json({
         success: false,
-        error: result.description || 'Telegram API dispatch failed'
+        error: 'dispatch_failed'
       });
     }
 
@@ -133,7 +145,7 @@ ${fileAttached || fileName ? `📎 <b>მიმაგრებული ფა�
     console.error('Server error processing inquiry:', error);
     return res.status(500).json({
       success: false,
-      error: error.message || 'Internal Server Error'
+      error: 'server_error'
     });
   }
 }
