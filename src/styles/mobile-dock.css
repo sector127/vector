@@ -1,0 +1,90 @@
+/* ==========================================================================
+   Mobile Quick Action Dock
+   ========================================================================== */
+.mobile-dock-wrapper {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 990;
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+
+.mobile-dock-inner {
+  pointer-events: auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding: 6px;
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--ink-primary);
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.mobile-dock-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border: 1px solid var(--ink-hairline);
+  background: var(--bg-subtle);
+  color: var(--ink-secondary);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 2px;
+  transition: all var(--trans-quick);
+}
+
+.mobile-dock-item:hover,
+.mobile-dock-item:active {
+  color: var(--ink-primary);
+  border-color: var(--ink-primary);
+  background: var(--bg-card);
+}
+
+.mobile-dock-item.highlight-wa {
+  color: #25D366;
+  border-color: rgba(37, 211, 102, 0.3);
+}
+
+.mobile-dock-item.highlight-wa:hover,
+.mobile-dock-item.highlight-wa:active {
+  background: rgba(37, 211, 102, 0.1);
+  border-color: #25D366;
+}
+
+.mobile-dock-item.dock-item-cta {
+  background: var(--ink-primary);
+  color: var(--bg-main);
+  border-color: var(--ink-primary);
+  flex-direction: row;
+  gap: 2px;
+}
+
+.mobile-dock-item.dock-item-cta:hover,
+.mobile-dock-item.dock-item-cta:active {
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .mobile-dock-wrapper {
+    display: block;
+  }
+  
+  body {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
+  }
+}

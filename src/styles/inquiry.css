@@ -1,0 +1,206 @@
+/* ==========================================================================
+   INQUIRY & CONTACT FORM
+   ========================================================================== */
+.inquiry-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 50px;
+}
+
+.inquiry-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label-mono {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.file-dropzone-minimal {
+  border: 1px dashed var(--ink-primary);
+  padding: 28px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  background: var(--bg-subtle);
+  cursor: pointer;
+}
+
+.dropzone-span {
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+.file-attached-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 100%;
+  padding: 6px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--ink-primary);
+  border-radius: 2px;
+}
+
+.file-clear-btn {
+  background: transparent;
+  border: 1px solid var(--ink-hairline);
+  color: var(--ink-secondary);
+  border-radius: 2px;
+  padding: 3px 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--trans-quick);
+}
+
+.file-clear-btn:hover {
+  background: var(--ink-primary);
+  color: var(--bg-main);
+  border-color: var(--ink-primary);
+}
+
+.whatsapp-cta-btn {
+  background: transparent;
+  color: var(--ink-primary);
+  border: 1px solid var(--ink-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: all var(--trans-quick);
+}
+
+.whatsapp-cta-btn:hover {
+  background: #25d366 !important;
+  color: #ffffff !important;
+  border-color: #25d366 !important;
+}
+
+/* Honeypot field — kept off-screen rather than display:none, which some bots skip */
+.form-honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-cta-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.form-cta-row .btn-swiss {
+  padding: 16px;
+}
+
+.file-attached-name {
+  font-weight: 700;
+}
+
+/* Contact desk column */
+.desk-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.desk-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ink-muted);
+  margin-bottom: 10px;
+}
+
+.desk-title {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.desk-desc {
+  font-size: 0.9rem;
+  color: var(--ink-secondary);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.desk-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.desk-contact-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.desk-link {
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.desk-address-box {
+  background: var(--bg-subtle);
+}
+
+.desk-address-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.desk-address {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  color: var(--ink-secondary);
+  line-height: 1.5;
+}
+
+.desk-address-icon {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.desk-hours {
+  border-top: 1px solid var(--ink-hairline);
+  margin-top: 16px;
+  padding-top: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}

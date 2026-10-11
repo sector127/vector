@@ -21,7 +21,7 @@ export default function Hero({ lang }) {
           </div>
 
           <div className="telemetry-coordinates">
-            <Compass size={12} style={{ display: 'inline', marginRight: '5px' }} />
+            <Compass size={12} className="icon-inline" />
             <span>TBS [41.7151° N, 44.8271° E] • ELEV: 480m • CNC TOLERANCE: ±0.02mm</span>
           </div>
         </div>
@@ -54,7 +54,7 @@ export default function Hero({ lang }) {
               className="btn-swiss hero-secondary-btn"
               data-cursor-text="3D VISUALIZER"
             >
-              <Sparkles size={15} style={{ display: 'inline', marginRight: '6px' }} />
+              <Sparkles size={15} className="icon-inline" />
               <span>{t.heroBtnVisualizer}</span>
             </a>
           </div>
@@ -62,7 +62,7 @@ export default function Hero({ lang }) {
           {/* Capabilities Ribbon */}
           <div className="hero-capabilities-ribbon">
             <span className="capabilities-label">
-              <Cpu size={12} style={{ display: 'inline', marginRight: '4px' }} />
+              <Cpu size={12} className="icon-inline" />
               {t.heroCapabilitiesLabel}
             </span>
             <div className="capabilities-chips">

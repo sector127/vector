@@ -17,7 +17,7 @@ export default function Footer({ lang }) {
           {/* Brand Info */}
           <div>
             <h2 className="footer-huge-title">VECTOR HUB.</h2>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', color: 'var(--ink-secondary)', lineHeight: '1.6', maxWidth: '300px' }}>
+            <p className="footer-desc">
               {t.footerDesc}
             </p>
           </div>
@@ -55,7 +55,7 @@ export default function Footer({ lang }) {
               <span>{t.addressValShort}</span>
               <button 
                 onClick={scrollToTop} 
-                style={{ textAlign: 'left', marginTop: '12px', fontFamily: 'var(--font-mono)', fontWeight: '700', textDecoration: 'underline' }}
+                className="footer-top-btn"
                 data-cursor-text="TOP"
               >
                 {t.backToTop}

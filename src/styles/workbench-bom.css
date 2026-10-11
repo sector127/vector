@@ -1,0 +1,70 @@
+/* ==========================================================================
+   CAD Workbench - Technical BOM & Engineering Telemetry
+   ========================================================================== */
+.workbench-bom-card {
+  border: 1px solid var(--ink-hairline);
+  background: var(--bg-subtle);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.bom-toggle-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ink-primary);
+  transition: background var(--trans-quick), color var(--trans-quick);
+}
+
+.bom-toggle-btn:hover {
+  background: var(--bg-card);
+  color: var(--ink-primary);
+}
+
+.bom-details-panel {
+  padding: 12px 14px;
+  border-top: 1px solid var(--ink-hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg-card);
+}
+
+.bom-metric-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.bom-metric-key {
+  color: var(--ink-muted);
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.bom-metric-val {
+  color: var(--ink-primary);
+  text-align: right;
+  word-break: break-word;
+}
+
+.bom-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

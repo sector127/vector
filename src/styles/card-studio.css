@@ -1,0 +1,1078 @@
+/* ==========================================================================
+   3D EXECUTIVE BUSINESS CARD & FLYER VISUALIZER (AMERICAN PSYCHO SUITE)
+   ========================================================================== */
+.card-studio-viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 520px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: crosshair;
+  user-select: none;
+}
+
+.card-studio-viewport.day-desk {
+  background: radial-gradient(circle at 50% 45%, #1c2028 0%, #0d1016 70%, #06080b 100%);
+}
+
+.card-studio-viewport.night-desk {
+  background: radial-gradient(circle at 50% 50%, #0f1217 0%, #08090d 65%, #020305 100%);
+}
+
+.desk-surface-texture {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 24px 24px, 100% 4px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.desk-lamp-spotlight {
+  position: absolute;
+  width: 550px;
+  height: 550px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 248, 220, 0.12) 0%, rgba(255, 215, 0, 0.04) 40%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+/* 3D Perspective Scene */
+.card-3d-scene-container {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+.card-3d-flipper {
+  position: relative;
+  transform-style: preserve-3d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-body-surface {
+  position: relative;
+  transform-style: preserve-3d;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: box-shadow 0.25s ease;
+}
+
+.card-body-surface.format-business-card {
+  width: 480px;
+  height: 274px;
+}
+
+.card-body-surface.format-flyer {
+  width: 320px;
+  height: 450px;
+}
+
+.card-front-face {
+  z-index: 2;
+  transform: rotateY(0deg);
+}
+
+.card-back-face {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
+
+/* Tactile Paper Grain Layers (Procedural Fibers & Stippling) */
+.card-tactile-grain-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.paper-bone-grain {
+  filter: url(#ap-bone-texture);
+  opacity: 0.36;
+  mix-blend-mode: multiply;
+  background-image: radial-gradient(rgba(40, 30, 20, 0.04) 1px, transparent 0);
+  background-size: 3px 3px;
+}
+
+.paper-eggshell-grain {
+  filter: url(#ap-eggshell-texture);
+  opacity: 0.55;
+  mix-blend-mode: multiply;
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(45, 35, 20, 0.065) 1.2px, transparent 1.5px),
+    radial-gradient(circle at 25% 75%, rgba(255, 255, 255, 0.12) 1px, transparent 1.5px);
+  background-size: 4px 4px, 5px 5px;
+}
+
+.paper-nimbus-grain {
+  filter: url(#ap-nimbus-texture);
+  opacity: 0.45;
+  mix-blend-mode: multiply;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(20, 30, 45, 0.038),
+    rgba(20, 30, 45, 0.038) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+.paper-offwhite-grain {
+  filter: url(#ap-offwhite-texture);
+  opacity: 0.38;
+  mix-blend-mode: multiply;
+  background-image:
+    linear-gradient(45deg, rgba(30, 25, 20, 0.02) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(30, 25, 20, 0.02) 25%, transparent 25%);
+  background-size: 4px 4px;
+}
+
+.paper-obsidian-grain {
+  opacity: 0.4;
+  mix-blend-mode: overlay;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 0);
+  background-size: 3px 3px;
+}
+
+/* Translucent Security Watermark Layer ("Oh my God, it even has a watermark...") */
+.card-watermark-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: multiply;
+  transition: opacity 0.2s ease;
+}
+
+.watermark-crest {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  opacity: 0.65;
+  transform: rotate(-12deg);
+  color: #8c826e;
+}
+
+.watermark-monogram {
+  font-family: 'Cinzel', 'Playfair Display', serif;
+  font-weight: 800;
+  font-size: 1.4rem;
+  letter-spacing: 0.25em;
+  margin-top: 4px;
+}
+
+.watermark-seal-sub {
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+/* Specular Sheen & Foil Sweep */
+.card-specular-glint {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  mix-blend-mode: screen;
+}
+
+.card-foil-sheen-sweep {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  mix-blend-mode: overlay;
+}
+
+/* ================= EXACT SCREEN-ACCURATE AMERICAN PSYCHO CARD LAYOUT ================= */
+.card-inner-screen-accurate {
+  position: relative;
+  z-index: 5;
+  height: 100%;
+  width: 100%;
+  padding: 20px 24px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+/* Top Row: Phone Number Left, Pierce & Pierce Right */
+.ap-card-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.ap-card-phone {
+  font-size: 0.94rem;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+.ap-card-firm-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.ap-firm-title {
+  font-size: 1.0rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  line-height: 1.15;
+}
+
+.ap-firm-dept {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  margin-top: 1px;
+}
+
+/* Dead Center: Cardholder Name & Title (NO EXTRA CRESTS OR MODERN GRAPHICS) */
+.ap-card-center-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin: auto 0;
+  transform: translateY(-2px);
+}
+
+.ap-holder-name {
+  font-size: 1.34rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+}
+
+.ap-holder-role {
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  margin-top: 3px;
+}
+
+/* Bottom Block: Address and Telex */
+.ap-card-bottom-block {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 2px;
+}
+
+.ap-address-single-line {
+  font-size: 0.61rem;
+  letter-spacing: 0.035em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.ap-address-two-lines {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.ap-address-line1 {
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+}
+
+.ap-address-line2 {
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+}
+
+/* ================= 1. PATRICK BATEMAN: SILIAN RAIL ON BONE ================= */
+.bateman-silian-rail {
+  color: #1e1b18;
+  font-family: 'Cormorant Garamond', 'Garamond', 'Times New Roman', serif;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8), 0 -0.5px 0.5px rgba(0, 0, 0, 0.4);
+}
+
+.bateman-silian-rail .ap-card-phone {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700;
+  font-size: 0.98rem;
+  letter-spacing: 0.04em;
+}
+
+.bateman-silian-rail .ap-firm-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700;
+  font-size: 1.02rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.bateman-silian-rail .ap-firm-dept {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.bateman-silian-rail .ap-holder-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700;
+  font-size: 1.36rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.bateman-silian-rail .ap-holder-role {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.bateman-silian-rail .ap-address-single-line {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: 0.61rem;
+  letter-spacing: 0.035em;
+}
+
+/* ================= 2. DAVID VAN PATTEN: ROMALIAN ON EGGSHELL ================= */
+.vanpatten-romalian {
+  color: #16120e;
+  font-family: 'Bodoni Moda', 'Didot', 'Times New Roman', serif;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75), 0 -0.5px 0.5px rgba(0, 0, 0, 0.45);
+}
+
+.vanpatten-romalian .ap-card-phone {
+  font-family: 'Bodoni Moda', serif;
+  font-weight: 700;
+  font-size: 1.0rem;
+  letter-spacing: 0.03em;
+}
+
+.vanpatten-romalian .ap-firm-title {
+  font-family: 'Bodoni Moda', serif;
+  font-weight: 700;
+  font-size: 1.04rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.vanpatten-romalian .ap-firm-dept {
+  font-family: 'Bodoni Moda', serif;
+  font-weight: 500;
+  font-size: 0.74rem;
+  letter-spacing: 0.03em;
+  /* Title Case: Mergers and Aquisitions */
+}
+
+.vanpatten-romalian .ap-holder-name {
+  font-family: 'Bodoni Moda', serif;
+  font-weight: 900;
+  font-size: 1.42rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vanpatten-romalian .ap-holder-role {
+  font-family: 'Bodoni Moda', serif;
+  font-weight: 500;
+  font-size: 0.86rem;
+  letter-spacing: 0.03em;
+  /* Title Case: Vice President */
+}
+
+.vanpatten-romalian .ap-address-single-line {
+  font-family: 'Bodoni Moda', serif;
+  font-weight: 600;
+  font-size: 0.61rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ================= 3. PAUL ALLEN: COPPERPLATE ON SUBTLE OFF-WHITE ================= */
+.allen-copperplate {
+  color: #24201c;
+  font-family: 'Cinzel', 'Copperplate Gothic Bold', 'Copperplate', serif;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7), 0 -0.5px 0.5px rgba(0, 0, 0, 0.35);
+}
+
+.allen-copperplate .ap-card-phone {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.94rem;
+  letter-spacing: 0.07em;
+}
+
+.allen-copperplate .ap-firm-title {
+  font-family: 'Cinzel', serif;
+  font-weight: 800;
+  font-size: 1.02rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.allen-copperplate .ap-firm-dept {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.65rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.allen-copperplate .ap-holder-name {
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  font-size: 1.28rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.allen-copperplate .ap-holder-role {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.allen-copperplate .ap-address-line1,
+.allen-copperplate .ap-address-line2 {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ================= 4. TIMOTHY BRYCE: RAISED LETTERING ON NIMBUS WHITE ================= */
+.bryce-raised-lettering {
+  color: #1a1612;
+  font-family: 'Cormorant Garamond', 'Bodoni Moda', serif;
+  text-shadow: 
+    0 -0.8px 0.8px rgba(0, 0, 0, 0.6),
+    0 1px 1px rgba(255, 245, 220, 0.85),
+    1px 1px 1.5px rgba(80, 60, 25, 0.35);
+  filter: drop-shadow(0 1px 0.5px rgba(0, 0, 0, 0.28));
+}
+
+.bryce-raised-lettering .ap-card-phone {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700;
+  font-size: 1.0rem;
+  letter-spacing: 0.04em;
+}
+
+.bryce-raised-lettering .ap-firm-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700;
+  font-size: 1.02rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.bryce-raised-lettering .ap-firm-dept {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: 0.74rem;
+  letter-spacing: 0.03em;
+  /* Title Case: Mergers and Aquisitions */
+}
+
+.bryce-raised-lettering .ap-holder-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700;
+  font-size: 1.38rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.bryce-raised-lettering .ap-holder-role {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: 0.86rem;
+  letter-spacing: 0.04em;
+  /* Title Case: Vice President */
+}
+
+.bryce-raised-lettering .ap-address-single-line {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: 0.61rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Internal Layout: Luxury Flyer */
+.flyer-layout {
+  position: relative;
+  z-index: 5;
+  height: 100%;
+  padding: 26px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.flyer-top-monogram {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.flyer-crest {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flyer-firm-tag {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.flyer-headline-block {
+  margin: 18px 0;
+}
+
+.flyer-edition-pill {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.flyer-main-title {
+  font-family: 'Cinzel', 'Playfair Display', serif;
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.flyer-accent-divider {
+  width: 40px;
+  height: 2px;
+  margin: 10px 0;
+  opacity: 0.6;
+}
+
+.flyer-sub-desc {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  margin: 0;
+  opacity: 0.8;
+}
+
+.flyer-spec-table {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 10px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.flyer-spec-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.flyer-spec-label {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+}
+
+.flyer-spec-val {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.flyer-bottom-block {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 12px;
+}
+
+.flyer-date-venue {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.flyer-signature-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.flyer-host-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.flyer-host-title {
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+}
+
+/* Reverse Back Face */
+.card-back-center-seal {
+  position: relative;
+  z-index: 5;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  gap: 8px;
+}
+
+.card-back-monogram-shield {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 1.5px solid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.back-monogram-letters {
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  margin-top: -2px;
+}
+
+.card-back-firm-name {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.card-back-motto {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.card-back-geometric-grid {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 70%;
+  margin: 4px 0;
+}
+
+.back-grid-line {
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.25;
+}
+
+.back-grid-coords {
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+}
+
+.card-back-security-stamp {
+  font-family: var(--font-mono);
+  font-size: 0.54rem;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border: 1px solid;
+  opacity: 0.8;
+  margin-top: 4px;
+}
+
+/* Interactive Stage HUD Elements */
+.card-stage-flip-btn {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(10, 12, 16, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--ink-primary);
+  color: var(--ink-primary);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 10;
+  transition: all var(--trans-quick);
+}
+
+.card-stage-flip-btn:hover {
+  background: var(--ink-primary);
+  color: var(--bg-main);
+}
+
+.card-stage-flip-btn .rotated-flip {
+  transform: rotate(180deg);
+  transition: transform 0.4s ease;
+}
+
+.card-stage-tilt-hint {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(10, 12, 16, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ================= SIMPLIFIED & FUN AMERICAN PSYCHO CONTROLS ================= */
+.card-archetypes-simplified-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.card-archetype-fun-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--ink-hairline);
+  color: var(--ink-primary);
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: all var(--trans-quick);
+  text-align: left;
+  border-radius: 2px;
+}
+
+.card-archetype-fun-chip:hover {
+  border-color: var(--ink-primary);
+  transform: translateY(-1px);
+}
+
+.card-archetype-fun-chip.active {
+  background: var(--ink-primary);
+  color: var(--ink-inverse);
+  border-color: var(--ink-primary);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.archetype-chip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.archetype-chip-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.archetype-chip-active-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffd700;
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.8);
+}
+
+.archetype-chip-details {
+  font-size: 0.62rem;
+  opacity: 0.75;
+  margin-top: 3px;
+  letter-spacing: 0.02em;
+}
+
+/* Next Card 🎲 Cycle Button */
+.btn-cycle-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: #ffd700;
+  padding: 3px 8px;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--trans-quick);
+}
+
+.btn-cycle-card:hover {
+  background: rgba(212, 175, 55, 0.18);
+  border-color: #ffd700;
+}
+
+/* Film Quote Card */
+.ap-film-quote-card {
+  display: flex;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(18, 22, 28, 0.85);
+  border-left: 3px solid #d4af37;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+}
+
+.ap-quote-symbol {
+  color: #d4af37;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.ap-quote-body {
+  flex: 1;
+}
+
+.ap-quote-film-tag {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  color: #d4af37;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.ap-quote-dialogue {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-style: italic;
+  color: #f1ede3;
+  line-height: 1.35;
+  margin: 0;
+}
+
+/* Fun Personalization Input */
+.ap-name-input-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ap-fun-name-input {
+  font-family: 'Cinzel', 'Cormorant Garamond', serif !important;
+  font-weight: 700 !important;
+  font-size: 0.95rem !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  padding: 10px 12px !important;
+  border: 1px solid rgba(212, 175, 55, 0.4) !important;
+  background: rgba(10, 12, 16, 0.6) !important;
+}
+
+.ap-fun-name-input:focus {
+  border-color: #ffd700 !important;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.15) !important;
+}
+
+.ap-name-hint {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--ink-secondary);
+  opacity: 0.8;
+  margin-top: 5px;
+}
+
+.btn-reset-name-mini {
+  background: transparent;
+  border: none;
+  color: var(--ink-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 4px;
+  transition: color var(--trans-quick);
+}
+
+.btn-reset-name-mini:hover {
+  color: #ffd700;
+}
+
+/* Quick Actions Row */
+.ap-quick-actions-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .card-body-surface.format-business-card {
+    width: 336px;
+    height: 192px;
+  }
+
+  .card-inner-screen-accurate {
+    padding: 14px 16px 12px 16px;
+  }
+
+  .ap-card-phone {
+    font-size: 0.68rem;
+  }
+
+  .ap-firm-title {
+    font-size: 0.72rem;
+  }
+
+  .ap-firm-dept {
+    font-size: 0.52rem;
+  }
+
+  .ap-holder-name {
+    font-size: 0.95rem;
+  }
+
+  .ap-holder-role {
+    font-size: 0.62rem;
+  }
+
+  .ap-address-single-line,
+  .ap-address-line1,
+  .ap-address-line2 {
+    font-size: 0.44rem;
+  }
+
+  .card-body-surface.format-flyer {
+    width: 240px;
+    height: 340px;
+  }
+
+  .card-archetypes-grid,
+  .card-stocks-grid,
+  .card-finishes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-body-surface.format-business-card {
+    width: 290px;
+    height: 165px;
+  }
+
+  .card-inner-screen-accurate {
+    padding: 10px 12px 8px 12px;
+  }
+
+  .ap-card-phone {
+    font-size: 0.58rem;
+  }
+
+  .ap-firm-title {
+    font-size: 0.62rem;
+  }
+
+  .ap-firm-dept {
+    font-size: 0.45rem;
+  }
+
+  .ap-holder-name {
+    font-size: 0.82rem;
+  }
+
+  .ap-holder-role {
+    font-size: 0.54rem;
+  }
+
+  .ap-address-single-line,
+  .ap-address-line1,
+  .ap-address-line2 {
+    font-size: 0.38rem;
+  }
+}

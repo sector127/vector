@@ -1,0 +1,75 @@
+/* ==========================================================================
+   SWISS FOOTER
+   ========================================================================== */
+.swiss-footer {
+  border-top: 1px solid var(--ink-primary);
+  padding: 80px 0 40px 0;
+  background: var(--bg-main);
+}
+
+.footer-main-row {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  gap: 40px;
+  margin-bottom: 60px;
+}
+
+.footer-huge-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 3.6vw, 3.4rem);
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.footer-col-head {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--ink-primary);
+  padding-bottom: 6px;
+}
+
+.footer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--ink-secondary);
+}
+
+.footer-list a:hover {
+  color: var(--ink-primary);
+  text-decoration: underline;
+}
+
+.footer-bottom-line {
+  border-top: 1px solid var(--ink-hairline);
+  padding-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+.footer-desc {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--ink-secondary);
+  line-height: 1.6;
+  max-width: 300px;
+}
+
+.footer-top-btn {
+  text-align: left;
+  margin-top: 12px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-decoration: underline;
+}

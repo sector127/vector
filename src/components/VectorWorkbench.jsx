@@ -729,7 +729,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
 
             {/* Simulated Vector Wireframe CAD Box */}
             <div className="stage-cad-view">
-                <svg viewBox="0 0 460 300" style={{ width: '100%', height: '100%' }}>
+                <svg viewBox="0 0 460 300" className="stage-svg">
                   <defs>
                     {/* Background CAD Grid */}
                     <pattern id="cadGrid" width="20" height="20" patternUnits="userSpaceOnUse">
@@ -880,7 +880,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
               </div>
 
             {/* CAD Spec Readout */}
-            <div className="canvas-footer-hud" style={{ borderTop: '1px solid var(--ink-hairline)', paddingTop: '12px' }}>
+            <div className="canvas-footer-hud">
               <div><strong>{t.hudArea}:</strong> {areaSqM} m²</div>
               <div><strong>{t.hudToolpath}:</strong> {toolpathMm.toLocaleString()} mm</div>
               <div><strong>{t.hudContours}:</strong> {contourCount}</div>
@@ -952,15 +952,14 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
               {inputMode === 'text' ? (
                 <input
                   type="text"
-                  className="swiss-input"
+                  className="swiss-input control-input-gap"
                   value={brandText}
                   onChange={(e) => setBrandText(e.target.value)}
                   placeholder={t.brandPlaceholder}
                   maxLength={24}
-                  style={{ marginTop: '10px' }}
                 />
               ) : (
-                <div style={{ marginTop: '10px' }}>
+                <div className="control-input-gap">
                   {/* SVG Drag and drop zone */}
                   <div
                     className={`svg-dropzone ${isDragOver ? 'drag-over' : ''}`}
@@ -972,7 +971,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
                     <input
                       type="file"
                       ref={fileInputRef}
-                      style={{ display: 'none' }}
+                      hidden
                       accept=".svg"
                       onChange={(e) => handleFileProcess(e.target.files[0])}
                     />
@@ -1010,9 +1009,9 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
                   <span>{t.step4Title}</span>
                   <span>{width}m ({t.widthLabel}) × {height}m ({t.heightLabel})</span>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="slider-pair">
                   <div>
-                    <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--ink-muted)' }}>
+                    <label className="slider-label">
                       {t.widthLabelUpper}: {width}m
                     </label>
                     <input
@@ -1026,7 +1025,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
                     />
                   </div>
                   <div>
-                    <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--ink-muted)' }}>
+                    <label className="slider-label">
                       {t.heightLabelUpper}: {height}m
                     </label>
                     <input
@@ -1095,7 +1094,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
               <div className="control-block">
                 <div className="control-title">
                   <span>{t.returnDepth || 'Return Depth'}</span>
-                  <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink-primary)' }}>{depthMm} mm</span>
+                  <span className="control-value">{depthMm} mm</span>
                 </div>
                 <input
                   type="range"
@@ -1139,7 +1138,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
             {/* Output Estimate Summary Card */}
             <div className="estimate-display-card">
               <div className="estimate-col">
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--ink-muted)', textTransform: 'uppercase' }}>
+                <span className="est-label">
                   {t.estPriceLbl}
                 </span>
                 <span className="est-currency-val est-quote-val">
@@ -1148,7 +1147,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
                 <span className="est-quote-note">
                   {t.estPriceNote}
                 </span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--ink-secondary)', marginTop: '4px' }}>
+                <span className="est-days">
                   ✓ {estDays}
                 </span>
               </div>
@@ -1171,7 +1170,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
                   onClick={() => setShowBom(!showBom)}
                   data-cursor-text="BOM TELEMETRY"
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div className="bom-toggle-label">
                     <Cpu size={14} />
                     <span>{t.bomToggle}</span>
                   </div>
@@ -1180,16 +1179,16 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
                 {showBom && (
                   <div className="bom-details-panel">
                     <div className="bom-metric-row">
-                      <span className="bom-metric-key"><Zap size={12} style={{ display: 'inline', marginRight: '5px' }} />{t.bomCutDuration}:</span>
+                      <span className="bom-metric-key"><Zap size={12} className="icon-inline" />{t.bomCutDuration}:</span>
                       <strong className="bom-metric-val">{cutDurationMin} min (~{toolpathMm.toLocaleString()} mm)</strong>
                     </div>
                     <div className="bom-metric-row">
-                      <span className="bom-metric-key"><Scale size={12} style={{ display: 'inline', marginRight: '5px' }} />{t.bomWeight}:</span>
+                      <span className="bom-metric-key"><Scale size={12} className="icon-inline" />{t.bomWeight}:</span>
                       <strong className="bom-metric-val">~{estWeightKg} kg (2.0mm {material.toUpperCase()})</strong>
                     </div>
                     {productType === 'letters' && (
                       <div className="bom-metric-row">
-                        <span className="bom-metric-key"><Layers size={12} style={{ display: 'inline', marginRight: '5px' }} />{t.bomReturnDepth || 'Return Depth'}:</span>
+                        <span className="bom-metric-key"><Layers size={12} className="icon-inline" />{t.bomReturnDepth || 'Return Depth'}:</span>
                         <strong className="bom-metric-val">{depthMm} mm ({t.bomReturnArea || 'Surface'}: ~{returnAreaSqM.toFixed(2)} m²)</strong>
                       </div>
                     )}
@@ -1208,7 +1207,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
                       <span className="bom-metric-val">{t.bomHardwareVal}</span>
                     </div>
                     <div className="bom-metric-row">
-                      <span className="bom-metric-key"><ShieldCheck size={12} style={{ display: 'inline', marginRight: '5px' }} />{t.bomIngress}:</span>
+                      <span className="bom-metric-key"><ShieldCheck size={12} className="icon-inline" />{t.bomIngress}:</span>
                       <span className="bom-metric-val">{t.bomIngressVal}</span>
                     </div>
                   </div>

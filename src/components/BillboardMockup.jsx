@@ -897,7 +897,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
                       data-cursor-text="DESIGNER"
                       type="button"
                     >
-                      <Sparkles size={13} style={{ display: 'inline', marginRight: '4px' }} />
+                      <Sparkles size={13} className="icon-inline" />
                       {t.mockupModeDesigner}
                     </button>
                     <button
@@ -906,7 +906,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
                       data-cursor-text="UPLOAD"
                       type="button"
                     >
-                      <Upload size={13} style={{ display: 'inline', marginRight: '4px' }} />
+                      <Upload size={13} className="icon-inline" />
                       {t.mockupModeUpload}
                     </button>
                   </div>
@@ -925,7 +925,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
                       <input
                         type="file"
                         ref={fileInputRef}
-                        style={{ display: 'none' }}
+                        hidden
                         accept="image/*,.svg"
                         onChange={(e) => e.target.files && handleImageUpload(e.target.files[0])}
                       />

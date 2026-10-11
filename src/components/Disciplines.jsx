@@ -12,7 +12,7 @@ export default function Disciplines({ lang }) {
       desc: t.d1Desc,
       specs: t.d1Specs,
       svg: (
-        <svg viewBox="0 0 300 160" style={{ width: '100%', height: '100%' }}>
+        <svg viewBox="0 0 300 160" className="discipline-svg">
           <line x1="80" y1="30" x2="150" y2="130" stroke="var(--ink-primary)" strokeWidth="2.5" />
           <line x1="150" y1="130" x2="220" y2="30" stroke="var(--ink-primary)" strokeWidth="2.5" />
           <line x1="100" y1="30" x2="150" y2="105" stroke="var(--ink-primary)" strokeWidth="2.5" />
@@ -34,7 +34,7 @@ export default function Disciplines({ lang }) {
       desc: t.d2Desc,
       specs: t.d2Specs,
       svg: (
-        <svg viewBox="0 0 300 160" style={{ width: '100%', height: '100%' }}>
+        <svg viewBox="0 0 300 160" className="discipline-svg">
           <rect x="40" y="25" width="220" height="110" fill="none" stroke="var(--ink-primary)" strokeWidth="2.5" />
           <rect x="52" y="37" width="196" height="86" fill="none" stroke="var(--ink-hairline)" strokeWidth="1" strokeDasharray="3 3" />
           <line x1="46" y1="35" x2="46" y2="125" stroke="var(--ink-primary)" strokeWidth="3" />
@@ -54,7 +54,7 @@ export default function Disciplines({ lang }) {
       desc: t.d3Desc,
       specs: t.d3Specs,
       svg: (
-        <svg viewBox="0 0 300 160" style={{ width: '100%', height: '100%' }}>
+        <svg viewBox="0 0 300 160" className="discipline-svg">
           <rect x="50" y="25" width="200" height="110" fill="none" stroke="var(--ink-primary)" strokeWidth="1.5" />
           <rect x="42" y="17" width="216" height="126" fill="none" stroke="var(--ink-hairline)" strokeWidth="1" strokeDasharray="4 4" />
           <line x1="150" y1="25" x2="150" y2="135" stroke="var(--ink-muted)" strokeWidth="1" strokeDasharray="2 2" />
@@ -76,7 +76,7 @@ export default function Disciplines({ lang }) {
       desc: t.d4Desc,
       specs: t.d4Specs,
       svg: (
-        <svg viewBox="0 0 300 160" style={{ width: '100%', height: '100%' }}>
+        <svg viewBox="0 0 300 160" className="discipline-svg">
           <rect x="40" y="20" width="220" height="90" fill="none" stroke="var(--ink-primary)" strokeWidth="2.5" />
           <line x1="140" y1="110" x2="140" y2="155" stroke="var(--ink-primary)" strokeWidth="3" />
           <line x1="160" y1="110" x2="160" y2="155" stroke="var(--ink-primary)" strokeWidth="3" />
@@ -95,7 +95,7 @@ export default function Disciplines({ lang }) {
       desc: t.d5Desc,
       specs: t.d5Specs,
       svg: (
-        <svg viewBox="0 0 300 160" style={{ width: '100%', height: '100%' }}>
+        <svg viewBox="0 0 300 160" className="discipline-svg">
           <line x1="30" y1="140" x2="270" y2="140" stroke="var(--ink-primary)" strokeWidth="2" />
           <rect x="70" y="50" width="160" height="90" fill="none" stroke="var(--ink-primary)" strokeWidth="1.5" />
           <line x1="30" y1="140" x2="70" y2="20" stroke="var(--ink-muted)" strokeWidth="1.5" strokeDasharray="3 3" />

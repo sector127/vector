@@ -1,0 +1,120 @@
+/* Minimal Toast */
+.minimal-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--ink-primary);
+  color: var(--ink-inverse);
+  padding: 14px 22px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid var(--ink-primary);
+  z-index: 3000;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
+}
+
+/* Mobile Menu Button (Visible on screens <= 1024px) */
+.mobile-menu-btn {
+  display: none;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--ink-hairline);
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-subtle);
+  color: var(--ink-primary);
+  transition: all var(--trans-quick);
+}
+
+.mobile-menu-btn:hover {
+  border-color: var(--ink-primary);
+  background: var(--bg-main);
+}
+
+/* Mobile Nav Drawer Overlay */
+.mobile-nav-drawer {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  width: 100%;
+  height: calc(100vh - var(--header-height));
+  background: var(--bg-main);
+  border-bottom: 1px solid var(--ink-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 32px 24px;
+  transform: translateY(-120%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+  z-index: 999;
+  overflow-y: auto;
+}
+
+.mobile-nav-drawer.open {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobile-nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mobile-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--ink-hairline);
+  color: var(--ink-primary);
+  transition: color var(--trans-quick), transform var(--trans-quick);
+}
+
+.mobile-nav-link span:first-child {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+}
+
+.mobile-nav-link:hover {
+  transform: translateX(6px);
+}
+
+.mobile-nav-link.cta {
+  color: var(--ink-primary);
+  border-bottom: 2px solid var(--ink-primary);
+  margin-top: 8px;
+}
+
+.mobile-drawer-footer {
+  padding-top: 24px;
+  border-top: 1px solid var(--ink-hairline);
+}
+
+.mobile-lang-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.mobile-lang-btn {
+  flex: 1;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.tbilisi-time-badge.mobile-time-badge {
+  width: 100%;
+  justify-content: center;
+}

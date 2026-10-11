@@ -22,19 +22,19 @@ export default function Machinery({ lang }) {
         </div>
 
         {/* Machinery Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+        <div className="machinery-grid">
           {machines.map((m) => (
             <div key={m.num} className="hairline-box" data-cursor-text={m.name.split(' ')[0]}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', fontWeight: '700', color: 'var(--ink-muted)', marginBottom: '12px' }}>
+              <div className="machine-num">
                 {m.num} / {t.machineryToolingLabel}
               </div>
-              <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.25rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '8px' }}>
+              <h3 className="machine-name">
                 {m.name}
               </h3>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--ink-primary)', fontWeight: '700', marginBottom: '12px' }}>
+              <div className="machine-role">
                 ● {m.role}
               </div>
-              <p style={{ fontSize: '0.88rem', color: 'var(--ink-secondary)', lineHeight: '1.5' }}>
+              <p className="machine-specs">
                 {m.specs}
               </p>
             </div>

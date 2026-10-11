@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { getTranslation } from '../i18n/translations';
 
 // Architectural Schematic SVGs for Project Blueprints
 const SCHEMATICS = {
   0: (
-    <svg viewBox="0 0 280 160" style={{ width: '100%', height: '100%' }}>
+    <svg viewBox="0 0 280 160" className="archive-schematic-svg">
       <text x="140" y="85" fill="var(--bg-main)" stroke="var(--ink-primary)" strokeWidth="2" fontSize="30" fontFamily="Oxanium" fontWeight="900" textAnchor="middle">
         BOUTIQUE
       </text>
@@ -15,7 +16,7 @@ const SCHEMATICS = {
     </svg>
   ),
   1: (
-    <svg viewBox="0 0 280 160" style={{ width: '100%', height: '100%' }}>
+    <svg viewBox="0 0 280 160" className="archive-schematic-svg">
       <path d="M 40 40 Q 140 20, 240 40 L 240 100 Q 140 80, 40 100 Z" fill="none" stroke="var(--ink-primary)" strokeWidth="2" />
       <line x1="140" y1="100" x2="140" y2="145" stroke="var(--ink-primary)" strokeWidth="3" />
       <text x="140" y="70" fill="var(--ink-primary)" fontSize="16" fontFamily="Oxanium" fontWeight="700" textAnchor="middle">120 m² Curved LED</text>
@@ -23,7 +24,7 @@ const SCHEMATICS = {
     </svg>
   ),
   2: (
-    <svg viewBox="0 0 280 160" style={{ width: '100%', height: '100%' }}>
+    <svg viewBox="0 0 280 160" className="archive-schematic-svg">
       <rect x="50" y="25" width="180" height="100" fill="none" stroke="var(--ink-primary)" strokeWidth="2" />
       <rect x="58" y="33" width="164" height="84" fill="none" stroke="var(--ink-hairline)" strokeWidth="1" strokeDasharray="3 3" />
       <text x="140" y="80" fill="var(--ink-primary)" fontSize="14" fontFamily="JetBrains Mono" textAnchor="middle">22mm Profile</text>
@@ -31,7 +32,7 @@ const SCHEMATICS = {
     </svg>
   ),
   3: (
-    <svg viewBox="0 0 280 160" style={{ width: '100%', height: '100%' }}>
+    <svg viewBox="0 0 280 160" className="archive-schematic-svg">
       <text x="140" y="70" fill="var(--bg-main)" stroke="var(--ink-primary)" strokeWidth="2" fontSize="26" fontFamily="Oxanium" fontWeight="900" textAnchor="middle">
         SKYLINE
       </text>
@@ -43,7 +44,7 @@ const SCHEMATICS = {
     </svg>
   ),
   4: (
-    <svg viewBox="0 0 280 160" style={{ width: '100%', height: '100%' }}>
+    <svg viewBox="0 0 280 160" className="archive-schematic-svg">
       <rect x="60" y="25" width="160" height="100" fill="none" stroke="var(--ink-primary)" strokeWidth="1.5" />
       <line x1="140" y1="25" x2="140" y2="125" stroke="var(--ink-hairline)" strokeWidth="1" strokeDasharray="3 3" />
       <circle cx="140" cy="75" r="16" fill="none" stroke="var(--ink-primary)" strokeWidth="1" />
@@ -51,7 +52,7 @@ const SCHEMATICS = {
     </svg>
   ),
   5: (
-    <svg viewBox="0 0 280 160" style={{ width: '100%', height: '100%' }}>
+    <svg viewBox="0 0 280 160" className="archive-schematic-svg">
       <rect x="40" y="30" width="200" height="70" fill="none" stroke="var(--ink-primary)" strokeWidth="2" />
       <line x1="140" y1="100" x2="140" y2="145" stroke="var(--ink-primary)" strokeWidth="4" />
       <text x="140" y="70" fill="var(--ink-primary)" fontSize="14" fontFamily="Oxanium" fontWeight="700" textAnchor="middle">14m × 5m Unipolar</text>
@@ -179,12 +180,12 @@ export default function Archive({ lang }) {
               <div className="archive-card-content">
                 <span className="arch-client">{proj.client} • {proj.year}</span>
                 <h3 className="arch-title">{proj.title}</h3>
-                <p style={{ fontSize: '0.88rem', color: 'var(--ink-secondary)', marginBottom: '16px', lineHeight: '1.5' }}>
+                <p className="arch-summary">
                   {proj.summary}
                 </p>
                 <div className="arch-specs">
                   <span>{proj.location}</span>
-                  <span style={{ fontWeight: '700' }}>{t.inspectSpec}</span>
+                  <span className="arch-inspect">{t.inspectSpec}</span>
                 </div>
               </div>
             </div>
@@ -192,7 +193,8 @@ export default function Archive({ lang }) {
         </div>
 
         {/* Modal Drawer for Detailed Project Blueprint */}
-        {activeProject && (
+        {/* Portalled to <body>: .container creates a z-index:1 stacking context that let later sections paint over the modal */}
+        {activeProject && createPortal(
           <div className="blueprint-modal-backdrop" onClick={() => setActiveProject(null)}>
             <div className="blueprint-modal-box" onClick={(e) => e.stopPropagation()}>
               <button 
@@ -204,38 +206,38 @@ export default function Archive({ lang }) {
                 ✕
               </button>
 
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', color: 'var(--ink-muted)', marginBottom: '8px' }}>
+              <div className="bp-eyebrow">
                 {t.blueprintModalTitle} • {activeProject.year}
               </div>
-              <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.8rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '8px' }}>
+              <h2 className="bp-title">
                 {activeProject.title}
               </h2>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', marginBottom: '20px' }}>
+              <div className="bp-meta">
                 {t.archiveClientLabel} <strong>{activeProject.client}</strong> • {t.archiveLocationLabel} <strong>{activeProject.location}</strong>
               </div>
 
-              <div style={{ height: '180px', background: 'var(--bg-subtle)', border: '1px solid var(--ink-hairline)', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div className="bp-schematic">
                 {activeProject.schematic}
               </div>
 
-              <p style={{ fontSize: '1rem', color: 'var(--ink-secondary)', lineHeight: '1.6', marginBottom: '24px' }}>
+              <p className="bp-summary">
                 {activeProject.summary}
               </p>
 
-              <div style={{ border: '1px solid var(--ink-primary)', padding: '20px', background: 'var(--bg-subtle)', marginBottom: '24px' }}>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: '700', textTransform: 'uppercase', marginBottom: '12px' }}>
+              <div className="bp-tech">
+                <div className="bp-tech-title">
                   {t.archiveTechDataTitle}
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontFamily: 'var(--font-mono)', fontSize: '0.82rem' }}>
-                  <div><span style={{ color: 'var(--ink-muted)' }}>{t.specDimensions}:</span><br /><strong>{activeProject.specs.dimensions}</strong></div>
-                  <div><span style={{ color: 'var(--ink-muted)' }}>{t.specMaterial}:</span><br /><strong>{activeProject.specs.material}</strong></div>
-                  <div><span style={{ color: 'var(--ink-muted)' }}>{t.specIllumination}:</span><br /><strong>{activeProject.specs.illumination}</strong></div>
-                  <div><span style={{ color: 'var(--ink-muted)' }}>{t.specWindRating}:</span><br /><strong>{activeProject.specs.windRating}</strong></div>
+                <div className="bp-tech-grid">
+                  <div><span className="bp-tech-key">{t.specDimensions}:</span><br /><strong>{activeProject.specs.dimensions}</strong></div>
+                  <div><span className="bp-tech-key">{t.specMaterial}:</span><br /><strong>{activeProject.specs.material}</strong></div>
+                  <div><span className="bp-tech-key">{t.specIllumination}:</span><br /><strong>{activeProject.specs.illumination}</strong></div>
+                  <div><span className="bp-tech-key">{t.specWindRating}:</span><br /><strong>{activeProject.specs.windRating}</strong></div>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', color: 'var(--ink-muted)' }}>
+              <div className="bp-footer">
+                <span className="bp-turnaround">
                   {t.specTurnaround}: {activeProject.specs.turnaround}
                 </span>
                 <a 
@@ -248,7 +250,8 @@ export default function Archive({ lang }) {
                 </a>
               </div>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </div>
     </section>

@@ -1,0 +1,191 @@
+/* ==========================================================================
+   COMPREHENSIVE RESPONSIVE BREAKPOINTS
+   ========================================================================== */
+@media (max-width: 1150px) {
+  .header-nav-single-line {
+    display: none;
+  }
+
+  .header-cta-desktop {
+    display: none;
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+  }
+
+  .disciplines-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .discipline-card-wide {
+    grid-column: span 1;
+    grid-template-columns: 1fr;
+  }
+
+  .discipline-card-wide .discipline-svg-preview {
+    border-right: none;
+    border-bottom: 1px solid var(--ink-hairline);
+    height: 200px;
+  }
+
+  .workbench-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .workbench-stage-box {
+    position: static;
+  }
+
+  .archive-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .inquiry-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .footer-main-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --header-height: 64px;
+  }
+
+  .container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .section-block {
+    padding-top: 60px;
+    padding-bottom: 60px;
+  }
+
+  .section-header-editorial {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+  }
+
+  .editorial-headline {
+    font-size: clamp(1.8rem, 6.5vw, 2.5rem);
+  }
+
+  .hero-buttons-row .btn-swiss {
+    width: 100%;
+  }
+
+  /* Long Georgian CTAs must wrap rather than clip */
+  .btn-swiss {
+    white-space: normal;
+    text-align: center;
+  }
+
+  .header-time-desktop {
+    display: none;
+  }
+
+  .segmented-control {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .segmented-control .segment-btn {
+    border-bottom: 1px solid var(--ink-primary);
+  }
+
+  /* Georgian labels run long — let them wrap instead of widening the page */
+  .mockup-stage-header .stage-header-info {
+    flex-wrap: wrap;
+    gap: 6px 10px;
+  }
+
+  .mockup-stage-header .live-badge {
+    white-space: nowrap;
+  }
+
+  .segment-btn,
+  .discipline-card-header .tag-swiss,
+  .mockup-stage-footer .stage-foot-item {
+    white-space: normal;
+  }
+
+  .mockup-stage-header,
+  .discipline-card-header,
+  .mockup-stage-footer,
+  .canvas-header-bar,
+  .canvas-header-actions {
+    flex-wrap: wrap;
+    gap: 6px 16px;
+  }
+
+  .segmented-control .segment-btn:nth-child(2n) {
+    border-right: none;
+  }
+
+  .estimate-display-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+    text-align: center;
+  }
+
+  .estimate-display-card .btn-swiss {
+    width: 100%;
+  }
+
+  .archive-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row-2,
+  .form-cta-row {
+    grid-template-columns: 1fr;
+  }
+
+  .blueprint-modal-box {
+    padding: 24px 16px;
+    max-height: 94vh;
+  }
+
+  .bp-tech-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-main-row {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    margin-bottom: 40px;
+  }
+
+  .footer-bottom-line {
+    flex-direction: column;
+    gap: 12px;
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-location {
+    display: none;
+  }
+
+  .brand-title {
+    font-size: 1rem;
+  }
+
+  .header-hud {
+    gap: 8px;
+  }
+
+  /* Brand + lang + theme + menu already fill a 360–390px header */
+  .header-grid-toggle {
+    display: none;
+  }
+}

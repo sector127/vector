@@ -1,0 +1,413 @@
+/* ==========================================================================
+   INTERACTIVE VECTOR WORKBENCH / ESTIMATOR ENGINE
+   ========================================================================== */
+.workbench-section {
+  background: var(--bg-subtle);
+}
+
+.workbench-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 40px;
+}
+
+.workbench-stage-box {
+  border: 1px solid var(--ink-primary);
+  background: var(--bg-main);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  /* keep the drawing in view while the longer controls column scrolls */
+  position: sticky;
+  top: calc(var(--header-height) + 24px);
+  align-self: start;
+}
+
+.canvas-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.canvas-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.canvas-header-title {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.canvas-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.canvas-footer-hud {
+  border-top: 1px solid var(--ink-hairline);
+  padding-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 6px 20px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.canvas-footer-hud strong {
+  color: var(--ink-primary);
+  font-weight: 500;
+}
+
+.cad-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid var(--ink-hairline);
+  background: var(--bg-subtle);
+  color: var(--ink-primary);
+  text-transform: uppercase;
+  transition: all var(--trans-quick);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cad-toolbar-btn:hover {
+  border-color: var(--ink-primary);
+  background: var(--bg-elevated);
+}
+
+.cad-toolbar-btn.active {
+  background: var(--ink-primary);
+  color: var(--ink-inverse);
+  border-color: var(--ink-primary);
+}
+
+.cad-toolbar-btn.export-btn:hover {
+  background: var(--ink-primary);
+  color: var(--ink-inverse);
+  border-color: var(--ink-primary);
+}
+
+.stage-cad-view {
+  aspect-ratio: 460 / 300;
+  background: var(--bg-elevated);
+  border: 1px dashed var(--ink-hairline);
+  margin: 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  transition: background-color var(--trans-medium), border-color var(--trans-medium);
+}
+
+.workbench-controls-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.control-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.control-title {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+}
+
+.segmented-control {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  border: 1px solid var(--ink-primary);
+  background: var(--bg-main);
+}
+
+.segment-btn {
+  padding: 10px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-right: 1px solid var(--ink-primary);
+  text-align: center;
+  transition: all var(--trans-quick);
+  white-space: nowrap;
+}
+
+.segment-btn:last-child {
+  border-right: none;
+}
+
+.segment-btn.active {
+  background: var(--ink-primary);
+  color: var(--ink-inverse);
+}
+
+.swiss-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--ink-primary);
+  background: var(--bg-main);
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--ink-primary);
+}
+
+.swiss-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 2px;
+  background: var(--ink-primary);
+  outline: none;
+  margin: 14px 0;
+}
+
+.swiss-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--ink-primary);
+  border: 1px solid var(--ink-inverse);
+  cursor: ew-resize;
+}
+
+.estimate-display-card {
+  border: 1px solid var(--ink-primary);
+  background: var(--bg-main);
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.estimate-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.est-currency-val {
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.estimate-display-card {
+  gap: 24px;
+}
+
+.est-currency-val.est-quote-val {
+  font-size: 1.6rem;
+  line-height: 1.15;
+  margin-top: 6px;
+}
+
+.est-quote-note {
+  font-size: 0.85rem;
+  color: var(--ink-secondary);
+  line-height: 1.5;
+  max-width: 34ch;
+  margin-top: 8px;
+}
+
+/* Grid items default to min-width:auto, so wide content (SVGs, nowrap labels)
+   pushes single-column mobile layouts past the viewport */
+.disciplines-grid > *,
+.workbench-layout > *,
+.mockup-studio-layout > * {
+  min-width: 0;
+}
+
+/* CAD PDF Export Button & Spinner */
+.cad-toolbar-btn.export-pdf-btn {
+  background: var(--ink-primary);
+  color: var(--ink-inverse);
+  border-color: var(--ink-primary);
+}
+
+.cad-toolbar-btn.export-pdf-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.cad-toolbar-btn.export-pdf-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Mini Tag Badge */
+.badge-tag-mini {
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: 2px 6px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--ink-hairline);
+  color: var(--ink-primary);
+}
+
+/* SVG Vector Dropzone */
+.svg-dropzone {
+  border: 1.5px dashed var(--ink-primary);
+  background: var(--bg-elevated);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all var(--trans-quick);
+}
+
+.svg-dropzone:hover,
+.svg-dropzone.drag-over {
+  background: var(--bg-main);
+  border-color: var(--ink-primary);
+  box-shadow: 0 0 0 2px var(--ink-primary);
+}
+
+.dropzone-icon {
+  color: var(--ink-primary);
+  flex-shrink: 0;
+}
+
+.dropzone-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dropzone-text strong {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-primary);
+  word-break: break-all;
+}
+
+.dropzone-text span {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+/* Sample Vector Presets Row */
+.presets-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.presets-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+
+.presets-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.preset-btn {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border: 1px solid var(--ink-hairline);
+  background: var(--bg-main);
+  color: var(--ink-secondary);
+  transition: all var(--trans-quick);
+  cursor: pointer;
+}
+
+.preset-btn:hover {
+  border-color: var(--ink-primary);
+  color: var(--ink-primary);
+}
+
+.preset-btn.active {
+  background: var(--ink-primary);
+  color: var(--ink-inverse);
+  border-color: var(--ink-primary);
+}
+
+.stage-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.control-input-gap {
+  margin-top: 10px;
+}
+
+.slider-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.slider-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+.control-value {
+  font-family: var(--font-mono);
+  color: var(--ink-primary);
+}
+
+.est-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+}
+
+.est-days {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-secondary);
+  margin-top: 4px;
+}

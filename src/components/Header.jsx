@@ -151,20 +151,19 @@ export default function Header({ theme, toggleTheme, gridActive, toggleGrid, lan
 
         <div className="mobile-drawer-footer">
           {/* Mobile Direct Language Selector */}
-          <div style={{ display: 'flex', gap: '8px', width: '100%', marginBottom: '12px' }}>
+          <div className="mobile-lang-row">
             {['ka', 'en', 'ru'].map((l) => (
               <button
                 key={l}
                 onClick={() => { toggleLang(l); closeMenu(); }}
-                className={`btn-swiss btn-swiss-sm ${lang === l ? 'btn-swiss-solid' : ''}`}
-                style={{ flex: 1, justifyContent: 'center', fontFamily: 'var(--font-mono)', fontWeight: '700' }}
+                className={`btn-swiss btn-swiss-sm mobile-lang-btn ${lang === l ? 'btn-swiss-solid' : ''}`}
               >
                 {l.toUpperCase()}
               </button>
             ))}
           </div>
 
-          <div className="tbilisi-time-badge" style={{ width: '100%', justifyContent: 'center' }}>
+          <div className="tbilisi-time-badge mobile-time-badge">
             <div className="pulse-dot"></div>
             <span className="time-badge-city">{t.tbsClock}</span>
             <span className="time-badge-digits">{tbilisiTime || '19:55:00'}</span>

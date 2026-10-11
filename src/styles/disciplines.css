@@ -1,0 +1,112 @@
+/* ==========================================================================
+   DISCIPLINE SECTION (5 PRODUCTION SERVICES)
+   ========================================================================== */
+.disciplines-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+}
+
+.discipline-card {
+  border: 1px solid var(--ink-hairline);
+  background: var(--bg-main);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all var(--trans-quick);
+  position: relative;
+}
+
+.discipline-card:hover {
+  border-color: var(--ink-primary);
+}
+
+.discipline-card-header {
+  padding: 28px;
+  border-bottom: 1px solid var(--ink-hairline);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.d-code {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ink-muted);
+}
+
+.d-title {
+  font-family: var(--font-heading);
+  font-size: 1.45rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-top: 6px;
+  letter-spacing: -0.02em;
+}
+
+.discipline-svg-preview {
+  height: 200px;
+  background: var(--bg-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--ink-hairline);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.discipline-card-body {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.d-desc {
+  font-size: 0.95rem;
+  color: var(--ink-secondary);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.d-specs-table {
+  width: 100%;
+  border-top: 1px solid var(--ink-hairline);
+  margin-top: auto;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.d-spec-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--ink-border-subtle);
+}
+
+.d-spec-row .k {
+  color: var(--ink-muted);
+}
+
+.d-spec-row .v {
+  font-weight: 700;
+}
+
+.discipline-card-wide {
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.discipline-card-wide .discipline-svg-preview {
+  height: 100%;
+  border-bottom: none;
+  border-right: 1px solid var(--ink-hairline);
+}
+
+.discipline-svg {
+  width: 100%;
+  height: 100%;
+}

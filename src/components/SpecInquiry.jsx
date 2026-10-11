@@ -196,7 +196,7 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
               value={formData.website || ''}
               onChange={handleChange}
             />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div className="form-row-2">
               <div className="form-group-block">
                 <label className="form-label-mono" htmlFor="inquiry-name">{t.formName}</label>
                 <input
@@ -225,7 +225,7 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div className="form-row-2">
               <div className="form-group-block">
                 <label className="form-label-mono" htmlFor="inquiry-email">{t.formEmail}</label>
                 <input
@@ -254,7 +254,7 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div className="form-row-2">
               <div className="form-group-block">
                 <label className="form-label-mono" htmlFor="inquiry-medium">{t.formMedium}</label>
                 <select
@@ -296,12 +296,12 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
                   ref={fileInputRef}
                   type="file"
                   accept=".ai,.dxf,.pdf,.eps,.dwg,.png,.jpg,.jpeg,.svg,.zip"
-                  style={{ display: 'none' }}
+                  hidden
                   onChange={handleFileUpload}
                 />
                 {attachedFile ? (
                   <div className="file-attached-pill">
-                    <span style={{ fontWeight: '700' }}>
+                    <span className="file-attached-name">
                       {t.fileAttachedBadge} {attachedFile.name} ({(attachedFile.size / 1024).toFixed(0)} KB)
                     </span>
                     <button
@@ -334,11 +334,10 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
             </div>
 
             {/* Dual CTA: Official CAD Dispatch + Direct Instant WhatsApp */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+            <div className="form-cta-row">
               <button
                 type="submit"
                 className="btn-swiss btn-swiss-solid"
-                style={{ padding: '16px' }}
                 disabled={isSubmitting}
                 data-cursor-text="SEND SPEC"
               >
@@ -349,7 +348,6 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
               <button
                 type="button"
                 className="btn-swiss whatsapp-cta-btn"
-                style={{ padding: '16px' }}
                 onClick={handleWhatsAppSend}
                 data-cursor-text="WHATSAPP"
               >
@@ -360,46 +358,46 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
           </form>
 
           {/* Right: Direct Studio Desk & Tbilisi Hub */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div className="desk-column">
             <div className="hairline-box">
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', fontWeight: '700', color: 'var(--ink-muted)', marginBottom: '10px' }}>
+              <div className="desk-eyebrow">
                 {t.directCommTitle}
               </div>
-              <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.4rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '14px' }}>
+              <h3 className="desk-title">
                 {t.deskTitle}
               </h3>
-              <p style={{ fontSize: '0.9rem', color: 'var(--ink-secondary)', marginBottom: '24px', lineHeight: '1.6' }}>
+              <p className="desk-desc">
                 {t.deskDesc}
               </p>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div className="desk-contacts">
+                <div className="desk-contact-row">
                   <Phone size={16} />
-                  <span>{t.hotlineLbl}: <a href={`tel:${PHONE_TEL}`} style={{ fontWeight: 700 }}>{PHONE_DISPLAY}</a></span>
+                  <span>{t.hotlineLbl}: <a href={`tel:${PHONE_TEL}`} className="desk-link">{PHONE_DISPLAY}</a></span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="desk-contact-row">
                   <MessageSquare size={16} />
-                  <span>{t.whatsappLbl}: <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer" style={{ textDecoration: 'underline' }}>{PHONE_DISPLAY}</a></span>
+                  <span>{t.whatsappLbl}: <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer" className="desk-link">{PHONE_DISPLAY}</a></span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="desk-contact-row">
                   <Mail size={16} />
-                  <span>{t.emailLbl}: <a href={`mailto:${EMAIL}`} style={{ fontWeight: 700 }}>{EMAIL}</a></span>
+                  <span>{t.emailLbl}: <a href={`mailto:${EMAIL}`} className="desk-link">{EMAIL}</a></span>
                 </div>
               </div>
             </div>
 
-            <div className="hairline-box" style={{ background: 'var(--bg-subtle)' }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', fontWeight: '700', marginBottom: '8px' }}>
+            <div className="hairline-box desk-address-box">
+              <div className="desk-address-label">
                 {t.addressLbl}
               </div>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '0.9rem', color: 'var(--ink-secondary)', lineHeight: '1.5' }}>
-                <MapPin size={18} style={{ flexShrink: 0, marginTop: '3px' }} />
+              <div className="desk-address">
+                <MapPin size={18} className="desk-address-icon" />
                 <span>
                   <strong>VECTOR HUB GEORGIA</strong><br />
                   {t.addressVal}
                 </span>
               </div>
-              <div style={{ borderTop: '1px solid var(--ink-hairline)', marginTop: '16px', paddingTop: '12px', fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>
+              <div className="desk-hours">
                 {t.hoursVal}
               </div>
             </div>

@@ -1,0 +1,101 @@
+/* ==========================================================================
+   VECTOR HUB - MINIMALIST SWISS ARCHITECTURAL DESIGN SYSTEM (BLACK & WHITE)
+   ========================================================================== */
+
+/* ==========================================================================
+   DISPLAY GEORGIAN FONT: TG SQUARE REGULAR
+   (https://typeface.ge/ka/font/TG+Square+Regular)
+   Georgian glyphs only — Latin letters, digits and punctuation fall through
+   to the paired Latin face so a single word never mixes two typefaces.
+   ========================================================================== */
+@font-face {
+  font-family: 'TG Square';
+  src: url('/fonts/TG-Square-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+10A0-10FF, U+1C90-1CBF, U+2D00-2D2F;
+}
+
+:root {
+  /* Core Monochrome Palette (Default Crisp White Editorial) */
+  --bg-main: #ffffff;
+  --bg-subtle: #f8f9fa;
+  --bg-elevated: #f1f3f5;
+  --bg-contrast: #000000;
+
+  --ink-primary: #000000;
+  --ink-secondary: #495057;
+  --ink-muted: #868e96;
+  --ink-hairline: #ced4da;
+  --ink-border: #000000;
+  --ink-border-subtle: #e9ecef;
+  --ink-inverse: #ffffff;
+
+  /* Accent Hairline & Vector Grid */
+  --grid-line: rgba(0, 0, 0, 0.05);
+  --vector-active: #000000;
+
+  /* Typography
+     display / heading — TG Square (Georgian) + Oxanium (Latin, same rounded-square geometry) + Exo 2 (Cyrillic)
+     body             — Noto Sans Georgian + Inter: readable text faces with real weights
+     mono             — JetBrains Mono (Latin, digits) + TG Square (Georgian labels) */
+  --font-display: 'TG Square', 'Oxanium', 'Exo 2', sans-serif;
+  --font-heading: var(--font-display);
+  --font-body: 'Inter', 'Noto Sans Georgian', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'TG Square', ui-monospace, monospace;
+
+  /* Layout Spacing */
+  --container-width: 1400px;
+  --header-height: 72px;
+
+  /* Transitions */
+  --ease-snappy: cubic-bezier(0.16, 1, 0.3, 1);
+  --trans-quick: 0.15s var(--ease-snappy);
+  --trans-medium: 0.3s var(--ease-snappy);
+}
+
+/* Georgian Mtavruli & Mkhedruli Typography Enhancements */
+:lang(ka) .editorial-headline,
+:lang(ka) .d-title,
+:lang(ka) .footer-huge-title {
+  letter-spacing: -0.01em;
+}
+
+:lang(ka) .header-nav-item,
+:lang(ka) .btn-swiss,
+:lang(ka) .editorial-tag,
+:lang(ka) .control-title,
+:lang(ka) .segment-btn,
+:lang(ka) .form-label-mono,
+:lang(ka) .tag-swiss,
+:lang(ka) .footer-col-head {
+  letter-spacing: 0.03em;
+}
+
+/* Inverted Dark Mode */
+[data-theme="dark"] {
+  --bg-main: #0a0a0c;
+  --bg-subtle: #121316;
+  --bg-elevated: #1a1c21;
+  --bg-contrast: #ffffff;
+
+  --ink-primary: #ffffff;
+  --ink-secondary: #adb5bd;
+  --ink-muted: #6c757d;
+  --ink-hairline: #343a40;
+  --ink-border: #ffffff;
+  --ink-border-subtle: #212529;
+  --ink-inverse: #000000;
+
+  --grid-line: rgba(255, 255, 255, 0.04);
+  --vector-active: #ffffff;
+}
+
+/* Instant theme inversion (class toggled for two frames by App) */
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+}
