@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Phone, MessageSquare, Mail, MapPin, Send, X } from 'lucide-react';
 import { getTranslation, formatTransferredNotes, formatWaMessage } from '../i18n/translations';
 import { sendInquiryNotification } from '../services/telegram';
+import { PHONE_DISPLAY, PHONE_TEL, WHATSAPP_NUMBER, EMAIL } from '../config/contact';
 
 export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
   const t = getTranslation(lang);
@@ -156,7 +157,7 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
   const handleWhatsAppSend = () => {
     const message = formatWaMessage(lang, formData);
 
-    window.open(`https://wa.me/995599808080?text=${encodeURIComponent(message)}`, '_blank');
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
     onShowToast(t.toastWaOpened);
   };
 
@@ -359,15 +360,15 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <Phone size={16} />
-                  <span>{t.hotlineLbl}: <strong>+995 32 200 80 80</strong></span>
+                  <span>{t.hotlineLbl}: <a href={`tel:${PHONE_TEL}`} style={{ fontWeight: 700 }}>{PHONE_DISPLAY}</a></span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <MessageSquare size={16} />
-                  <span>{t.whatsappLbl}: <a href="https://wa.me/995599808080" target="_blank" rel="noreferrer" style={{ textDecoration: 'underline' }}>+995 599 80 80 80</a></span>
+                  <span>{t.whatsappLbl}: <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer" style={{ textDecoration: 'underline' }}>{PHONE_DISPLAY}</a></span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <Mail size={16} />
-                  <span>{t.emailLbl}: <strong>desk@vectorhub.ge</strong></span>
+                  <span>{t.emailLbl}: <a href={`mailto:${EMAIL}`} style={{ fontWeight: 700 }}>{EMAIL}</a></span>
                 </div>
               </div>
             </div>

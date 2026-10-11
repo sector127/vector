@@ -32,14 +32,14 @@ export const translations = {
     heroBtnVisualizer: '3D ვიზუალიზატორი',
     metric1Val: '2,500 მ²',
     metric1Lbl: 'საკუთარი საწარმო თბილისში',
-    metric2Val: '0.02 მმ',
-    metric2Lbl: 'ლაზერული CNC სიზუსტე',
-    metric3Val: '180 კმ/სთ',
-    metric3Lbl: 'ქარის გათვლილი გამძლეობა',
+    metric2Val: '±0.02 მმ',
+    metric2Lbl: 'ლაზერული ჭრის სიზუსტე',
+    metric3Val: '60 მ',
+    metric3Lbl: 'ავტოამწით მონტაჟის სიმაღლე',
     heroCapabilitiesLabel: 'საწარმოო მიმართულებები:',
     heroMetric1Lbl: 'საკუთარი საწარმოო კომპლექსი თბილისში',
-    heroMetric2Lbl: '5-ღერძიანი ლაზერული CNC სიზუსტე',
-    heroMetric3Lbl: 'ქარის გათვლილი დამოწმებული გამძლეობა',
+    heroMetric2Lbl: 'ბოჭკოვანი ლაზერით ჭრის სიზუსტე',
+    heroMetric3Lbl: 'ავტოამწით მონტაჟის სიმაღლე',
     heroMetric4Val: '5 წელი',
     heroMetric4Lbl: 'სრული საინჟინრო და საგარანტიო SLA',
     heroCapabilities: [
@@ -62,7 +62,7 @@ export const translations = {
     // Disciplines
     disciplinesTag: '01 / მიმართულებები',
     disciplinesTitle: 'საწარმოო შესაძლებლობები და მასშტაბი',
-    disciplinesSub: 'თითოეული სარეკლამო კონსტრუქცია იწარმოება ჩვენს საწარმოში მილიმეტრული სიზუსტით, დამოწმებული საინჟინრო გათვლებითა და ოპტიკური განათებით.',
+    disciplinesSub: 'თითოეული სარეკლამო კონსტრუქცია იწარმოება ჩვენს საწარმოში მილიმეტრული სიზუსტით, საინჟინრო გათვლებითა და ოპტიკური განათებით.',
     disciplineProductionLabel: 'წარმოება',
 
     d1Title: 'მოცულობითი 3D ასოები და ნეონი',
@@ -101,7 +101,7 @@ export const translations = {
     d4Specs: [
       { k: 'LED პიქსელის ბიჯი', v: 'P2.5 / P3.9 / P6.0 გარე მაღალი გარჩევადობა' },
       { k: 'სიკაშკაშე', v: '8,500+ Nits ავტომატური დაბნელებით' },
-      { k: 'ქარის გამძლეობა', v: 'სერტიფიცირებულია 180 კმ/სთ-მდე ქარზე' },
+      { k: 'ქარის დატვირთვა', v: 'სტატიკური გათვლა თითოეულ ობიექტზე' },
       { k: 'ქსელი', v: 'თბილისი, ბათუმის ტრასა და რეგიონები' }
     ],
 
@@ -111,22 +111,20 @@ export const translations = {
     d5Specs: [
       { k: 'მერიის ნებართვა', v: '100% მომზადება და ოფიციალური შეთანხმება' },
       { k: 'ავტოამწე', v: '60 მეტრამდე სიმაღლეზე მუშაობა' },
-      { k: 'საინჟინრო ბეჭედი', v: 'სერტიფიცირებული კონსტრუქტორი' },
+      { k: 'სტატიკური გათვლა', v: 'ინჟინერ-კონსტრუქტორი ყველა ობიექტზე' },
       { k: 'სერვისი (SLA)', v: '4-საათიანი ოპერატიული რეაგირება' }
     ],
 
     // Vector Studio Workbench
     workbenchTag: '02 / ვექტორ სტუდია',
     workbenchTitle: 'ინტერაქტიული CAD კალკულატორი',
-    workbenchSub: 'გამოთვალეთ ჭრის ვექტორული ხაზების სიგრძე, მასალების მოცულობა და წარმოების ღირებულება ლარში (₾), დოლარში ($) ან ევროში (€).',
-    step1Title: '01. ვალუტის არჩევა',
-    step1Sub: 'ოფიციალური კურსი',
-    step2Title: '02. პროდუქციის ტიპი',
-    step3Title: '03. ბრენდის სახელი / წარწერა',
-    step4Title: '04. ზომები და მასშტაბი',
-    step4Units: '04. ბეჭდვის ტირაჟი',
-    step5Title: '05. მასალის ტიპი',
-    step6Title: '06. განათების სტილი',
+    workbenchSub: 'გამოთვალეთ ჭრის ვექტორული ხაზების სიგრძე, მასალის ფართობი და წონა. ზუსტ ღირებულებას ინჟინერი დაიანგარიშებს და გაცნობებთ.',
+    step2Title: '01. პროდუქციის ტიპი',
+    step3Title: '02. ბრენდის სახელი / წარწერა',
+    step4Title: '03. ზომები და მასშტაბი',
+    step4Units: '03. ბეჭდვის ტირაჟი',
+    step5Title: '04. მასალის ტიპი',
+    step6Title: '05. განათების სტილი',
     modeBillboard: 'მონოპოლი',
     modePrint: 'პოლიგრაფია',
     brandTextDefault: 'თბილისი',
@@ -139,9 +137,6 @@ export const translations = {
     fallbackBillboard: 'LED ბილბორდი',
     flyerUnitsCount: '{count} ცალი ფლაერი',
     unitsLabel: 'ცალი',
-    currencyGeo: 'საქართველო',
-    currencyIntl: 'საერთაშორისო',
-    currencyEur: 'ევროპა',
     alertInvalidSvg: 'გთხოვთ ატვირთოთ ვალიდური .svg ვექტორული ფაილი',
     alertSvgParseError: 'ვერ მოხერხდა SVG ფაილის გეომეტრიის წაკითხვა',
     estDaysLetters: '5 – 7 სამუშაო დღე',
@@ -155,7 +150,9 @@ export const translations = {
     lightHalo: 'ჰალო 3000K თბილი',
     lightFront: 'წინა 6500K ცივი',
     lightNone: 'განათების გარეშე',
-    estBudgetLbl: 'გამოთვლილი წარმოების ბიუჯეტი',
+    estPriceLbl: 'საბოლოო ფასი',
+    estPriceVal: 'ინდივიდუალური დაანგარიშებით',
+    estPriceNote: 'გაგზავნეთ პარამეტრები — ინჟინერი დაიანგარიშებს ღირებულებას და გაცნობებთ.',
     transferBtn: 'შეკვეთის ფორმაში გადატანა',
     exportSvgBtn: 'SVG ნახაზის ექსპორტი',
     cadViewDay: 'დღის ხედი',
@@ -191,7 +188,7 @@ export const translations = {
     bomHardware: 'სამონტაჟო ფურნიტურა',
     bomHardwareVal: 'AISI 316 ანკერები + Fischer დიუბელები',
     bomIngress: 'დაცვის კლასი',
-    bomIngressVal: 'IP67 ჰერმეტული / CE & RoHS სერტიფიცირებული',
+    bomIngressVal: 'IP67 ჰერმეტული / CE & RoHS კომპონენტები',
     dockCall: 'დარეკვა',
     dockWhatsApp: 'WhatsApp',
     dockStudio: 'CAD სტუდია',
@@ -338,7 +335,7 @@ export const translations = {
       kakheti: {
         shortName: 'მაგისტრალური მონოპოლი',
         spec: 'Ø 1200მმ ფოლადის სვეტი • ცხელი მოთუთიება HDG',
-        standard: 'ქარის 180 კმ/სთ გამძლეობა • სტატიკური გათვლა',
+        standard: 'ობიექტის სტატიკური გათვლა • HDG ანტიკოროზია',
         leadTime: '12 სამუშაო დღე • საინჟინრო პაკეტი'
       },
       card: {
@@ -375,8 +372,9 @@ export const translations = {
 
     archiveProjects: [
       {
-        id: 'aura-luxury',
-        title: 'Aura Luxury Flagship — ჭავჭავაძის გამზირი',
+        id: 'boutique-letters',
+        client: 'საიუველირო ბუტიკი',
+        title: 'საიუველირო ბუტიკის ფასადის 3D ასოები',
         category: 'letters',
         categoryName: '3D თითბერის ასოები',
         location: 'ვაკე, თბილისი',
@@ -385,13 +383,13 @@ export const translations = {
         dimensions: '4.6 მ × 1.1 მ (ასოს სიმაღლე: 680 მმ)',
         material: 'ხაოიანი თითბერი 2.5 მმ + ფოლადის ფუძე 316',
         illumination: 'Samsung SMD2835 3000K თბილი ჰალო',
-        windRating: 'სერტიფიცირებულია 140 კმ/სთ ქარზე',
-        turnaround: '6 სამუშაო დღე',
-        image: '/assets/mockups/letters_facade.jpg'
+        windRating: 'გათვლილია ობიექტის ქარის დატვირთვაზე',
+        turnaround: '6 სამუშაო დღე'
       },
       {
-        id: 'nexus-screen',
-        title: 'Nexus გმირთა მოედნის მომრგვალებული მეგაბორდი',
+        id: 'transit-megaboard',
+        client: 'გარე რეკლამის ოპერატორი',
+        title: 'სატრანსპორტო კვანძის მომრგვალებული LED მეგაბორდი',
         category: 'billboard',
         categoryName: 'ციფრული LED ბილბორდი',
         location: 'გმირთა მოედანი, თბილისი',
@@ -400,13 +398,13 @@ export const translations = {
         dimensions: '15.0 მ × 8.0 მ მომრგვალებული რადიუსი',
         material: 'საავიაციო ალუმინის კორპუსი + P3.9 LED',
         illumination: 'მაღალი კონტრასტის P3.91 მმ გარე LED',
-        windRating: 'სერტიფიცირებულია 180 კმ/სთ ქარზე',
-        turnaround: '14 სამუშაო დღე (Turnkey)',
-        image: '/assets/mockups/heroes_square.jpg'
+        windRating: 'გათვლილია ობიექტის ქარის დატვირთვაზე',
+        turnaround: '14 სამუშაო დღე (Turnkey)'
       },
       {
-        id: 'tbilisi-silk',
-        title: 'Tbilisi Silk მოდის ატელიეს ვიტრინის ლაითბოქსი',
+        id: 'atelier-lightbox',
+        client: 'მოდის ატელიე',
+        title: 'მოდის ატელიეს ვიტრინის SEG ლაითბოქსი',
         category: 'lightbox',
         categoryName: 'SEG ლაითბოქსი',
         location: 'რუსთაველის გამზ., თბილისი',
@@ -416,27 +414,27 @@ export const translations = {
         material: 'ანოდირებული შამპანის ალუმინი + SEG ტექსტილი',
         illumination: 'High-CRI 98 5500K დღის სინათლე',
         windRating: 'ინტერიერი / ნახევრად-ღია ვიტრინა',
-        turnaround: '4 სამუშაო დღე',
-        image: '/assets/mockups/rustaveli_citylight.jpg'
+        turnaround: '4 სამუშაო დღე'
       },
       {
-        id: 'aethelred-tower',
-        title: 'Aethelred SkyTower სახურავის მონუმენტური ლოგო',
+        id: 'rooftop-crest',
+        client: 'ბიზნეს-ცენტრი',
+        title: 'ბიზნეს-ცენტრის სახურავის მონუმენტური ლოგო',
         category: 'letters',
         categoryName: 'სახურავის 3D აბრა',
         location: 'საბურთალო, მაღლივი კორპუსი',
         year: '2024',
-        summary: '28-სართულიანი ბიზნეს-ცენტრის სახურავის მონუმენტური ლოგოტიპი. გათვლილია 200 კმ/სთ-მდე ქარის მაქსიმალურ წნევაზე, მძიმე ფოლადის საინჟინრო ფერმითა და ორკონტურიანი LED სისტემით.',
+        summary: '28-სართულიანი ბიზნეს-ცენტრის სახურავის მონუმენტური ლოგოტიპი. მაღლივი ქარის დატვირთვაზე გათვლილი მძიმე ფოლადის საინჟინრო ფერმითა და ორკონტურიანი LED სისტემით.',
         dimensions: '16.2 მ × 3.8 მ მზიდი ფერმა',
         material: 'ფოლადის მზიდი კარკასი + სარკისებრი უჟანგავი ფოლადი',
         illumination: 'ორკონტურიანი 6500K მაღალი სიკაშკაშის LED',
-        windRating: 'გამოცდილია 200 კმ/სთ ქარიშხალზე',
-        turnaround: '18 სამუშაო დღე',
-        image: '/assets/mockups/vake_facade.jpg'
+        windRating: 'გათვლილია მაღლივი ქარის დატვირთვაზე',
+        turnaround: '18 სამუშაო დღე'
       },
       {
-        id: 'aurum-print',
-        title: 'Aurum Creative პრემიუმ პოლიგრაფიული ნაკრები',
+        id: 'forum-print',
+        client: 'საერთაშორისო ბიზნეს-ფორუმი',
+        title: 'საერთაშორისო ფორუმის პრემიუმ პოლიგრაფია',
         category: 'print',
         categoryName: 'ფლაერები და პოლიგრაფია',
         location: 'თბილისი და ექსპორტი',
@@ -446,11 +444,11 @@ export const translations = {
         material: '450 გ/მ² Imperial Velvet Touch + ოქროს ფოლგირება',
         illumination: 'მეტალიზებული ბზინვარება და UV ლაქი',
         windRating: 'პოლიგრაფიული და სარეკლამო მასალები',
-        turnaround: '48 საათი',
-        image: '/assets/mockups/highway_unipole.jpg'
+        turnaround: '48 საათი'
       },
       {
-        id: 'batumi-transit',
+        id: 'highway-monopole',
+        client: 'გარე რეკლამის ოპერატორი',
         title: 'დასავლეთის მაგისტრალური უნიპოლარული ბილბორდი',
         category: 'billboard',
         categoryName: 'მაგისტრალური უნიპოლარი',
@@ -460,9 +458,8 @@ export const translations = {
         dimensions: '14.0 მ × 5.0 მ ორმხრივი (140 მ²)',
         material: 'ცხელი მოთუთიების ფოლადი HDG + ვინილი',
         illumination: 'MeanWell 400W ოპტიკური LED პროჟექტორები',
-        windRating: 'სერტიფიცირებულია 180 კმ/სთ ქარზე',
-        turnaround: '12 სამუშაო დღე',
-        image: '/assets/mockups/highway_unipole.jpg'
+        windRating: 'გათვლილია ობიექტის ქარის დატვირთვაზე',
+        turnaround: '12 სამუშაო დღე'
       }
     ],
 
@@ -554,8 +551,9 @@ export const translations = {
     footerDeskTitle: 'თბილისის ოფისი',
     addressValShort: 'წერეთლის გამზ. 88, თბილისი',
     backToTop: '↑ გვერდის დასაწყისი',
-    rights: 'ყველა უფლება დაცულია.',
-    cert: 'ISO 9001:2015 • CE სერტიფიცირებული • თბილისის მერიის მიერ ნებადართული'
+    companyLegal: 'შ.პ.ს „ვექტორ ჰაბი“',
+    companyCity: 'თბილისი, საქართველო',
+    rights: 'ყველა უფლება დაცულია.'
   },
 
   en: {
@@ -591,14 +589,14 @@ export const translations = {
     heroBtnVisualizer: '3D Visualizer',
     metric1Val: '2,500 m²',
     metric1Lbl: 'Heavy Fabrication Plant in Tbilisi',
-    metric2Val: '0.02 mm',
+    metric2Val: '±0.02 mm',
     metric2Lbl: 'Laser CNC Milling Accuracy',
-    metric3Val: '180 km/h',
-    metric3Lbl: 'Structural Wind Load Certified',
+    metric3Val: '60 m',
+    metric3Lbl: 'Boom-Crane Installation Height',
     heroCapabilitiesLabel: 'Capabilities:',
     heroMetric1Lbl: 'Heavy Fabrication Complex in Tbilisi',
-    heroMetric2Lbl: '5-Axis Laser CNC Accuracy',
-    heroMetric3Lbl: 'Wind Load Certified Static Engineering',
+    heroMetric2Lbl: 'Fiber Laser Cutting Accuracy',
+    heroMetric3Lbl: 'Boom-Crane Installation Height',
     heroMetric4Val: '5 Years',
     heroMetric4Lbl: 'Full Engineering & Warranty SLA',
     heroCapabilities: [
@@ -621,7 +619,7 @@ export const translations = {
     // Disciplines
     disciplinesTag: '01 / Disciplines',
     disciplinesTitle: 'Production Capabilities & Physical Scale',
-    disciplinesSub: 'Every medium is engineered in-house with military-grade precision, certified structural mathematics, and luminous optical calibration.',
+    disciplinesSub: 'Every medium is engineered in-house with millimetre precision, structural calculations and calibrated optics.',
     disciplineProductionLabel: 'PRODUCTION',
 
     d1Title: '3D Channel Letters & Halo Neon',
@@ -660,32 +658,30 @@ export const translations = {
     d4Specs: [
       { k: 'Pixel Pitch', v: 'P2.5 / P3.9 / P6.0 Outdoor High-Res' },
       { k: 'Luminance', v: '8,500+ Nits Auto-Dimming Photocell' },
-      { k: 'Wind Rating', v: 'Certified up to 180 km/h Gusts' },
+      { k: 'Wind Load', v: 'Static calculation for every site' },
       { k: 'Locations', v: 'Tbilisi, Batumi Corridor & Regional Arterials' }
     ],
 
     d5Title: 'Municipal Permits & Heavy Rigging',
     d5Cat: 'Engineering Rigging',
-    d5Desc: 'Full turnkey authorization with Tbilisi City Hall Architecture Department, certified structural calculations, 60-meter boom crane installation, and 24/7 maintenance.',
+    d5Desc: 'Full turnkey authorization with Tbilisi City Hall Architecture Department, structural calculations, 60-meter boom crane installation, and 24/7 maintenance.',
     d5Specs: [
       { k: 'City Hall Permits', v: '100% Prepared, Filed & Municipal Compliant' },
       { k: 'Boom Cranes', v: 'High-Elevation Rigging up to 60m' },
-      { k: 'Structural Stamp', v: 'Licensed Structural Engineers' },
+      { k: 'Structural Calculation', v: 'Structural engineer on every site' },
       { k: 'Service SLA', v: '4-Hour Emergency Response Protocol' }
     ],
 
     // Vector Studio Workbench
     workbenchTag: '02 / Vector Studio',
     workbenchTitle: 'Interactive CAD & Spec Estimator',
-    workbenchSub: 'Calculate geometric toolpath lengths, material requirements, and instant physical fabrication costs in Georgian Lari, USD, or EUR.',
-    step1Title: '01. Quotation Currency',
-    step1Sub: 'Real-Time Exchange Rate',
-    step2Title: '02. Production Medium',
-    step3Title: '03. Custom Text / Brand Identity',
-    step4Title: '04. Physical Scale Dimensions',
-    step4Units: '04. Print Run Volume',
-    step5Title: '05. Material Grade',
-    step6Title: '06. Illumination Style',
+    workbenchSub: 'Calculate toolpath lengths, material area and weight. An engineer prices the final build and gets back to you.',
+    step2Title: '01. Production Medium',
+    step3Title: '02. Custom Text / Brand Identity',
+    step4Title: '03. Physical Scale Dimensions',
+    step4Units: '03. Print Run Volume',
+    step5Title: '04. Material Grade',
+    step6Title: '05. Illumination Style',
     modeBillboard: 'Monopole',
     modePrint: 'Print / Flyers',
     brandTextDefault: 'TBILISI',
@@ -698,9 +694,6 @@ export const translations = {
     fallbackBillboard: 'HIGHWAY LED',
     flyerUnitsCount: '{count} Units • Flyers',
     unitsLabel: 'Units',
-    currencyGeo: 'Georgia',
-    currencyIntl: 'Intl',
-    currencyEur: 'Europe',
     alertInvalidSvg: 'Please upload a valid .svg vector file',
     alertSvgParseError: 'Could not parse SVG geometry',
     estDaysLetters: '5–7 Business Days',
@@ -714,7 +707,9 @@ export const translations = {
     lightHalo: 'Halo 3000K Warm',
     lightFront: 'Front 6500K Cool',
     lightNone: 'Non-Illuminated',
-    estBudgetLbl: 'Calculated Physical Production Budget',
+    estPriceLbl: 'Final Price',
+    estPriceVal: 'Quoted individually',
+    estPriceNote: 'Send your spec — an engineer will calculate the cost and get back to you.',
     transferBtn: 'Transfer to Spec',
     exportSvgBtn: 'Export Vector SVG',
     cadViewDay: 'Daylight View',
@@ -749,7 +744,7 @@ export const translations = {
     bomHardware: 'Mounting Hardware',
     bomHardwareVal: 'AISI 316 Stainless Anchors + Fischer Wall Plugs',
     bomIngress: 'Ingress Protection',
-    bomIngressVal: 'IP67 Waterproof / CE & RoHS Certified',
+    bomIngressVal: 'IP67 Waterproof / CE & RoHS Components',
     dockCall: 'Call',
     dockWhatsApp: 'WhatsApp',
     dockStudio: 'CAD Studio',
@@ -775,7 +770,7 @@ export const translations = {
     loc3Dist: 'City Center Corridor',
     loc3Type: 'Heritage Architectural Signage & Rooftop Displays',
     loc3Traffic: '310,000 Daily Sightlines',
-    loc3Specs: 'Grade 316 Stainless Steel • City Hall Heritage Certified',
+    loc3Specs: 'Grade 316 Stainless Steel • Coordinated with City Hall',
 
     loc4Name: 'Heroes Square Flyover Interchange',
     loc4Dist: 'Heroes Square Hub',
@@ -890,7 +885,7 @@ export const translations = {
       heroes: {
         shortName: 'Curved LED Screen',
         spec: 'Galvanized Steel S355 • P3.91 IP68',
-        standard: 'Wind 180 km/h • ISO 9001',
+        standard: 'IP68 Modules • Site Static Calculation',
         leadTime: '14 Work Days • 5-Yr Warranty'
       },
       vake: {
@@ -902,7 +897,7 @@ export const translations = {
       kakheti: {
         shortName: 'Highway Monopole',
         spec: 'Ø 1200mm Steel Column • HDG',
-        standard: '180 km/h Wind Load • Static Certified',
+        standard: 'Site Static Calculation • HDG Anti-Corrosion',
         leadTime: '12 Work Days • Full Engineering'
       },
       card: {
@@ -939,8 +934,9 @@ export const translations = {
 
     archiveProjects: [
       {
-        id: 'aura-luxury',
-        title: 'Aura Luxury Flagship — Chavchavadze Ave',
+        id: 'boutique-letters',
+        client: 'Jewelry boutique',
+        title: 'Jewelry Boutique Facade Lettering',
         category: 'letters',
         categoryName: '3D Brass Letters',
         location: 'Vake, Tbilisi',
@@ -949,13 +945,13 @@ export const translations = {
         dimensions: '4.6m × 1.1m (Letter height: 680mm)',
         material: 'Brushed Brass 2.5mm + Grade 316 Base',
         illumination: 'Samsung SMD2835 3000K Warm Halo-Lit',
-        windRating: 'Certified for 140 km/h gusts',
-        turnaround: '6 Business Days',
-        image: '/assets/mockups/letters_facade.jpg'
+        windRating: 'Calculated for site wind load',
+        turnaround: '6 Business Days'
       },
       {
-        id: 'nexus-screen',
-        title: 'Nexus Heroes Square Curved Megaboard',
+        id: 'transit-megaboard',
+        client: 'Outdoor media operator',
+        title: 'Curved LED Megaboard at a Transit Interchange',
         category: 'billboard',
         categoryName: 'Digital Billboard',
         location: 'Heroes Square, Tbilisi',
@@ -964,13 +960,13 @@ export const translations = {
         dimensions: '15.0m × 8.0m Curved Radius',
         material: 'Aircraft Aluminum Cabinet + P3.9 LED',
         illumination: 'High-Contrast P3.91mm Outdoor LED',
-        windRating: 'Civil Certified up to 180 km/h',
-        turnaround: '14 Business Days Turnkey',
-        image: '/assets/mockups/heroes_square.jpg'
+        windRating: 'Calculated for site wind load',
+        turnaround: '14 Business Days Turnkey'
       },
       {
-        id: 'tbilisi-silk',
-        title: 'Tbilisi Silk Fashion Storefront Lightbox',
+        id: 'atelier-lightbox',
+        client: 'Fashion atelier',
+        title: 'Fashion Atelier Storefront SEG Lightbox',
         category: 'lightbox',
         categoryName: 'SEG Lightbox',
         location: 'Rustaveli Ave, Tbilisi',
@@ -980,27 +976,27 @@ export const translations = {
         material: 'Anodized Champagne Aluminum + SEG Fabric',
         illumination: 'High-CRI 98 5500K True-Daylight',
         windRating: 'Indoor / Semi-Outdoor Shopfront',
-        turnaround: '4 Business Days',
-        image: '/assets/mockups/rustaveli_citylight.jpg'
+        turnaround: '4 Business Days'
       },
       {
-        id: 'aethelred-tower',
-        title: 'Aethelred SkyTower Monumental Crest',
+        id: 'rooftop-crest',
+        client: 'Business tower',
+        title: 'Rooftop Crest for a Business Tower',
         category: 'letters',
         categoryName: '3D Rooftop Signage',
         location: 'Saburtalo High-Rise Tower',
         year: '2024',
-        summary: '28th-floor rooftop corporate crest engineered to withstand extreme high-altitude wind currents up to 200 km/h. Built on a heavy structural steel truss with mirror-polished Grade 316 stainless steel returns.',
+        summary: '28th-floor rooftop corporate crest engineered for high-altitude wind loads. Built on a heavy structural steel truss with mirror-polished Grade 316 stainless steel returns.',
         dimensions: '16.2m × 3.8m Structural Truss',
         material: 'Structural Steel Truss + Mirror Stainless',
         illumination: 'Dual-circuit 6500K Crisp High-Lumen',
-        windRating: 'High-Altitude 200 km/h Hurricane Tested',
-        turnaround: '18 Business Days',
-        image: '/assets/mockups/vake_facade.jpg'
+        windRating: 'Calculated for high-altitude wind load',
+        turnaround: '18 Business Days'
       },
       {
-        id: 'aurum-print',
-        title: 'Aurum Creative Luxury Print Suite',
+        id: 'forum-print',
+        client: 'International business forum',
+        title: 'Premium Print Suite for an International Forum',
         category: 'print',
         categoryName: 'Flyers & Brand Collateral',
         location: 'Tbilisi & International Dispatch',
@@ -1010,11 +1006,11 @@ export const translations = {
         material: '450gsm Imperial Velvet Touch + Hot Gold Foil',
         illumination: 'Reflective Metallic Lustre & Spot UV',
         windRating: 'Indoor & Direct Campaign Collateral',
-        turnaround: '48-Hour Rapid Run',
-        image: '/assets/mockups/highway_unipole.jpg'
+        turnaround: '48-Hour Rapid Run'
       },
       {
-        id: 'batumi-transit',
+        id: 'highway-monopole',
+        client: 'Outdoor media operator',
         title: 'Western Expressway Heavy Monopole',
         category: 'billboard',
         categoryName: 'Highway Monopole',
@@ -1024,9 +1020,8 @@ export const translations = {
         dimensions: '14.0m × 5.0m Double-Sided (140 m²)',
         material: 'Hot-Dip Galvanized Steel HDG + Tension Vinyl',
         illumination: 'MeanWell 400W High-Efficiency Floodlights',
-        windRating: 'Certified for 180 km/h Trans-Caucasus Gusts',
-        turnaround: '12 Business Days',
-        image: '/assets/mockups/highway_unipole.jpg'
+        windRating: 'Calculated for site wind load',
+        turnaround: '12 Business Days'
       }
     ],
 
@@ -1118,8 +1113,9 @@ export const translations = {
     footerDeskTitle: 'Tbilisi Desk',
     addressValShort: 'Tsereteli Ave 88, Tbilisi',
     backToTop: '↑ Top of Page',
-    rights: 'ALL RIGHTS RESERVED.',
-    cert: 'ISO 9001:2015 • CE CERTIFIED • TBILISI CITY HALL PERMITTED'
+    companyLegal: 'VECTOR HUB LLC',
+    companyCity: 'TBILISI, GEORGIA',
+    rights: 'ALL RIGHTS RESERVED.'
   },
 
   ru: {
@@ -1155,14 +1151,14 @@ export const translations = {
     heroBtnVisualizer: '3D Визуализатор',
     metric1Val: '2 500 м²',
     metric1Lbl: 'Собственный завод в Тбилиси',
-    metric2Val: '0.02 мм',
+    metric2Val: '±0.02 мм',
     metric2Lbl: 'Точность лазерного ЧПУ',
-    metric3Val: '180 км/ч',
-    metric3Lbl: 'Расчетная ветровая нагрузка',
+    metric3Val: '60 м',
+    metric3Lbl: 'Высота монтажа автокраном',
     heroCapabilitiesLabel: 'Производственные направления:',
     heroMetric1Lbl: 'Собственный производственный комплекс в Тбилиси',
-    heroMetric2Lbl: 'Точность 5-осевого лазерного ЧПУ',
-    heroMetric3Lbl: 'Сертифицированная ветроустойчивость',
+    heroMetric2Lbl: 'Точность волоконной лазерной резки',
+    heroMetric3Lbl: 'Высота монтажа автокраном',
     heroMetric4Val: '5 лет',
     heroMetric4Lbl: 'Полный инженерный и гарантийный SLA',
     heroCapabilities: [
@@ -1185,7 +1181,7 @@ export const translations = {
     // Disciplines
     disciplinesTag: '01 / Направления',
     disciplinesTitle: 'Производственные мощности и масштаб',
-    disciplinesSub: 'Каждая рекламная конструкция проектируется на нашем производстве с миллиметровой точностью, проверенными инженерными расчетами и калиброванной оптикой.',
+    disciplinesSub: 'Каждая рекламная конструкция проектируется на нашем производстве с миллиметровой точностью, инженерными расчетами и калиброванной оптикой.',
     disciplineProductionLabel: 'ПРОИЗВОДСТВО',
 
     d1Title: 'Объемные 3D-буквы и неон',
@@ -1224,7 +1220,7 @@ export const translations = {
     d4Specs: [
       { k: 'Шаг пикселя LED', v: 'P2.5 / P3.9 / P6.0 уличные экраны' },
       { k: 'Яркость', v: '8 500+ нит с автоматическим датчиком' },
-      { k: 'Ветроустойчивость', v: 'Сертифицировано до 180 км/ч' },
+      { k: 'Ветровая нагрузка', v: 'Статический расчёт для каждого объекта' },
       { k: 'Сеть локаций', v: 'Тбилиси, трасса Батуми и регионы' }
     ],
 
@@ -1234,22 +1230,20 @@ export const translations = {
     d5Specs: [
       { k: 'Разрешение мэрии', v: '100% подготовка и официальное согласование' },
       { k: 'Автовышки и краны', v: 'Работы на высоте до 60 метров' },
-      { k: 'Инженерная печать', v: 'Лицензированные инженеры-конструкторы' },
+      { k: 'Статический расчёт', v: 'Инженер-конструктор на каждом объекте' },
       { k: 'Сервисный регламент', v: 'Выезд аварийной бригады за 4 часа' }
     ],
 
     // Vector Studio Workbench
     workbenchTag: '02 / Вектор Студия',
     workbenchTitle: 'Интерактивный CAD-калькулятор',
-    workbenchSub: 'Рассчитайте векторную длину реза, расход материалов и точную стоимость производства в лари (₾), долларах ($) или евро (€).',
-    step1Title: '01. Выбор валюты',
-    step1Sub: 'Официальный курс',
-    step2Title: '02. Тип продукции',
-    step3Title: '03. Название бренда / Текст',
-    step4Title: '04. Размеры и масштаб',
-    step4Units: '04. Тираж полиграфии',
-    step5Title: '05. Материал',
-    step6Title: '06. Тип подсветки',
+    workbenchSub: 'Рассчитайте длину реза, площадь и вес материала. Точную стоимость рассчитает инженер и сообщит вам.',
+    step2Title: '01. Тип продукции',
+    step3Title: '02. Название бренда / Текст',
+    step4Title: '03. Размеры и масштаб',
+    step4Units: '03. Тираж полиграфии',
+    step5Title: '04. Материал',
+    step6Title: '05. Тип подсветки',
     modeBillboard: 'Монополь',
     modePrint: 'Полиграфия',
     brandTextDefault: 'ТБИЛИСИ',
@@ -1262,9 +1256,6 @@ export const translations = {
     fallbackBillboard: 'LED БИЛБОРД',
     flyerUnitsCount: '{count} экз. полиграфии',
     unitsLabel: 'экз.',
-    currencyGeo: 'Грузия',
-    currencyIntl: 'Междунар.',
-    currencyEur: 'Европа',
     alertInvalidSvg: 'Пожалуйста, загрузите корректный файл .svg',
     alertSvgParseError: 'Не удалось обработать геометрию SVG',
     estDaysLetters: '5–7 рабочих дней',
@@ -1278,7 +1269,9 @@ export const translations = {
     lightHalo: 'Теплый контражур 3000K',
     lightFront: 'Холодная лицевая 6500K',
     lightNone: 'Без подсветки',
-    estBudgetLbl: 'Расчетный бюджет производства',
+    estPriceLbl: 'Итоговая цена',
+    estPriceVal: 'Индивидуальный расчёт',
+    estPriceNote: 'Отправьте параметры — инженер рассчитает стоимость и свяжется с вами.',
     transferBtn: 'Перенести параметры в заказ',
     exportSvgBtn: 'Экспорт SVG чертежа',
     cadViewDay: 'Дневной вид',
@@ -1314,7 +1307,7 @@ export const translations = {
     bomHardware: 'Монтажная фурнитура',
     bomHardwareVal: 'Анкеры AISI 316 + Дюбели Fischer',
     bomIngress: 'Класс защиты',
-    bomIngressVal: 'IP67 герметичный / Сертификаты CE & RoHS',
+    bomIngressVal: 'IP67 герметичный / Компоненты CE & RoHS',
     dockCall: 'Позвонить',
     dockWhatsApp: 'WhatsApp',
     dockStudio: 'CAD Студия',
@@ -1461,7 +1454,7 @@ export const translations = {
       kakheti: {
         shortName: 'Магистральный монополь',
         spec: 'Ø 1200мм стальная колонна • Горячее цинкование HDG',
-        standard: 'Ветроустойчивость 180 км/ч • Статический расчет',
+        standard: 'Статический расчёт объекта • Антикоррозия HDG',
         leadTime: '12 рабочих дней • Инженерный пакет'
       },
       card: {
@@ -1498,8 +1491,9 @@ export const translations = {
 
     archiveProjects: [
       {
-        id: 'aura-luxury',
-        title: 'Aura Luxury Flagship — Проспект Чавчавадзе',
+        id: 'boutique-letters',
+        client: 'Ювелирный бутик',
+        title: 'Фасадные 3D-буквы ювелирного бутика',
         category: 'letters',
         categoryName: 'Объемные 3D-буквы из латуни',
         location: 'Ваке, Тбилиси',
@@ -1508,13 +1502,13 @@ export const translations = {
         dimensions: '4.6 м × 1.1 м (высота букв: 680 мм)',
         material: 'Шлифованная латунь 2.5 мм + основа из стали AISI 316',
         illumination: 'Samsung SMD2835 3000K теплый контражур',
-        windRating: 'Сертифицировано на порывы до 140 км/ч',
-        turnaround: '6 рабочих дней',
-        image: '/assets/mockups/letters_facade.jpg'
+        windRating: 'Рассчитано на ветровую нагрузку объекта',
+        turnaround: '6 рабочих дней'
       },
       {
-        id: 'nexus-screen',
-        title: 'Nexus радиусный мегаборд на Площади Героев',
+        id: 'transit-megaboard',
+        client: 'Оператор наружной рекламы',
+        title: 'Радиусный LED-мегаборд на транспортной развязке',
         category: 'billboard',
         categoryName: 'Цифровой LED-билборд',
         location: 'Площадь Героев, Тбилиси',
@@ -1523,13 +1517,13 @@ export const translations = {
         dimensions: '15.0 м × 8.0 м радиусный экран',
         material: 'Корпус из авиационного алюминия + P3.9 LED',
         illumination: 'Высококонтрастный уличный LED P3.91 мм',
-        windRating: 'Сертифицировано до 180 км/ч',
-        turnaround: '14 рабочих дней под ключ',
-        image: '/assets/mockups/heroes_square.jpg'
+        windRating: 'Рассчитано на ветровую нагрузку объекта',
+        turnaround: '14 рабочих дней под ключ'
       },
       {
-        id: 'tbilisi-silk',
-        title: 'Tbilisi Silk витринный лайтбокс ателье моды',
+        id: 'atelier-lightbox',
+        client: 'Ателье моды',
+        title: 'Витринный SEG-лайтбокс ателье моды',
         category: 'lightbox',
         categoryName: 'SEG-лайтбокс',
         location: 'Проспект Руставели, Тбилиси',
@@ -1539,27 +1533,27 @@ export const translations = {
         material: 'Анодированный алюминий цвета шампань + SEG-текстиль',
         illumination: 'High-CRI 98 5500K естественный дневной свет',
         windRating: 'Интерьерная / полуоткрытая витрина',
-        turnaround: '4 рабочих дня',
-        image: '/assets/mockups/rustaveli_citylight.jpg'
+        turnaround: '4 рабочих дня'
       },
       {
-        id: 'aethelred-tower',
-        title: 'Aethelred SkyTower монументальный логотип на крыше',
+        id: 'rooftop-crest',
+        client: 'Бизнес-центр',
+        title: 'Монументальный логотип на крыше бизнес-центра',
         category: 'letters',
         categoryName: 'Крышная 3D-вывеска',
         location: 'Сабуртало, высотная башня',
         year: '2024',
-        summary: 'Крышная конструкция на высоте 28-го этажа. Рассчитана на ураганные порывы ветра до 200 км/ч. Несущая стальная ферма и зеркальные борта букв из нержавеющей стали AISI 316.',
+        summary: 'Крышная конструкция на высоте 28-го этажа, рассчитанная на высотные ветровые нагрузки. Несущая стальная ферма и зеркальные борта букв из нержавеющей стали AISI 316.',
         dimensions: '16.2 м × 3.8 м несущая ферма',
         material: 'Стальная несущая ферма + зеркальная нержавеющая сталь',
         illumination: 'Двухконтурная яркая подсветка 6500K',
-        windRating: 'Испытано на ураганный ветер до 200 км/ч',
-        turnaround: '18 рабочих дней',
-        image: '/assets/mockups/vake_facade.jpg'
+        windRating: 'Рассчитано на высотную ветровую нагрузку',
+        turnaround: '18 рабочих дней'
       },
       {
-        id: 'aurum-print',
-        title: 'Aurum Creative премиальный полиграфический сет',
+        id: 'forum-print',
+        client: 'Международный бизнес-форум',
+        title: 'Премиальная полиграфия для международного форума',
         category: 'print',
         categoryName: 'Флаеры и полиграфия',
         location: 'Тбилиси и экспорт',
@@ -1569,11 +1563,11 @@ export const translations = {
         material: '450 г/м² картон Imperial Velvet Touch + горячая фольга',
         illumination: 'Металлизированный блеск и выборочный УФ-лак',
         windRating: 'Печатные и представительские материалы',
-        turnaround: '48 часов',
-        image: '/assets/mockups/highway_unipole.jpg'
+        turnaround: '48 часов'
       },
       {
-        id: 'batumi-transit',
+        id: 'highway-monopole',
+        client: 'Оператор наружной рекламы',
         title: 'Западный магистральный юниполярный билборд',
         category: 'billboard',
         categoryName: 'Магистральный юнипол',
@@ -1583,9 +1577,8 @@ export const translations = {
         dimensions: '14.0 м × 5.0 м двусторонний (140 м²)',
         material: 'Горячеоцинкованная сталь HDG + винил',
         illumination: 'Прожекторы MeanWell 400W High-Efficiency',
-        windRating: 'Сертифицировано на ветровые нагрузки 180 км/ч',
-        turnaround: '12 рабочих дней',
-        image: '/assets/mockups/highway_unipole.jpg'
+        windRating: 'Рассчитано на ветровую нагрузку объекта',
+        turnaround: '12 рабочих дней'
       }
     ],
 
@@ -1677,8 +1670,9 @@ export const translations = {
     footerDeskTitle: 'Офис в Тбилиси',
     addressValShort: 'пр. Церетели 88, Тбилиси',
     backToTop: '↑ В начало страницы',
-    rights: 'ВСЕ ПРАВА ЗАЩИЩЕНЫ.',
-    cert: 'ISO 9001:2015 • CE СЕРТИФИЦИРОВАНО • РАЗРЕШЕНО МЭРИЕЙ ТБИЛИСИ'
+    companyLegal: 'ООО «ВЕКТОР ХАБ»',
+    companyCity: 'ТБИЛИСИ, ГРУЗИЯ',
+    rights: 'ВСЕ ПРАВА ЗАЩИЩЕНЫ.'
   }
 };
 
@@ -1723,6 +1717,7 @@ export function formatTransferredNotes(lang, spec) {
   const depthStrKa = spec.returnDepth ? `• ბორტის სიღრმე: ${spec.returnDepth}\n` : '';
   const depthStrRu = spec.returnDepth ? `• Глубина борта: ${spec.returnDepth}\n` : '';
   const depthStrEn = spec.returnDepth ? `• Return Depth: ${spec.returnDepth}\n` : '';
+  const structStr = spec.structure ? `• ${spec.structure}\n` : '';
 
   if (isKa) {
     return `ვექტორ სტუდიიდან გადმოტანილი პარამეტრები:\n` +
@@ -1734,7 +1729,8 @@ export function formatTransferredNotes(lang, spec) {
       `• კონტურები: ${spec.contourCount || 1}\n` +
       `• მასალა: ${spec.material}\n` +
       `• განათება: ${spec.lighting}\n` +
-      `• გამოთვლილი ბიუჯეტი: ${spec.estimate}\n` +
+      structStr +
+      `• ფასი: ინჟინრის დაანგარიშებით\n` +
       `• დამზადების ვადა: ${spec.turnaround}`;
   } else if (isRu) {
     return `Перенесено из Vector Studio:\n` +
@@ -1746,7 +1742,8 @@ export function formatTransferredNotes(lang, spec) {
       `• Контуры: ${spec.contourCount || 1}\n` +
       `• Материал: ${spec.material}\n` +
       `• Подсветка: ${spec.lighting}\n` +
-      `• Расчетный бюджет: ${spec.estimate}\n` +
+      structStr +
+      `• Цена: по расчёту инженера\n` +
       `• Срок производства: ${spec.turnaround}`;
   } else {
     return `Transferred from Vector Studio:\n` +
@@ -1758,7 +1755,8 @@ export function formatTransferredNotes(lang, spec) {
       `• Contours: ${spec.contourCount || 1}\n` +
       `• Material: ${spec.material}\n` +
       `• Illumination: ${spec.lighting}\n` +
-      `• Calculated Budget: ${spec.estimate}\n` +
+      structStr +
+      `• Price: quoted by engineer\n` +
       `• Estimated Turnaround: ${spec.turnaround}`;
   }
 }

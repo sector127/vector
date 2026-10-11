@@ -178,7 +178,6 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
 
   // General Spec State with URL param fallback
   const [productType, setProductType] = useState(() => getInitialParam('product', ['letters', 'lightbox', 'billboard', 'print'], 'letters'));
-  const [currency, setCurrency] = useState(() => getInitialParam('curr', ['GEL', 'USD', 'EUR'], 'GEL'));
   const [brandText, setBrandText] = useState(() => {
     if (typeof window !== 'undefined') {
       // URLSearchParams already decodes — decoding again throws on a literal "%" and blanks the page
@@ -214,32 +213,6 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
   });
   const fileInputRef = useRef(null);
 
-  // Conversion rates (1 USD = 2.70 GEL, 1 EUR = 2.95 GEL)
-  const rates = {
-    GEL: 1,
-    USD: 1 / 2.70,
-    EUR: 1 / 2.95
-  };
-  const currencySymbols = {
-    GEL: '₾',
-    USD: '$',
-    EUR: '€'
-  };
-
-  // Base pricing matrix per m² in GEL
-  const baseRatesGEL = {
-    letters: { brass: 2400, stainless: 2100, acrylic: 1750, carbon: 1850 },
-    lightbox: { brass: 2100, stainless: 1950, acrylic: 1600, carbon: 1700 },
-    billboard: { brass: 3600, stainless: 3400, acrylic: 3100, carbon: 3200 },
-    print: { brass: 0.45, stainless: 0.38, acrylic: 0.30, carbon: 0.32 }
-  };
-
-  const lightMultiplier = {
-    halo3000: 1.35,
-    front6500: 1.25,
-    none: 1.0
-  };
-
   // Calculations
   const areaSqM = (width * height).toFixed(2);
 
@@ -259,19 +232,6 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
     piercingPoints = Math.max(1, Math.round(brandText.length * 1.3));
   }
 
-  let totalCostGEL = 0;
-  if (productType === 'print') {
-    const unitPrice = baseRatesGEL.print[material] || 0.35;
-    totalCostGEL = Math.round(printUnits * unitPrice + 180);
-  } else {
-    const base = baseRatesGEL[productType][material] || 2000;
-    const mult = lightMultiplier[lighting] || 1.0;
-    // SVG complexity weighting
-    const complexityModifier = inputMode === 'svg' && customSvg ? Math.max(1.0, 1 + (customSvg.contourCount * 0.03)) : 1.0;
-    totalCostGEL = Math.round(areaSqM * base * mult * complexityModifier);
-  }
-
-  const convertedPrice = Math.round(totalCostGEL * rates[currency]);
   const estDays = productType === 'billboard' ? t.estDaysBillboard : (productType === 'letters' ? t.estDaysLetters : (productType === 'print' ? t.estDaysPrint : t.estDaysLightbox));
 
   // Technical BOM Engineering Metrics
@@ -298,7 +258,6 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
       url.searchParams.set('w', width);
       url.searchParams.set('h', height);
       url.searchParams.set('light', lighting);
-      url.searchParams.set('curr', currency);
       url.searchParams.set('depth', depthMm);
       if (inputMode === 'text') {
         url.searchParams.set('text', brandText);
@@ -381,7 +340,6 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
       printUnits: productType === 'print' ? printUnits : null,
       toolpathMm,
       contourCount,
-      estimate: `${currencySymbols[currency]} ${convertedPrice.toLocaleString()}`,
       turnaround: estDays
     };
     onTransferSpec(spec);
@@ -442,7 +400,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
   <rect x="20" y="510" width="760" height="70" class="title-box"/>
   <text x="40" y="534" class="spec-text">MEDIUM: ${productType.toUpperCase()} | MATERIAL: ${material.toUpperCase()} | LIGHTING: ${lighting.toUpperCase()}</text>
   <text x="40" y="552" class="spec-text">SURFACE AREA: ${areaSqM} m² | TOOLPATH LENGTH: ${toolpathMm} mm | CONTOURS: ${contourCount} | PIERCINGS: ${piercingPoints}</text>
-  <text x="40" y="569" class="spec-text">ESTIMATE: ${currencySymbols[currency]} ${convertedPrice.toLocaleString()} | FABRICATION FACILITY: AKAKI TSERETELI AVE 88, TBILISI, GEORGIA • DATE: ${new Date().toISOString().split('T')[0]}</text>
+  <text x="40" y="569" class="spec-text">PRICE: QUOTED AFTER ENGINEERING REVIEW | FABRICATION FACILITY: AKAKI TSERETELI AVE 88, TBILISI, GEORGIA • DATE: ${new Date().toISOString().split('T')[0]}</text>
 </svg>`;
 
     const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
@@ -631,7 +589,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
         ['LED IP Rating', 'IP67 Waterproof (50,000h)'],
         ['Wind Load Rating', 'Calculated per site survey'],
         ['Est. Production SLA', slaBlueprint],
-        ['Calculated Budget', `${currencySymbols[currency]} ${convertedPrice.toLocaleString()}`]
+        ['Pricing', 'Quoted after engineering review']
       ];
 
       let rowY = 48;
@@ -677,9 +635,9 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(6.5);
       doc.setTextColor(100, 115, 130);
-      doc.text('Automatically generated from the Vector Studio configurator. Budget, dimensions and materials are indicative only.', 90, 184);
+      doc.text('Automatically generated from the Vector Studio configurator. Dimensions and materials are indicative only.', 90, 184);
       doc.text('Final pricing, structural calculations and municipal permits are confirmed by Vector Hub engineers after a site survey.', 90, 188);
-      doc.text(`© ${new Date().getFullYear()} Vector Hub. Akaki Tsereteli Ave 88, Didube District, Tbilisi, Georgia.`, 90, 192);
+      doc.text(`© ${new Date().getFullYear()} Vector Hub LLC. Akaki Tsereteli Ave 88, Didube District, Tbilisi, Georgia.`, 90, 192);
 
       // Right: Signature Block
       doc.setDrawColor(20, 24, 33);
@@ -931,39 +889,8 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
             </div>
           </div>
 
-          {/* Right: Controls & Real-Time Price Matrix */}
+          {/* Right: Controls & Spec Summary */}
           <div className="workbench-controls-panel">
-            {/* Currency Selector */}
-            <div className="control-block">
-              <div className="control-title">
-                <span>{t.step1Title}</span>
-                <span style={{ color: 'var(--ink-muted)' }}>{t.step1Sub}</span>
-              </div>
-              <div className="segmented-control">
-                <button
-                  className={`segment-btn ${currency === 'GEL' ? 'active' : ''}`}
-                  onClick={() => setCurrency('GEL')}
-                  data-cursor-text="GEL"
-                >
-                  ₾ GEL ({t.currencyGeo})
-                </button>
-                <button
-                  className={`segment-btn ${currency === 'USD' ? 'active' : ''}`}
-                  onClick={() => setCurrency('USD')}
-                  data-cursor-text="USD"
-                >
-                  $ USD ({t.currencyIntl})
-                </button>
-                <button
-                  className={`segment-btn ${currency === 'EUR' ? 'active' : ''}`}
-                  onClick={() => setCurrency('EUR')}
-                  data-cursor-text="EUR"
-                >
-                  € EUR ({t.currencyEur})
-                </button>
-              </div>
-            </div>
-
             {/* Product Type Selector */}
             <div className="control-block">
               <div className="control-title">{t.step2Title}</div>
@@ -1213,10 +1140,13 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
             <div className="estimate-display-card">
               <div className="estimate-col">
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--ink-muted)', textTransform: 'uppercase' }}>
-                  {t.estBudgetLbl}
+                  {t.estPriceLbl}
                 </span>
-                <span className="est-currency-val">
-                  {currencySymbols[currency]} {convertedPrice.toLocaleString()}
+                <span className="est-currency-val est-quote-val">
+                  {t.estPriceVal}
+                </span>
+                <span className="est-quote-note">
+                  {t.estPriceNote}
                 </span>
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--ink-secondary)', marginTop: '4px' }}>
                   ✓ {estDays}

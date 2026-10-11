@@ -1105,6 +1105,24 @@ button {
   line-height: 1;
 }
 
+.estimate-display-card {
+  gap: 24px;
+}
+
+.est-currency-val.est-quote-val {
+  font-size: 1.6rem;
+  line-height: 1.15;
+  margin-top: 6px;
+}
+
+.est-quote-note {
+  font-size: 0.85rem;
+  color: var(--ink-secondary);
+  line-height: 1.5;
+  max-width: 34ch;
+  margin-top: 8px;
+}
+
 /* CAD PDF Export Button & Spinner */
 .cad-toolbar-btn.export-pdf-btn {
   background: var(--ink-primary);

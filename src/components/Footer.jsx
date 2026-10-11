@@ -1,5 +1,6 @@
 import React from 'react';
 import { getTranslation } from '../i18n/translations';
+import { PHONE_DISPLAY, PHONE_TEL, EMAIL } from '../config/contact';
 
 export default function Footer({ lang }) {
   const t = getTranslation(lang);
@@ -48,8 +49,8 @@ export default function Footer({ lang }) {
           <div>
             <div className="footer-col-head">{t.footerDeskTitle}</div>
             <div className="footer-list">
-              <span>+995 32 200 80 80</span>
-              <span>desk@vectorhub.ge</span>
+              <a href={`tel:${PHONE_TEL}`}>{PHONE_DISPLAY}</a>
+              <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
               <span>{t.addressValShort}</span>
               <button 
                 onClick={scrollToTop} 
@@ -65,10 +66,7 @@ export default function Footer({ lang }) {
         {/* Bottom Line */}
         <div className="footer-bottom-line">
           <div>
-            © {new Date().getFullYear()} VECTOR HUB LLC — TBILISI, GEORGIA. {t.rights}
-          </div>
-          <div>
-            {t.cert}
+            © {new Date().getFullYear()} {t.companyLegal} — {t.companyCity}. {t.rights}
           </div>
         </div>
       </div>

@@ -79,15 +79,15 @@ export default function Hero({ lang }) {
         {/* Bottom: 4 Monolithic Metric Pillars */}
         <div className="hero-monolithic-metrics">
           <div className="metric-pillar">
-            <div className="pillar-val">{t.metric1Val || '2,500 მ²'}</div>
+            <div className="pillar-val">{t.metric1Val}</div>
             <div className="pillar-lbl">{t.heroMetric1Lbl}</div>
           </div>
           <div className="metric-pillar">
-            <div className="pillar-val">{t.metric2Val || '±0.02 მმ'}</div>
+            <div className="pillar-val">{t.metric2Val}</div>
             <div className="pillar-lbl">{t.heroMetric2Lbl}</div>
           </div>
           <div className="metric-pillar">
-            <div className="pillar-val">{t.metric3Val || '180 კმ/სთ'}</div>
+            <div className="pillar-val">{t.metric3Val}</div>
             <div className="pillar-lbl">{t.heroMetric3Lbl}</div>
           </div>
           <div className="metric-pillar">

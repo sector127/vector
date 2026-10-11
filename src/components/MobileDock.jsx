@@ -1,6 +1,7 @@
 import React from 'react';
 import { Phone, MessageSquare, Cpu, ArrowUpRight } from 'lucide-react';
 import { getTranslation } from '../i18n/translations';
+import { PHONE_TEL, WHATSAPP_NUMBER } from '../config/contact';
 
 export default function MobileDock({ lang }) {
   const t = getTranslation(lang);
@@ -10,7 +11,7 @@ export default function MobileDock({ lang }) {
       <div className="mobile-dock-inner">
         {/* Hotline Call */}
         <a 
-          href="tel:+995322008080" 
+          href={`tel:${PHONE_TEL}`} 
           className="mobile-dock-item"
           data-cursor-text="CALL"
         >
@@ -20,7 +21,7 @@ export default function MobileDock({ lang }) {
 
         {/* Direct WhatsApp */}
         <a 
-          href="https://wa.me/995599808080" 
+          href={`https://wa.me/${WHATSAPP_NUMBER}`} 
           target="_blank" 
           rel="noreferrer" 
           className="mobile-dock-item highlight-wa"

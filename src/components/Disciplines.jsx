@@ -102,7 +102,7 @@ export default function Disciplines({ lang }) {
           <line x1="70" y1="20" x2="150" y2="20" stroke="var(--ink-primary)" strokeWidth="2" />
           <line x1="150" y1="20" x2="150" y2="70" stroke="var(--ink-primary)" strokeWidth="1" strokeDasharray="2 2" />
           <rect x="130" y="70" width="40" height="20" fill="none" stroke="var(--ink-primary)" strokeWidth="1.5" />
-          <text x="15" y="152" fill="var(--ink-muted)" fontSize="9" fontFamily="JetBrains Mono">Municipal Permits • 60m Crane • CAD Certified</text>
+          <text x="15" y="152" fill="var(--ink-muted)" fontSize="9" fontFamily="JetBrains Mono">Municipal Permits • 60m Crane • Static Calc</text>
         </svg>
       )
     }

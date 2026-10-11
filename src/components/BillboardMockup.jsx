@@ -171,7 +171,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
       standard: t.mockupLocations?.letters?.standard || 'IP67 Waterproof • AISI 316',
       leadTime: t.mockupLocations?.letters?.leadTime || '7 Work Days • 5-Yr Warranty',
       type: '3D Dimensional Facade Lettering',
-      image: '/assets/mockups/letters_facade.jpg',
+      image: '/assets/mockups/letters_facade.webp',
       is3DLetters: true,
       screenBox: {
         top: '36.2%',
@@ -191,7 +191,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
       standard: t.mockupLocations?.rustaveli?.standard || 'IP65 Weatherproof • City Hall Standard',
       leadTime: t.mockupLocations?.rustaveli?.leadTime || '5 Work Days • Turnkey Setup',
       type: 'Double-Sided Citylight Lightbox',
-      image: '/assets/mockups/rustaveli_citylight.jpg',
+      image: '/assets/mockups/rustaveli_citylight.webp',
       screenBox: {
         top: '26.2%',
         left: '64.0%',
@@ -210,7 +210,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
       standard: t.mockupLocations?.vake?.standard || 'IP65 Frontal Seal • 4,500 Nits',
       leadTime: t.mockupLocations?.vake?.leadTime || '10 Work Days • 5-Yr Warranty',
       type: 'Architectural Facade Display & Signage',
-      image: '/assets/mockups/vake_facade.jpg',
+      image: '/assets/mockups/vake_facade.webp',
       screenBox: {
         top: '18%',
         left: '15%',
@@ -226,10 +226,10 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
       shortName: t.mockupLocations?.kakheti?.shortName || 'Highway Monopole',
       scale: '14.0m × 5.0m (70 მ²)',
       spec: t.mockupLocations?.kakheti?.spec || 'Ø 1200mm Steel Column • HDG',
-      standard: t.mockupLocations?.kakheti?.standard || '180 km/h Wind Load • Static Certified',
+      standard: t.mockupLocations?.kakheti?.standard || 'Site Static Calculation • HDG Anti-Corrosion',
       leadTime: t.mockupLocations?.kakheti?.leadTime || '12 Work Days • Full Engineering',
       type: 'Highway Monopole Steel Structure',
-      image: '/assets/mockups/highway_unipole.jpg',
+      image: '/assets/mockups/highway_unipole.webp',
       screenBox: {
         top: '8.8%',
         left: '53.8%',
@@ -510,7 +510,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
         dimensions: cardFormat === 'flyer' ? '148mm × 210mm (A5)' : '90mm × 50mm (Executive)',
         material: `${cardGsm} GSM ${cardStock.toUpperCase()} • ${cardFinish.toUpperCase().replace('_', ' ')} • Watermark: ${cardWatermark ? 'Active' : 'None'}`,
         lighting: 'Executive Studio Illumination',
-        estimate: `Discipline 03 / Heidelberg Offset: ${cardHolder} (${cardGsm} GSM)`,
+        structure: `Discipline 03 / Heidelberg Offset: ${cardHolder} (${cardGsm} GSM)`,
         turnaround: currentLoc.leadTime
       };
       if (onBookBillboard) {
@@ -526,7 +526,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
       dimensions: currentLoc.scale,
       material: currentLoc.is3DLetters ? `${currentLoc.spec} • ${letterDepth}mm Return • ${lightingType}` : currentLoc.spec,
       lighting: currentLoc.is3DLetters ? lightingType : 'front6500',
-      estimate: t('structureEstimate', { name: currentLoc.name, standard: currentLoc.standard }),
+      structure: t('structureEstimate', { name: currentLoc.name, standard: currentLoc.standard }),
       turnaround: currentLoc.leadTime
     };
     if (onBookBillboard) {

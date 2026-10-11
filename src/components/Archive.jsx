@@ -5,8 +5,8 @@ import { getTranslation } from '../i18n/translations';
 const SCHEMATICS = {
   0: (
     <svg viewBox="0 0 280 160" style={{ width: '100%', height: '100%' }}>
-      <text x="140" y="85" fill="var(--bg-main)" stroke="var(--ink-primary)" strokeWidth="2" fontSize="34" fontFamily="Oxanium" fontWeight="900" textAnchor="middle">
-        AURA
+      <text x="140" y="85" fill="var(--bg-main)" stroke="var(--ink-primary)" strokeWidth="2" fontSize="30" fontFamily="Oxanium" fontWeight="900" textAnchor="middle">
+        BOUTIQUE
       </text>
       <line x1="30" y1="120" x2="250" y2="120" stroke="var(--ink-hairline)" strokeWidth="1" />
       <line x1="30" y1="115" x2="30" y2="125" stroke="var(--ink-primary)" strokeWidth="1" />
@@ -32,8 +32,8 @@ const SCHEMATICS = {
   ),
   3: (
     <svg viewBox="0 0 280 160" style={{ width: '100%', height: '100%' }}>
-      <text x="140" y="70" fill="var(--bg-main)" stroke="var(--ink-primary)" strokeWidth="2" fontSize="22" fontFamily="Oxanium" fontWeight="900" textAnchor="middle">
-        AETHELRED
+      <text x="140" y="70" fill="var(--bg-main)" stroke="var(--ink-primary)" strokeWidth="2" fontSize="26" fontFamily="Oxanium" fontWeight="900" textAnchor="middle">
+        SKYLINE
       </text>
       <line x1="30" y1="85" x2="250" y2="85" stroke="var(--ink-primary)" strokeWidth="2" />
       <line x1="50" y1="85" x2="70" y2="135" stroke="var(--ink-hairline)" strokeWidth="1" />
@@ -59,15 +59,6 @@ const SCHEMATICS = {
     </svg>
   )
 };
-
-const CLIENTS = [
-  'Aura Haute Horlogerie & Jewelry',
-  'Nexus Financial & Media',
-  'Tbilisi Silk & Fashion Atelier',
-  'Aethelred Capital Georgia',
-  'Aurum Creative Group',
-  'Airport Corridor Commercial Group'
-];
 
 export default function Archive({ lang }) {
   const t = getTranslation(lang);
@@ -101,7 +92,7 @@ export default function Archive({ lang }) {
     title: p.title,
     category: p.category,
     categoryName: p.categoryName,
-    client: CLIENTS[idx] || 'Vector Hub Client',
+    client: p.client,
     location: p.location,
     year: p.year,
     summary: p.summary,
