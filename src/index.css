@@ -1145,6 +1145,14 @@ button {
   }
 }
 
+.form-honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
 /* CAD PDF Export Button & Spinner */
 .cad-toolbar-btn.export-pdf-btn {
   background: var(--ink-primary);

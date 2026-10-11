@@ -1,7 +1,25 @@
 // Vercel Serverless Function: Telegram Notification Handler
+// Also mounted by the Vite dev server (vite.config.js), so dev and prod run the same code.
 
 // 3 MB raw file → ~4 MB base64, safely under Vercel's 4.5 MB request body limit
 const MAX_FILE_BASE64_LENGTH = Math.ceil((3 * 1024 * 1024 * 4) / 3) + 1024;
+
+const FIELD_LIMITS = { name: 120, company: 160, email: 160, phone: 40, city: 160, medium: 40, notes: 5000, fileName: 200 };
+
+// Best-effort flood guard. Serverless instances are short-lived and not shared,
+// so this only stops bursts hitting one warm instance — not a substitute for a real limiter.
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+const RATE_MAX = 5;
+const recentByIp = new Map();
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  const hits = (recentByIp.get(ip) || []).filter(t => now - t < RATE_WINDOW_MS);
+  hits.push(now);
+  recentByIp.set(ip, hits);
+  if (recentByIp.size > 1000) recentByIp.clear();
+  return hits.length > RATE_MAX;
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -10,20 +28,33 @@ export default async function handler(req, res) {
 
   try {
     const data = req.body || {};
-    const {
-      name,
-      company,
-      email,
-      phone,
-      city,
-      medium,
-      notes,
-      fileAttached,
-      fileName,
-      fileType,
-      fileData,
-      timestamp
-    } = data;
+
+    // Honeypot: the "website" field is hidden from people, so only bots fill it.
+    // Answer as if delivered so they don't retry with a different strategy.
+    if (data.website) {
+      return res.status(200).json({ success: true });
+    }
+
+    const field = (key) => (typeof data[key] === 'string' ? data[key].trim().slice(0, FIELD_LIMITS[key] || 200) : '');
+    const name = field('name');
+    const company = field('company');
+    const email = field('email');
+    const phone = field('phone');
+    const city = field('city');
+    const medium = field('medium');
+    const notes = field('notes');
+    const fileName = field('fileName');
+    const fileType = typeof data.fileType === 'string' ? data.fileType.slice(0, 100) : '';
+    const fileData = typeof data.fileData === 'string' ? data.fileData : null;
+
+    if (!name || (!phone && !email)) {
+      return res.status(400).json({ success: false, error: 'invalid' });
+    }
+
+    const ip = String(req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown').split(',')[0].trim();
+    if (isRateLimited(ip)) {
+      return res.status(429).json({ success: false, error: 'rate_limited' });
+    }
 
     const token = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.TELEGRAM_CHAT_ID;
@@ -46,14 +77,15 @@ export default async function handler(req, res) {
       });
     }
 
-    // Clean phone number for tel: and WhatsApp direct link
-    const cleanPhone = (phone || '').replace(/[^\d+]/g, '');
+    // Clean phone number for the WhatsApp direct link
+    const cleanPhone = phone.replace(/[^\d+]/g, '');
+    const receivedAt = new Date().toLocaleString('ka-GE', { timeZone: 'Asia/Tbilisi' });
 
     // Format Structured HTML Message for Telegram
     const formattedMessage = `
 ⚡ <b>ახალი საინჟინრო შეკვეთა — VECTOR HUB</b>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
-👤 <b>დამკვეთი:</b> ${escapeHtml(name || 'არ არის მითითებული')}
+👤 <b>დამკვეთი:</b> ${escapeHtml(name)}
 🏢 <b>კომპანია:</b> ${escapeHtml(company || '—')}
 📞 <b>ტელეფონი:</b> <code>${escapeHtml(phone || '—')}</code>
 ✉️ <b>ელ-ფოსტა:</b> ${escapeHtml(email || '—')}
@@ -62,8 +94,8 @@ export default async function handler(req, res) {
 📐 <b>პროდუქციის ტიპი:</b> <b>${escapeHtml((medium || '3D ასოები').toUpperCase())}</b>
 📝 <b>სპეციფიკაცია & შენიშვნები:</b>
 <pre>${escapeHtml(notes || 'დეტალები არ არის მითითებული')}</pre>
-${fileAttached || fileName ? `📎 <b>მიმაგრებული ფაილი:</b> <code>${escapeHtml(fileName || fileAttached)}</code>\n` : ''}━━━━━━━━━━━━━━━━━━━━━━━━━━
-⏰ <b>დრო:</b> ${escapeHtml(timestamp || new Date().toISOString())}
+${fileName ? `📎 <b>მიმაგრებული ფაილი:</b> <code>${escapeHtml(fileName)}</code>\n` : ''}━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏰ <b>დრო:</b> ${escapeHtml(receivedAt)}
 `;
 
     // Inline Keyboard Buttons for One-Click Response (Telegram requires http/https)
@@ -72,15 +104,14 @@ ${fileAttached || fileName ? `📎 <b>მიმაგრებული ფა�
         [
           {
             text: '💬 WhatsApp-ში მიწერა',
-            url: `https://wa.me/${cleanPhone.replace('+', '')}?text=${encodeURIComponent('გამარჯობა ' + (name || '') + ', გიკავშირდებით Vector Hub Georgia-დან თქვენს შეკვეთასთან დაკავშირებით.')}`
+            url: `https://wa.me/${cleanPhone.replace('+', '')}?text=${encodeURIComponent('გამარჯობა ' + name + ', გიკავშირდებით Vector Hub Georgia-დან თქვენს შეკვეთასთან დაკავშირებით.')}`
           }
         ]
       ]
     } : undefined;
 
     // Send payload to Telegram Bot API
-    const telegramApiUrl = `https://api.telegram.org/bot${token}/sendMessage`;
-    const response = await fetch(telegramApiUrl, {
+    const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -88,7 +119,7 @@ ${fileAttached || fileName ? `📎 <b>მიმაგრებული ფა�
         text: formattedMessage,
         parse_mode: 'HTML',
         disable_web_page_preview: true,
-        reply_markup: inlineKeyboard && inlineKeyboard.inline_keyboard[0].length > 0 ? inlineKeyboard : undefined
+        reply_markup: inlineKeyboard
       })
     });
 
@@ -104,19 +135,17 @@ ${fileAttached || fileName ? `📎 <b>მიმაგრებული ფა�
 
     // If a physical blueprint file was attached, dispatch it via sendDocument
     let docSent = false;
-    let docError = null;
     if (fileData) {
       try {
         const base64Data = fileData.includes(',') ? fileData.split(',')[1] : fileData;
         const fileBuffer = Buffer.from(base64Data, 'base64');
-        const effectiveFileName = fileName || fileAttached || 'blueprint.pdf';
-        const effectiveMimeType = fileType || 'application/octet-stream';
-        const blob = new Blob([fileBuffer], { type: effectiveMimeType });
+        const effectiveFileName = fileName || 'blueprint.pdf';
+        const blob = new Blob([fileBuffer], { type: fileType || 'application/octet-stream' });
 
         const docFormData = new FormData();
         docFormData.append('chat_id', chatId);
         docFormData.append('document', blob, effectiveFileName);
-        docFormData.append('caption', `📎 <b>${escapeHtml(effectiveFileName)}</b>\n👤 ${escapeHtml(name || 'კლიენტი')}${company ? ` • ${escapeHtml(company)}` : ''}`);
+        docFormData.append('caption', `📎 <b>${escapeHtml(effectiveFileName)}</b>\n👤 ${escapeHtml(name)}${company ? ` • ${escapeHtml(company)}` : ''}`);
         docFormData.append('parse_mode', 'HTML');
 
         const docRes = await fetch(`https://api.telegram.org/bot${token}/sendDocument`, {
@@ -127,19 +156,16 @@ ${fileAttached || fileName ? `📎 <b>მიმაგრებული ფა�
         docSent = docResult.ok;
         if (!docResult.ok) {
           console.warn('Telegram sendDocument warning:', docResult);
-          docError = docResult.description;
         }
       } catch (docErr) {
         console.error('Error forwarding document to Telegram:', docErr);
-        docError = docErr.message;
       }
     }
 
     return res.status(200).json({
       success: true,
       messageId: result.result?.message_id,
-      docSent,
-      docError
+      docSent
     });
   } catch (error) {
     console.error('Server error processing inquiry:', error);

@@ -1,136 +1,72 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
+// Mirrors Vercel's 4.5 MB request body cap so oversized uploads fail the same way locally
+const DEV_BODY_LIMIT = 4.5 * 1024 * 1024;
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   return {
     plugins: [
       react(),
       {
+        // Runs the real api/inquiry.js handler behind a tiny Vercel-style req/res shim,
+        // so local testing exercises exactly the code that ships.
         name: 'api-inquiry-dev-middleware',
         configureServer(server) {
           server.middlewares.use('/api/inquiry', async (req, res) => {
-            if (req.method !== 'POST') {
-              res.statusCode = 405;
+            const send = (status, body) => {
+              res.statusCode = status;
               res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify({ error: 'Method Not Allowed' }));
+              res.end(JSON.stringify(body));
+            };
+
+            const chunks = [];
+            let size = 0;
+            for await (const chunk of req) {
+              size += chunk.length;
+              if (size > DEV_BODY_LIMIT) {
+                res.statusCode = 413;
+                res.end('Request Entity Too Large');
+                return;
+              }
+              chunks.push(chunk);
+            }
+
+            let body = {};
+            try {
+              body = chunks.length ? JSON.parse(Buffer.concat(chunks).toString('utf8')) : {};
+            } catch {
+              send(400, { success: false, error: 'invalid' });
               return;
             }
 
-            let body = '';
-            req.on('data', chunk => { body += chunk; });
-            req.on('end', async () => {
-              try {
-                const data = JSON.parse(body || '{}');
-                const dynamicEnv = loadEnv(mode, process.cwd(), '');
-                const token = dynamicEnv.TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN;
-                const chatId = dynamicEnv.TELEGRAM_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
+            const env = loadEnv(mode, process.cwd(), '');
+            const token = env.TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN;
+            const chatId = env.TELEGRAM_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
 
-                if (!token || !chatId) {
-                  res.statusCode = 200;
-                  res.setHeader('Content-Type', 'application/json');
-                  res.end(JSON.stringify({
-                    ok: true,
-                    success: true,
-                    simulated: true,
-                    description: 'Inquiry received in local simulation mode. Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in .env.local to enable live Telegram alerts.'
-                  }));
-                  return;
-                }
+            // Dev convenience only: without credentials, pretend delivery worked
+            // (production answers 503 so leads are never silently dropped)
+            if (!token || !chatId) {
+              send(200, {
+                success: true,
+                simulated: true,
+                description: 'Local simulation — set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in .env.local for live Telegram alerts.'
+              });
+              return;
+            }
+            process.env.TELEGRAM_BOT_TOKEN = token;
+            process.env.TELEGRAM_CHAT_ID = chatId;
 
-                const cleanPhone = (data.phone || '').replace(/[^\d+]/g, '');
-                const formattedMessage = `
-⚡ <b>ახალი საინჟინრო შეკვეთა — VECTOR HUB</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-👤 <b>დამკვეთი:</b> ${escapeHtml(data.name || '—')}
-🏢 <b>კომპანია:</b> ${escapeHtml(data.company || '—')}
-📞 <b>ტელეფონი:</b> <code>${escapeHtml(data.phone || '—')}</code>
-✉️ <b>ელ-ფოსტა:</b> ${escapeHtml(data.email || '—')}
-📍 <b>ქალაქი:</b> ${escapeHtml(data.city || 'თბილისი')}
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-📐 <b>პროდუქცია:</b> <b>${escapeHtml((data.medium || '3D ასოები').toUpperCase())}</b>
-📝 <b>სპეციფიკაცია & შენიშვნები:</b>
-<pre>${escapeHtml(data.notes || '—')}</pre>
-${data.fileAttached || data.fileName ? `📎 <b>მიმაგრებული ფაილი:</b> <code>${escapeHtml(data.fileName || data.fileAttached)}</code>\n` : ''}━━━━━━━━━━━━━━━━━━━━━━━━━━
-⏰ <b>დრო:</b> ${escapeHtml(data.timestamp || new Date().toLocaleString('ka-GE', { timeZone: 'Asia/Tbilisi' }))}
-`;
-
-                const inlineKeyboard = cleanPhone ? {
-                  inline_keyboard: [
-                    [
-                      {
-                        text: '💬 WhatsApp-ში მიწერა',
-                        url: `https://wa.me/${cleanPhone.replace('+', '')}?text=${encodeURIComponent('გამარჯობა ' + (data.name || '') + ', გიკავშირდებით Vector Hub Georgia-დან.')}`
-                      }
-                    ]
-                  ]
-                } : undefined;
-
-                const tgRes = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    chat_id: chatId,
-                    text: formattedMessage,
-                    parse_mode: 'HTML',
-                    disable_web_page_preview: true,
-                    reply_markup: inlineKeyboard
-                  })
-                });
-
-                const tgData = await tgRes.json();
-
-                // If physical file was uploaded, dispatch via sendDocument
-                let docSent = false;
-                if (data.fileData) {
-                  try {
-                    const base64Data = data.fileData.includes(',') ? data.fileData.split(',')[1] : data.fileData;
-                    const fileBuffer = Buffer.from(base64Data, 'base64');
-                    const effectiveFileName = data.fileName || data.fileAttached || 'blueprint.pdf';
-                    const effectiveMimeType = data.fileType || 'application/octet-stream';
-                    const blob = new Blob([fileBuffer], { type: effectiveMimeType });
-
-                    const docFormData = new FormData();
-                    docFormData.append('chat_id', chatId);
-                    docFormData.append('document', blob, effectiveFileName);
-                    docFormData.append('caption', `📎 <b>${escapeHtml(effectiveFileName)}</b>\n👤 ${escapeHtml(data.name || 'კლიენტი')}${data.company ? ` • ${escapeHtml(data.company)}` : ''}`);
-                    docFormData.append('parse_mode', 'HTML');
-
-                    const docRes = await fetch(`https://api.telegram.org/bot${token}/sendDocument`, {
-                      method: 'POST',
-                      body: docFormData
-                    });
-                    const docResult = await docRes.json();
-                    docSent = docResult.ok;
-                    if (!docResult.ok) {
-                      console.warn('Dev server sendDocument warning:', docResult);
-                    }
-                  } catch (docErr) {
-                    console.error('Dev server error sending document to Telegram:', docErr);
-                  }
-                }
-
-                res.statusCode = tgData.ok ? 200 : 400;
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify({ ...tgData, docSent }));
-              } catch (err) {
-                res.statusCode = 500;
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify({ ok: false, description: err.message }));
-              }
-            });
+            const { default: handler } = await server.ssrLoadModule('/api/inquiry.js');
+            const vercelRes = {
+              status(code) { res.statusCode = code; return vercelRes; },
+              json(payload) { send(res.statusCode, payload); return vercelRes; }
+            };
+            await handler(Object.assign(req, { body }), vercelRes);
           });
         }
       }
     ]
   };
 });
-
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}

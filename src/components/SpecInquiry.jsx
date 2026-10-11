@@ -185,6 +185,17 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
         <div className="inquiry-grid">
           {/* Left: Swiss Inquiry Form */}
           <form className="inquiry-form" onSubmit={handleSubmit}>
+            {/* Honeypot — invisible to people, bots fill it and the API discards the request */}
+            <input
+              type="text"
+              name="website"
+              className="form-honeypot"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              value={formData.website || ''}
+              onChange={handleChange}
+            />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="form-group-block">
                 <label className="form-label-mono" htmlFor="inquiry-name">{t.formName}</label>
