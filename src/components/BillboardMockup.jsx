@@ -4,7 +4,7 @@ import { getTranslation } from '../i18n/translations';
 import { CARD_STUDIO_ENABLED } from '../config/features';
 import RalColorPicker from './RalColorPicker';
 import { ralColor, metalFinish, finishLabel } from '../data/finishes';
-import { SIGN_LAYOUTS, DEFAULT_SIGN_TEXTS, SIGN_FONTS, SIZE_STEPS, slotLang } from '../data/signLayouts';
+import { SIGN_LAYOUTS, DEFAULT_SIGN_TEXTS, SIGN_FONTS, LETTER_HEIGHT, slotLang } from '../data/signLayouts';
 
 // Loaded on demand so the card studio costs nothing while it is switched off
 const CardStage3D = lazy(() => import('./CardStage3D'));
@@ -33,7 +33,10 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
   const [signType, setSignType] = useState('letters'); // 'letters' | 'box'
   const [signLayout, setSignLayout] = useState('ka_logo_en'); // see SIGN_LAYOUTS
   const [signTexts, setSignTexts] = useState(DEFAULT_SIGN_TEXTS);
-  const [signScale, setSignScale] = useState(1); // letter size relative to "fits the panel"
+  const [letterHeightCm, setLetterHeightCm] = useState(LETTER_HEIGHT.default); // physical letter height, cm
+  const [customPhoto, setCustomPhoto] = useState(null); // { src, w, h, name } – the customer's own facade
+  const [wallWidthM, setWallWidthM] = useState(10); // how wide the customer's photo is, in metres
+  const facadeInputRef = useRef(null);
   const [georgianFont, setGeorgianFont] = useState('sans'); // Mtavruli: 'sans' | 'square' | 'serif'
   const [faceFinish, setFaceFinish] = useState(() => metalFinish('brass'));
   const [sideFinish, setSideFinish] = useState(() => metalFinish('brass'));
@@ -383,14 +386,33 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
     .map((sl) => (sl === 'logo' ? `[${ts.logo}${logoFile ? `: ${logoFile.name}` : ''}]` : signTexts[sl]))
     .filter(Boolean)
     .join(' · ');
-  const letterCm = signMetrics?.letterH ? Math.round(signMetrics.letterH * 100) : null;
-  const stepScale = (dir) => setSignScale((v) => Math.min(SIZE_STEPS.max, Math.max(SIZE_STEPS.min, Math.round((v + dir * SIZE_STEPS.step) * 10) / 10)));
+  const clampHeight = (v) => Math.min(LETTER_HEIGHT.max, Math.max(LETTER_HEIGHT.min, Math.round(v)));
+  const stepHeight = (dir) => setLetterHeightCm((v) => clampHeight(v + dir * LETTER_HEIGHT.step));
+
+  // The customer's facade: downscaled in the browser (nothing is uploaded) so the texture stays light
+  const handleFacadeUpload = (file) => {
+    if (!file || !file.type.startsWith('image/')) return;
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, 2048 / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.naturalWidth * k);
+      c.height = Math.round(img.naturalHeight * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      setCustomPhoto({ src: c.toDataURL('image/jpeg', 0.9), w: c.width, h: c.height, name: file.name });
+    };
+    img.onerror = () => URL.revokeObjectURL(url);
+    img.src = url;
+  };
   const lightingLabel = { front: ts.lightFront, back: ts.lightBack, off: ts.lightOff }[lightingType];
   const usesPaint = [faceFinish, sideFinish, ...(signType === 'box' ? [boxFinish] : [])].some((f) => !f.metal);
   const signSpecLine = [
     signType === 'box' ? ts.typeBox : ts.typeLetters,
     ...(layoutHasKa ? [`${ts.fontShort}: ${SIGN_FONTS.find((f) => f.id === georgianFont)?.full} (Mtavruli)`] : []),
-    ...(letterCm ? [`${ts.letterHeight} ≈ ${letterCm} cm`] : []),
+    `${ts.letterHeight} ${letterHeightCm} cm`,
+    ...(customPhoto ? [`${ts.facadeOwn}: ${customPhoto.name}`] : []),
     `${ts.face}: ${finishLabel(faceFinish)}`,
     `${ts.sides}: ${finishLabel(sideFinish)}`,
     ...(signType === 'box' ? [`${ts.box}: ${finishLabel(boxFinish)}`] : []),
@@ -423,6 +445,10 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
   };
 
   const currentLoc = LOCATIONS[selectedLoc] || LOCATIONS.letters;
+  // The 3D stage reacts to src + widthM only, so a fresh object per render is fine
+  const signPhoto = customPhoto
+    ? { src: customPhoto.src, w: customPhoto.w, h: customPhoto.h, widthM: wallWidthM, custom: true, alt: customPhoto.name }
+    : { src: currentLoc.image, alt: currentLoc.name };
 
   useEffect(() => {
     if (!currentLoc.isCardStudio || document.querySelector('link[data-card-fonts]')) return;
@@ -681,14 +707,10 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
                     <Suspense fallback={<div className="sign3d-status">{ts.loading}</div>}>
                       <SignStage3D
                         ref={signStageRef}
-                        photo={{
-                          src: currentLoc.image,
-                          srcSet: `${currentLoc.image.replace('.webp', '-768.webp')} 768w, ${currentLoc.image} 1376w`,
-                          alt: currentLoc.name,
-                        }}
+                        photo={signPhoto}
                         items={signItems}
                         logo={signLogo}
-                        sizeScale={signScale}
+                        letterHeightCm={letterHeightCm}
                         signType={signType}
                         depthMm={letterDepth}
                         face={faceFinish}
@@ -912,6 +934,50 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
 
                 {signStep === 0 && (
                   <>
+                    {/* Backdrop: sample facade or the customer's own photo */}
+                    <div className="control-block">
+                      <div className="control-title"><span>{ts.facadeTitle}</span></div>
+                      <Segmented
+                        value={customPhoto ? 'own' : 'stock'}
+                        onChange={(v) => (v === 'stock' ? setCustomPhoto(null) : facadeInputRef.current?.click())}
+                        options={[{ val: 'stock', label: ts.facadeStock }, { val: 'own', label: ts.facadeOwn }]}
+                      />
+                      <input
+                        type="file"
+                        ref={facadeInputRef}
+                        hidden
+                        accept="image/jpeg,image/png,image/webp,image/heic"
+                        onChange={(e) => { handleFacadeUpload(e.target.files?.[0]); e.target.value = ''; }}
+                      />
+                      {customPhoto ? (
+                        <>
+                          <div className="sign-wall-row">
+                            <button type="button" className="sign-logo-upload" onClick={() => facadeInputRef.current?.click()}>
+                              <Upload size={13} />
+                              <span>{customPhoto.name}</span>
+                            </button>
+                            <label className="sign-wall-width" title={ts.wallWidth}>
+                              <span>{ts.wallWidthShort}</span>
+                              <input
+                                type="number"
+                                inputMode="decimal"
+                                min={2}
+                                max={80}
+                                step={0.5}
+                                value={wallWidthM}
+                                onChange={(e) => e.target.value && setWallWidthM(Math.min(80, Math.max(2, Number(e.target.value))))}
+                                aria-label={ts.wallWidth}
+                              />
+                              <span>{ts.m}</span>
+                            </label>
+                          </div>
+                          <span className="sign-hint">{ts.wallWidthHint}</span>
+                        </>
+                      ) : (
+                        <span className="sign-hint">{ts.facadeHint}</span>
+                      )}
+                    </div>
+
                     {/* Composition: one row, left to right */}
                     <div className="control-block">
                       <div className="control-title"><span>{ts.layoutTitle}</span></div>
@@ -969,18 +1035,30 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
                           </label>
                         )}
                         <div className="sign-size-stepper" role="group" aria-label={ts.letterHeight}>
-                          <button type="button" onClick={() => stepScale(-1)} disabled={signScale <= SIZE_STEPS.min} aria-label={ts.smaller}>
+                          <button type="button" onClick={() => stepHeight(-1)} disabled={letterHeightCm <= LETTER_HEIGHT.min} aria-label={ts.smaller}>
                             <Minus size={13} />
                           </button>
-                          <span className="sign-size-value" title={ts.letterHeight}>
-                            {letterCm ? `${letterCm} ${ts.cm}` : '—'}
-                          </span>
-                          <button type="button" onClick={() => stepScale(1)} disabled={signScale >= SIZE_STEPS.max} aria-label={ts.bigger}>
+                          <label className="sign-size-value" title={ts.letterHeight}>
+                            <input
+                              type="number"
+                              inputMode="numeric"
+                              min={LETTER_HEIGHT.min}
+                              max={LETTER_HEIGHT.max}
+                              step={LETTER_HEIGHT.step}
+                              value={letterHeightCm}
+                              onChange={(e) => e.target.value && setLetterHeightCm(clampHeight(Number(e.target.value)))}
+                              aria-label={`${ts.letterHeight}, ${ts.cm}`}
+                            />
+                            <span>{ts.cm}</span>
+                          </label>
+                          <button type="button" onClick={() => stepHeight(1)} disabled={letterHeightCm >= LETTER_HEIGHT.max} aria-label={ts.bigger}>
                             <Plus size={13} />
                           </button>
                         </div>
                       </div>
-                      {layoutHasKa && <span className="sign-hint">{ts.fontHint}</span>}
+                      <span className="sign-hint">
+                        {ts.signSize}: {signSizeLabel}{layoutHasKa ? ` • ${ts.fontHint}` : ''}
+                      </span>
                     </div>
 
                     {layoutHasLogo && (

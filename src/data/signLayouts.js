@@ -26,4 +26,5 @@ export const SIGN_FONTS = [
   { id: 'serif', label: 'Noto Serif Bold', full: 'Noto Serif Georgian Bold' },
 ];
 
-export const SIZE_STEPS = { min: 0.5, max: 1.5, step: 0.1 };
+// Physical letter height in cm (cap height of the letters)
+export const LETTER_HEIGHT = { default: 20, min: 5, max: 150, step: 5 };

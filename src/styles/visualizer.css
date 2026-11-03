@@ -639,9 +639,11 @@
 }
 
 .sign-size-value {
-  min-width: 64px;
-  display: grid;
-  place-items: center;
+  min-width: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
   border-left: 1px solid var(--ink-hairline);
   border-right: 1px solid var(--ink-hairline);
   font-family: var(--font-mono);
@@ -742,6 +744,49 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.sign-size-value input,
+.sign-wall-width input {
+  width: 3.2em;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-align: right;
+  -moz-appearance: textfield;
+}
+
+.sign-size-value input::-webkit-inner-spin-button,
+.sign-size-value input::-webkit-outer-spin-button,
+.sign-wall-width input::-webkit-inner-spin-button,
+.sign-wall-width input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.sign-wall-row {
+  display: flex;
+  gap: 6px;
+}
+
+.sign-wall-width {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 10px;
+  border: 1px solid var(--ink-primary);
+  background: var(--bg-main);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ink-primary);
+  flex-shrink: 0;
+}
+
+.sign-wall-width span:first-child {
+  color: var(--ink-secondary);
+  font-weight: 400;
 }
 
 /* RAL colour picker */
