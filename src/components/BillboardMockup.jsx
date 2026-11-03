@@ -1,10 +1,15 @@
-import React, { useState, useRef, useEffect, lazy, Suspense } from 'react';
-import { Download, Sun, Moon, Upload, ArrowRight, Sparkles, Image as ImageIcon, ShieldCheck, Wrench, Layers, Loader2, RotateCw, Quote } from 'lucide-react';
+import React, { useState, useRef, useEffect, useMemo, lazy, Suspense } from 'react';
+import { Download, Sun, Moon, Upload, ArrowRight, Sparkles, Image as ImageIcon, ShieldCheck, Wrench, Layers, Loader2, RotateCw, Quote, ZoomIn, ZoomOut, ChevronDown, X, Minus, Plus } from 'lucide-react';
 import { getTranslation } from '../i18n/translations';
 import { CARD_STUDIO_ENABLED } from '../config/features';
+import RalColorPicker from './RalColorPicker';
+import { ralColor, metalFinish, finishLabel } from '../data/finishes';
+import { SIGN_LAYOUTS, DEFAULT_SIGN_TEXTS, SIGN_FONTS, SIZE_STEPS, slotLang } from '../data/signLayouts';
 
 // Loaded on demand so the card studio costs nothing while it is switched off
 const CardStage3D = lazy(() => import('./CardStage3D'));
+// three.js only loads once the 3D letters scene is on screen
+const SignStage3D = lazy(() => import('./SignStage3D'));
 const CARD_FONTS_HREF = 'https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Cinzel:wght@400;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap';
 
 export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) {
@@ -17,12 +22,32 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
   const [isExporting, setIsExporting] = useState(false);
 
   // Custom Designer State
-  const [headline, setHeadline] = useState('VECTOR HUB');
+  const [headline, setHeadline] = useState('ვექტორ ჰაბი');
   const [subtext, setSubtext] = useState('ARCHITECTURAL SIGNAGE STUDIO');
   const [activeTheme, setActiveTheme] = useState('gold'); // 'gold', 'white', 'cyan', 'emerald'
   const [activePreset, setActivePreset] = useState('vector');
   const [letterDepth, setLetterDepth] = useState(60); // 30, 60, 100 mm physical extrusion
-  const [lightingType, setLightingType] = useState('halo'); // 'halo', 'front', 'dual'
+  const [lightingType, setLightingType] = useState('back'); // 'front', 'back' (halo), 'off'
+
+  // 3D sign studio (letters scene)
+  const [signType, setSignType] = useState('letters'); // 'letters' | 'box'
+  const [signLayout, setSignLayout] = useState('ka_logo_en'); // see SIGN_LAYOUTS
+  const [signTexts, setSignTexts] = useState(DEFAULT_SIGN_TEXTS);
+  const [signScale, setSignScale] = useState(1); // letter size relative to "fits the panel"
+  const [georgianFont, setGeorgianFont] = useState('sans'); // Mtavruli: 'sans' | 'square' | 'serif'
+  const [faceFinish, setFaceFinish] = useState(() => metalFinish('brass'));
+  const [sideFinish, setSideFinish] = useState(() => metalFinish('brass'));
+  const [boxFinish, setBoxFinish] = useState(() => ralColor('7016'));
+  const [colorTarget, setColorTarget] = useState('face'); // 'face' | 'side' | 'box'
+  const [ledTemp, setLedTemp] = useState(3000); // 3000 | 6500
+  const [colorOpen, setColorOpen] = useState(false);
+  const [paintGloss, setPaintGloss] = useState('matte'); // RAL paint: 'matte' | 'gloss'
+  const [signStep, setSignStep] = useState(0);
+  const [signMetrics, setSignMetrics] = useState(null); // visualised size in metres
+  const signStageRef = useRef(null);
+  const [logoFile, setLogoFile] = useState(null); // { kind: 'svg' | 'image', svgText?, imageSrc?, name }
+  const [signZoom, setSignZoom] = useState(false); // overview ↔ close-up on the sign
+  const logoInputRef = useRef(null);
 
   // Card Studio State (American Psycho Suite)
   const cardFormat = 'business_card';
@@ -318,7 +343,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
     {
       id: 'vector',
       name: 'Vector Hub',
-      headline: 'VECTOR HUB',
+      headline: 'ვექტორ ჰაბი',
       subtext: 'ARCHITECTURAL SIGNAGE STUDIO',
       theme: 'gold',
       loc: 'letters'
@@ -341,50 +366,60 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
     }
   ];
 
-  // Dynamic 3D Physical Extrusion & Bevel Engine
-  const get3DLetterStyles = (theme, depth, lighting, isNight) => {
-    const steps = depth === 100 ? 12 : depth === 30 ? 4 : 8;
-    const shadowLayers = [];
+  const ts = t.sign3d || {};
 
-    // Top crisp specular edge
-    shadowLayers.push(`0 -1.5px 0 ${theme.id === 'white' ? '#ffffff' : 'rgba(255, 255, 255, 0.95)'}`);
+  // Lines on the sign: Georgian, Georgian + English underneath, or English only
+  // Memoised so the 3D stage only rebuilds geometry when the design really changes
+  const layout = SIGN_LAYOUTS.find((l) => l.id === signLayout) || SIGN_LAYOUTS[0];
+  const layoutHasLogo = layout.slots.includes('logo');
+  const layoutHasKa = layout.slots.some((sl) => slotLang(sl) === 'ka');
+  const signItems = useMemo(() => layout.slots.map((sl) => (sl === 'logo'
+    ? { kind: 'logo' }
+    : { kind: 'text', text: signTexts[sl] || '' })), [layout, signTexts]);
+  const signLogo = useMemo(() => (layoutHasLogo
+    ? { kind: logoFile?.kind || 'default', svgText: logoFile?.svgText, imageSrc: logoFile?.imageSrc }
+    : null), [layoutHasLogo, logoFile]);
+  const signTextSummary = layout.slots
+    .map((sl) => (sl === 'logo' ? `[${ts.logo}${logoFile ? `: ${logoFile.name}` : ''}]` : signTexts[sl]))
+    .filter(Boolean)
+    .join(' · ');
+  const letterCm = signMetrics?.letterH ? Math.round(signMetrics.letterH * 100) : null;
+  const stepScale = (dir) => setSignScale((v) => Math.min(SIZE_STEPS.max, Math.max(SIZE_STEPS.min, Math.round((v + dir * SIZE_STEPS.step) * 10) / 10)));
+  const lightingLabel = { front: ts.lightFront, back: ts.lightBack, off: ts.lightOff }[lightingType];
+  const usesPaint = [faceFinish, sideFinish, ...(signType === 'box' ? [boxFinish] : [])].some((f) => !f.metal);
+  const signSpecLine = [
+    signType === 'box' ? ts.typeBox : ts.typeLetters,
+    ...(layoutHasKa ? [`${ts.fontShort}: ${SIGN_FONTS.find((f) => f.id === georgianFont)?.full} (Mtavruli)`] : []),
+    ...(letterCm ? [`${ts.letterHeight} ≈ ${letterCm} cm`] : []),
+    `${ts.face}: ${finishLabel(faceFinish)}`,
+    `${ts.sides}: ${finishLabel(sideFinish)}`,
+    ...(signType === 'box' ? [`${ts.box}: ${finishLabel(boxFinish)}`] : []),
+    ...(usesPaint ? [paintGloss === 'gloss' ? ts.gloss : ts.matte] : []),
+    `${letterDepth}mm`,
+    lightingType === 'off' ? lightingLabel : `${lightingLabel} ${ledTemp}K`,
+  ].join(' • ');
 
-    // Directional metallic return side-walls
-    for (let i = 1; i <= steps; i++) {
-      let sideColor;
-      if (theme.id === 'gold') {
-        sideColor = `rgb(${Math.max(40, 145 - i * 9)}, ${Math.max(25, 110 - i * 7)}, ${Math.max(5, 20 - i * 2)})`;
-      } else if (theme.id === 'white') {
-        sideColor = `rgb(${Math.max(25, 150 - i * 10)}, ${Math.max(35, 165 - i * 11)}, ${Math.max(45, 185 - i * 12)})`;
-      } else if (theme.id === 'cyan') {
-        sideColor = `rgb(0, ${Math.max(40, 180 - i * 12)}, ${Math.max(60, 210 - i * 13)})`;
-      } else {
-        sideColor = `rgb(0, ${Math.max(40, 170 - i * 12)}, ${Math.max(25, 100 - i * 7)})`;
-      }
-      shadowLayers.push(`0 ${i}px 0 ${sideColor}`);
-    }
-
-    // Physical ambient occlusion & drop shadow on stone wall
-    shadowLayers.push(`0 ${steps + 2}px ${steps + 5}px rgba(0, 0, 0, 0.85)`);
-    shadowLayers.push(`0 ${steps + 6}px ${steps * 2 + 12}px rgba(0, 0, 0, 0.95)`);
-
-    // Halo dispersion glow
-    if (lighting === 'halo' || lighting === 'dual') {
-      const mult = isNight ? 1.0 : 0.5;
-      shadowLayers.push(`0 0 ${20 * mult}px ${theme.glowColor}`);
-      shadowLayers.push(`0 0 ${50 * mult}px ${theme.glowColor}`);
-      if (isNight) {
-        shadowLayers.push(`0 0 90px ${theme.glowColor}`);
-      }
-    }
-
-    return {
-      textShadow: shadowLayers.join(', '),
-      color: theme.primary,
-      backgroundImage: lighting === 'front' && isNight
-        ? `linear-gradient(180deg, #ffffff 0%, ${theme.primary} 100%)`
-        : theme.faceGradient
+  const handleLogoUpload = (file) => {
+    if (!file) return;
+    const isSvg = file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setLogoFile(isSvg
+        ? { kind: 'svg', svgText: e.target.result, name: file.name }
+        : { kind: 'image', imageSrc: e.target.result, name: file.name });
     };
+    if (isSvg) reader.readAsText(file); else reader.readAsDataURL(file);
+  };
+
+  const colorValue = { face: faceFinish, side: sideFinish, box: boxFinish }[colorTarget] || faceFinish;
+  const signSizeLabel = signMetrics ? `≈ ${signMetrics.w.toFixed(2)} × ${signMetrics.h.toFixed(2)} m` : '—';
+  const setColorValue = (f) => {
+    if (colorTarget === 'face') {
+      setFaceFinish(f);
+      // Returns follow the face until they are picked separately
+      if (finishLabel(sideFinish) === finishLabel(faceFinish)) setSideFinish(f);
+    } else if (colorTarget === 'side') setSideFinish(f);
+    else setBoxFinish(f);
   };
 
   const currentLoc = LOCATIONS[selectedLoc] || LOCATIONS.letters;
@@ -437,6 +472,11 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
     setIsExporting(true);
 
     try {
+      let dataUrl = null;
+      if (currentLoc.is3DLetters && signStageRef.current) {
+        // Composited by the 3D stage itself: 2× WebGL frame + screen-blended light
+        dataUrl = await signStageRef.current.exportPng(2);
+      } else {
       const { default: html2canvas } = await import('html2canvas');
       const canvas = await html2canvas(stageContainerRef.current, {
         useCORS: true,
@@ -450,61 +490,15 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
             img.removeAttribute('srcset');
             img.removeAttribute('loading');
           });
-          // 1. Flatten 3D perspective wrapper in clone so perspective rotate doesn't distort html2canvas
-          const lettersWrapper = clonedDoc.querySelector('.letters-3d-wrapper');
-          if (lettersWrapper) {
-            lettersWrapper.style.transform = 'none';
-          }
-
-          // 2. html2canvas does not support -webkit-background-clip: text with transparent color.
-          // In the cloned DOM, explicitly fill the letter face with solid metallic theme color
-          // and apply crisp, calibrated 3D extrusion shadows.
-          const titleEl = clonedDoc.querySelector('.facade-brand-title');
-          if (titleEl) {
-            titleEl.style.color = currentTheme.primary;
-            titleEl.style.webkitTextFillColor = currentTheme.primary;
-            titleEl.style.backgroundImage = 'none';
-            titleEl.style.webkitBackgroundClip = 'initial';
-            titleEl.style.backgroundClip = 'initial';
-
-            const exportSteps = letterDepth === 100 ? 6 : letterDepth === 30 ? 2 : 4;
-            const exportShadows = ['0 -1px 0 rgba(255, 255, 255, 0.95)'];
-            for (let i = 1; i <= exportSteps; i++) {
-              let sideColor;
-              if (currentTheme.id === 'gold') {
-                sideColor = `rgb(${Math.max(40, 145 - i * 10)}, ${Math.max(25, 110 - i * 8)}, ${Math.max(5, 20 - i * 2)})`;
-              } else if (currentTheme.id === 'white') {
-                sideColor = `rgb(${Math.max(25, 150 - i * 11)}, ${Math.max(35, 165 - i * 12)}, ${Math.max(45, 185 - i * 13)})`;
-              } else if (currentTheme.id === 'cyan') {
-                sideColor = `rgb(0, ${Math.max(40, 180 - i * 13)}, ${Math.max(60, 210 - i * 14)})`;
-              } else {
-                sideColor = `rgb(0, ${Math.max(40, 170 - i * 13)}, ${Math.max(25, 100 - i * 8)})`;
-              }
-              exportShadows.push(`0 ${i}px 0 ${sideColor}`);
-            }
-            exportShadows.push(`0 ${exportSteps + 2}px 6px rgba(0, 0, 0, 0.85)`);
-            if (lightingType === 'halo' || lightingType === 'dual') {
-              exportShadows.push(`0 0 16px ${currentTheme.glowColor}`);
-            }
-            titleEl.style.textShadow = exportShadows.join(', ');
-          }
-
-          // 3. Subtext formatting in clone
-          const subEl = clonedDoc.querySelector('.facade-brand-sub');
-          if (subEl) {
-            subEl.style.color = currentTheme.sub;
-            subEl.style.webkitTextFillColor = currentTheme.sub;
-            subEl.style.backgroundImage = 'none';
-            subEl.style.webkitBackgroundClip = 'initial';
-            subEl.style.backgroundClip = 'initial';
-            subEl.style.textShadow = currentTheme.subShadow || 'none';
-          }
         }
       });
+      dataUrl = canvas.toDataURL('image/png', 1.0);
+      }
+      if (!dataUrl) return;
 
       const link = document.createElement('a');
       link.download = getVisualizerDownloadName(selectedLoc);
-      link.href = canvas.toDataURL('image/png', 1.0);
+      link.href = dataUrl;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -542,10 +536,12 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
       // Must match an <option> value in SpecInquiry's medium select
       productType: { letters: 'letters', rustaveli: 'lightbox', vake: 'billboard', kakheti: 'billboard' }[selectedLoc] || 'turnkey',
       inputMode: 'visualizer_spec',
-      brandText: inputMode === 'upload' ? 'Custom Uploaded Design' : `${headline} (${currentLoc.name})`,
-      dimensions: currentLoc.scale,
-      material: currentLoc.is3DLetters ? `${currentLoc.spec} • ${letterDepth}mm Return • ${lightingType}` : currentLoc.spec,
-      lighting: currentLoc.is3DLetters ? lightingType : 'front6500',
+      brandText: currentLoc.is3DLetters
+        ? `${signTextSummary} (${currentLoc.name})`
+        : inputMode === 'upload' ? 'Custom Uploaded Design' : `${headline} (${currentLoc.name})`,
+      dimensions: currentLoc.is3DLetters ? signSizeLabel : currentLoc.scale,
+      material: currentLoc.is3DLetters ? signSpecLine : currentLoc.spec,
+      lighting: currentLoc.is3DLetters ? (lightingType === 'off' ? lightingLabel : `${lightingLabel} ${ledTemp}K`) : 'front6500',
       structure: t('structureEstimate', { name: currentLoc.name, standard: currentLoc.standard }),
       turnaround: currentLoc.leadTime
     };
@@ -582,7 +578,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
             >
               <span className="tab-status-dot"></span>
               <span className="tab-loc-title">{loc.shortName || loc.name}</span>
-              <span className="tab-loc-dimension">({loc.scale.split(' ')[0]})</span>
+              <span className="tab-loc-dimension">({loc.is3DLetters ? '3D' : loc.scale.split(' ')[0]})</span>
             </button>
           ))}
         </div>
@@ -598,15 +594,27 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
                 <span className="tag-swiss">{currentLoc.name}</span>
               </div>
               <div className="stage-header-actions">
+                {currentLoc.is3DLetters && (
+                  <button
+                    className={`cad-toolbar-btn ${signZoom ? 'active' : ''}`}
+                    onClick={() => setSignZoom(!signZoom)}
+                    title={signZoom ? ts.zoomOut : ts.zoomIn}
+                    data-cursor-text={signZoom ? 'FACADE' : 'CLOSE-UP'}
+                    type="button"
+                  >
+                    {signZoom ? <ZoomOut size={13} /> : <ZoomIn size={13} />}
+                    <span>{signZoom ? ts.zoomOut : ts.zoomIn}</span>
+                  </button>
+                )}
                 <button
                   className={`cad-toolbar-btn ${nightMode ? 'active' : ''}`}
                   onClick={() => setNightMode(!nightMode)}
-                  title={nightMode ? t.mockupDay : t.mockupNight}
+                  title={nightMode ? (currentLoc.is3DLetters ? ts.dusk : t.mockupDay) : (currentLoc.is3DLetters ? ts.night : t.mockupNight)}
                   data-cursor-text={nightMode ? 'DAYLIGHT' : 'NIGHT LUX'}
                   type="button"
                 >
                   {nightMode ? <Sun size={13} /> : <Moon size={13} />}
-                  <span>{nightMode ? t.mockupDay : t.mockupNight}</span>
+                  <span>{nightMode ? (currentLoc.is3DLetters ? ts.dusk : t.mockupDay) : (currentLoc.is3DLetters ? ts.night : t.mockupNight)}</span>
                 </button>
                 <button
                   className="cad-toolbar-btn export-btn"
@@ -652,8 +660,8 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
                 </Suspense>
               ) : (
                 <>
-                  {/* Background High-Resolution Tbilisi Architectural Scene Photo */}
-                  <img
+                  {/* Background photo (the 3D letters scene renders its own, zoomable copy) */}
+                  {!currentLoc.is3DLetters && <img
                     src={currentLoc.image}
                     srcSet={`${currentLoc.image.replace('.webp', '-768.webp')} 768w, ${currentLoc.image} 1376w`}
                     sizes="(max-width: 1024px) 100vw, 720px"
@@ -663,14 +671,45 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
                     decoding="async"
                     alt={currentLoc.name}
                     className={`mockup-city-photo ${nightMode ? 'photo-night-grade' : 'photo-day-grade'}`}
-                  />
+                  />}
 
                   {/* Day/Night Volumetric Atmosphere Overlay */}
-                  {nightMode && <div className="photo-night-ambience-overlay"></div>}
+                  {nightMode && !currentLoc.is3DLetters && <div className="photo-night-ambience-overlay"></div>}
 
-                  {/* PERSPECTIVE PROJECTED DISPLAY / 3D LETTERS SIGNAGE */}
+                  {/* REAL-TIME 3D CHANNEL LETTERS / LIGHTBOX (three.js) */}
+                  {currentLoc.is3DLetters && (
+                    <Suspense fallback={<div className="sign3d-status">{ts.loading}</div>}>
+                      <SignStage3D
+                        ref={signStageRef}
+                        photo={{
+                          src: currentLoc.image,
+                          srcSet: `${currentLoc.image.replace('.webp', '-768.webp')} 768w, ${currentLoc.image} 1376w`,
+                          alt: currentLoc.name,
+                        }}
+                        items={signItems}
+                        logo={signLogo}
+                        sizeScale={signScale}
+                        signType={signType}
+                        depthMm={letterDepth}
+                        face={faceFinish}
+                        side={sideFinish}
+                        boxFinish={boxFinish}
+                        lighting={lightingType}
+                        ledTemp={ledTemp}
+                        night={nightMode}
+                        gloss={paintGloss}
+                        zoomed={signZoom}
+                        georgianFont={georgianFont}
+                        onMetrics={setSignMetrics}
+                        labels={{ loading: ts.loading, error: ts.fontError, dragHint: ts.dragHint, dragShort: ts.dragShort }}
+                      />
+                    </Suspense>
+                  )}
+
+                  {/* PERSPECTIVE PROJECTED DISPLAY */}
+                  {!currentLoc.is3DLetters && (
                   <div
-                    className={`billboard-perspective-screen ${currentLoc.is3DLetters ? 'screen-3d-letters-mode' : ''} ${nightMode ? 'screen-night-glow' : 'screen-day-glare'}`}
+                    className={`billboard-perspective-screen ${nightMode ? 'screen-night-glow' : 'screen-day-glare'}`}
                     style={{
                       top: currentLoc.screenBox.top,
                       left: currentLoc.screenBox.left,
@@ -682,46 +721,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
                       WebkitClipPath: currentLoc.screenBox.WebkitClipPath
                     }}
                   >
-                    {/* 1. Creative: 3D Facade Letters with Physical Return Walls & Halo Wall Wash */}
-                    {currentLoc.is3DLetters ? (
-                      <div className="facade-letters-container">
-                        {/* Layer 1: Ambient Halo Light Wash on Granite Wall */}
-                        {(lightingType === 'halo' || lightingType === 'dual') && (
-                          <div
-                            className="letters-wall-wash"
-                            style={{
-                              background: `radial-gradient(ellipse at 50% 50%, ${currentTheme.glowColor} 0%, transparent 70%)`,
-                              opacity: nightMode ? 0.85 : 0.4
-                            }}
-                          />
-                        )}
-
-                        {/* Layer 2: True 3D Physical Extruded Letters */}
-                        <div
-                          className="letters-3d-wrapper"
-                          style={{
-                            transform: `perspective(800px) rotateX(3deg) translateZ(${letterDepth / 5}px)`
-                          }}
-                        >
-                          <div
-                            className="facade-brand-title"
-                            style={get3DLetterStyles(currentTheme, letterDepth, lightingType, nightMode)}
-                          >
-                            {headline || 'VECTOR HUB'}
-                          </div>
-                          <div
-                            className="facade-brand-sub"
-                            style={{
-                              color: currentTheme.sub,
-                              backgroundImage: currentTheme.subGradient,
-                              textShadow: currentTheme.subShadow
-                            }}
-                          >
-                            {subtext || 'ARCHITECTURAL SIGNAGE STUDIO'}
-                          </div>
-                        </div>
-                      </div>
-                    ) : inputMode === 'upload' && uploadedImage ? (
+                    {inputMode === 'upload' && uploadedImage ? (
                       <div
                         className="screen-content-wrapper"
                         style={{
@@ -765,13 +765,12 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
                     )}
 
                     {/* LED Subpixel Matrix Overlay */}
-                    {!currentLoc.is3DLetters && <div className="screen-led-matrix-overlay" />}
+                    <div className="screen-led-matrix-overlay" />
 
                     {/* Photometric Glass Specular Reflection */}
-                    {!currentLoc.is3DLetters && (
-                      <div className={`screen-glass-reflection ${nightMode ? 'reflection-night' : 'reflection-day'}`} />
-                    )}
+                    <div className={`screen-glass-reflection ${nightMode ? 'reflection-night' : 'reflection-day'}`} />
                   </div>
+                  )}
                 </>
               )}
             </div>
@@ -779,8 +778,8 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
             {/* Streamlined Stage Footer Metrics */}
             <div className="mockup-stage-footer">
               <div className="stage-foot-item"><ShieldCheck size={12} className="foot-icon" /><span><strong>{t.footStandard}:</strong> {currentLoc.standard}</span></div>
-              <div className="stage-foot-item"><Layers size={12} className="foot-icon" /><span><strong>{t.footScale}:</strong> {currentLoc.scale}</span></div>
-              <div className="stage-foot-item"><Wrench size={12} className="foot-icon" /><span><strong>{t.footMaterial}:</strong> {currentLoc.spec}</span></div>
+              <div className="stage-foot-item"><Layers size={12} className="foot-icon" /><span><strong>{t.footScale}:</strong> {currentLoc.is3DLetters ? signSizeLabel : currentLoc.scale}</span></div>
+              <div className="stage-foot-item"><Wrench size={12} className="foot-icon" /><span><strong>{t.footMaterial}:</strong> {currentLoc.is3DLetters ? `${finishLabel(faceFinish)} • ${lightingLabel}` : currentLoc.spec}</span></div>
             </div>
           </div>
 
@@ -892,6 +891,253 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
                   </div>
                 </div>
               </>
+            ) : currentLoc.is3DLetters ? (
+              /* ================= 3D SIGN STUDIO: three steps ================= */
+              <>
+                <div className="sign-steps" role="tablist">
+                  {[ts.step1, ts.step2, ts.step3].map((label, i) => (
+                    <button
+                      key={label}
+                      type="button"
+                      role="tab"
+                      aria-selected={signStep === i}
+                      className={`sign-step-btn ${signStep === i ? 'active' : ''}`}
+                      onClick={() => setSignStep(i)}
+                    >
+                      <span className="sign-step-num">{i + 1}</span>
+                      <span>{label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {signStep === 0 && (
+                  <>
+                    {/* Composition: one row, left to right */}
+                    <div className="control-block">
+                      <div className="control-title"><span>{ts.layoutTitle}</span></div>
+                      <div className="sign-layouts" role="radiogroup" aria-label={ts.layoutTitle}>
+                        {SIGN_LAYOUTS.map((l) => (
+                          <button
+                            key={l.id}
+                            type="button"
+                            role="radio"
+                            aria-checked={signLayout === l.id}
+                            className={`sign-layout-btn ${signLayout === l.id ? 'active' : ''}`}
+                            onClick={() => setSignLayout(l.id)}
+                          >
+                            {l.slots.map((sl, i) => (
+                              <span key={i} className={`sign-layout-token is-${slotLang(sl)}`}>
+                                {sl === 'logo' ? '' : slotLang(sl) === 'ka' ? 'ქართ' : 'EN'}
+                              </span>
+                            ))}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* One field per text slot, in sign order */}
+                    <div className="control-block">
+                      <div className="control-title"><span>{t.mockupBrandInput}</span></div>
+                      {layout.slots.filter((sl) => sl !== 'logo').map((sl) => {
+                        const lang = slotLang(sl);
+                        const split = sl.length > 2;
+                        const label = `${lang === 'ka' ? ts.langKa : ts.langEn}${split ? ` — ${sl.endsWith('L') ? ts.sideLeft : ts.sideRight}` : ''}`;
+                        return (
+                          <label key={sl} className="sign-text-field">
+                            <span className={`sign-text-tag is-${lang}`}>{lang === 'ka' ? 'ქა' : 'EN'}</span>
+                            <input
+                              type="text"
+                              className="swiss-input"
+                              value={signTexts[sl]}
+                              onChange={(e) => setSignTexts((prev) => ({ ...prev, [sl]: e.target.value }))}
+                              placeholder={label}
+                              aria-label={label}
+                              maxLength={24}
+                            />
+                          </label>
+                        );
+                      })}
+
+                      {/* Font and size, right under the text */}
+                      <div className="sign-type-row">
+                        {layoutHasKa && (
+                          <label className="sign-font-select">
+                            <select value={georgianFont} onChange={(e) => setGeorgianFont(e.target.value)} aria-label={ts.fontShort}>
+                              {SIGN_FONTS.map((f) => <option key={f.id} value={f.id}>{f.label}</option>)}
+                            </select>
+                            <ChevronDown size={13} aria-hidden="true" />
+                          </label>
+                        )}
+                        <div className="sign-size-stepper" role="group" aria-label={ts.letterHeight}>
+                          <button type="button" onClick={() => stepScale(-1)} disabled={signScale <= SIZE_STEPS.min} aria-label={ts.smaller}>
+                            <Minus size={13} />
+                          </button>
+                          <span className="sign-size-value" title={ts.letterHeight}>
+                            {letterCm ? `${letterCm} ${ts.cm}` : '—'}
+                          </span>
+                          <button type="button" onClick={() => stepScale(1)} disabled={signScale >= SIZE_STEPS.max} aria-label={ts.bigger}>
+                            <Plus size={13} />
+                          </button>
+                        </div>
+                      </div>
+                      {layoutHasKa && <span className="sign-hint">{ts.fontHint}</span>}
+                    </div>
+
+                    {layoutHasLogo && (
+                      <div className="control-block">
+                        <div className="control-title"><span>{ts.logo}</span></div>
+                        <div className="sign-logo-row">
+                          <button type="button" className="sign-logo-upload" onClick={() => logoInputRef.current?.click()}>
+                            <Upload size={13} />
+                            <span>{logoFile ? logoFile.name : ts.logoUpload}</span>
+                          </button>
+                          {logoFile && (
+                            <button
+                              type="button"
+                              className="sign-logo-clear"
+                              onClick={() => setLogoFile(null)}
+                              title={ts.logoReset}
+                              aria-label={ts.logoReset}
+                            >
+                              <X size={13} />
+                            </button>
+                          )}
+                          <input
+                            type="file"
+                            ref={logoInputRef}
+                            hidden
+                            accept=".svg,image/svg+xml,image/png,image/webp,image/jpeg"
+                            onChange={(e) => { handleLogoUpload(e.target.files?.[0]); e.target.value = ''; }}
+                          />
+                        </div>
+                        <span className="sign-hint">{logoFile?.kind === 'image' ? ts.logoRasterHint : ts.logoHint}</span>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {signStep === 1 && (
+                  <>
+                    {/* Construction: standalone letters or lightbox */}
+                    <div className="control-block">
+                      <div className="control-title"><span>{ts.typeTitle}</span></div>
+                      <Segmented
+                        value={signType}
+                        onChange={(v) => {
+                          setSignType(v);
+                          if (v !== 'box' && colorTarget === 'box') { setColorTarget('face'); setColorOpen(false); }
+                        }}
+                        options={[{ val: 'letters', label: ts.typeLetters }, { val: 'box', label: ts.typeBox }]}
+                      />
+                    </div>
+
+                    {/* Colours: compact chips, the RAL catalogue opens on demand */}
+                    <div className="control-block">
+                      <div className="control-title"><span>{ts.colorTitle}</span></div>
+                      <div className="sign-color-targets">
+                        {[
+                          { val: 'face', label: ts.face, f: faceFinish },
+                          { val: 'side', label: ts.sides, f: sideFinish },
+                          ...(signType === 'box' ? [{ val: 'box', label: ts.box, f: boxFinish }] : []),
+                        ].map((o) => {
+                          const isOpen = colorOpen && colorTarget === o.val;
+                          return (
+                            <button
+                              key={o.val}
+                              type="button"
+                              className={`sign-color-target ${isOpen ? 'active' : ''}`}
+                              aria-expanded={isOpen}
+                              onClick={() => {
+                                setColorTarget(o.val);
+                                setColorOpen(!isOpen);
+                              }}
+                            >
+                              <span className={`ral-current-chip ${o.f.metal ? 'is-metal' : ''}`} style={{ '--swatch': o.f.hex }} />
+                              <span className="sign-color-target-text">
+                                <strong>{o.label}</strong>
+                                <span>{o.f.type === 'ral' ? `RAL ${o.f.code}` : o.f.name}</span>
+                              </span>
+                              <ChevronDown size={13} className={`sign-color-caret ${isOpen ? 'open' : ''}`} />
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {colorOpen && (
+                        <RalColorPicker
+                          value={colorValue}
+                          onChange={setColorValue}
+                          labels={{ metals: ts.metals, metal: ts.metal, popular: ts.popular, search: ts.search, noMatch: ts.noMatch }}
+                        />
+                      )}
+                    </div>
+
+                    {usesPaint && (
+                      <div className="control-block">
+                        <div className="control-title"><span>{ts.finishTitle}</span></div>
+                        <Segmented
+                          value={paintGloss}
+                          onChange={setPaintGloss}
+                          options={[{ val: 'matte', label: ts.matte }, { val: 'gloss', label: ts.gloss }]}
+                        />
+                      </div>
+                    )}
+
+                    {/* Depth */}
+                    <div className="control-block">
+                      <div className="control-title">
+                        <span>{signType === 'box' ? ts.boxDepthTitle : t.depthTitle}</span>
+                        <span className="badge-tag-mini">{signType === 'box' ? letterDepth + 60 : letterDepth} MM</span>
+                      </div>
+                      <Segmented
+                        value={letterDepth}
+                        onChange={setLetterDepth}
+                        options={[{ val: 30, label: t.depth30 }, { val: 60, label: t.depth60 }, { val: 100, label: t.depth100 }]}
+                      />
+                    </div>
+                  </>
+                )}
+
+                {signStep === 2 && (
+                  <>
+                    <div className="control-block">
+                      <div className="control-title"><span>{t.lightingTitle}</span></div>
+                      <Segmented
+                        value={lightingType}
+                        onChange={setLightingType}
+                        options={[{ val: 'front', label: ts.lightFront }, { val: 'back', label: ts.lightBack }, { val: 'off', label: ts.lightOff }]}
+                      />
+                      <span className="sign-hint">{{ front: ts.lightFrontHint, back: ts.lightBackHint, off: ts.lightOffHint }[lightingType]}</span>
+                    </div>
+                    {lightingType !== 'off' && (
+                      <div className="control-block">
+                        <div className="control-title"><span>{ts.ledTitle}</span></div>
+                        <Segmented
+                          value={ledTemp}
+                          onChange={setLedTemp}
+                          options={[{ val: 3000, label: ts.led3000 }, { val: 6500, label: ts.led6500 }]}
+                        />
+                      </div>
+                    )}
+                    <div className="control-block">
+                      <div className="control-title"><span>{ts.timeTitle}</span></div>
+                      <Segmented
+                        value={nightMode ? 'night' : 'dusk'}
+                        onChange={(v) => setNightMode(v === 'night')}
+                        options={[{ val: 'dusk', label: ts.dusk }, { val: 'night', label: ts.night }]}
+                      />
+                    </div>
+                  </>
+                )}
+
+                <div className="sign-step-nav">
+                  {signStep > 0 ? (
+                    <button type="button" className="sign-step-nav-btn" onClick={() => setSignStep(signStep - 1)}>← {ts.back}</button>
+                  ) : <span />}
+                  {signStep < 2 && (
+                    <button type="button" className="sign-step-nav-btn is-next" onClick={() => setSignStep(signStep + 1)}>{ts.next} →</button>
+                  )}
+                </div>
+              </>
             ) : (
               /* ================= EXISTING OUTDOOR BILLBOARD CONTROLS ================= */
               <>
@@ -994,58 +1240,6 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
                       </div>
                     </div>
 
-                    {/* 3D Dimensional Channel Letters Customization */}
-                    {selectedLoc === 'letters' && (
-                      <>
-                        {/* Depth Extrusion Selector */}
-                        <div className="control-block">
-                          <div className="control-title">
-                            <span>{t.depthTitle}</span>
-                            <span className="badge-tag-mini">{letterDepth} MM</span>
-                          </div>
-                          <div className="segmented-control">
-                            {[
-                              { val: 30, label: t.depth30 },
-                              { val: 60, label: t.depth60 },
-                              { val: 100, label: t.depth100 }
-                            ].map((d) => (
-                              <button
-                                key={d.val}
-                                className={`segment-btn ${letterDepth === d.val ? 'active' : ''}`}
-                                onClick={() => setLetterDepth(d.val)}
-                                type="button"
-                              >
-                                {d.label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Lighting System Selector */}
-                        <div className="control-block">
-                          <div className="control-title">
-                            <span>{t.lightingTitle}</span>
-                          </div>
-                          <div className="segmented-control">
-                            {[
-                              { val: 'halo', label: t.lightingHalo },
-                              { val: 'front', label: t.lightingFront },
-                              { val: 'dual', label: t.lightingDual }
-                            ].map((l) => (
-                              <button
-                                key={l.val}
-                                className={`segment-btn ${lightingType === l.val ? 'active' : ''}`}
-                                onClick={() => setLightingType(l.val)}
-                                type="button"
-                              >
-                                {l.label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </>
-                    )}
-
                     {/* Sample Presets */}
                     <div className="control-block">
                       <div className="presets-row">
@@ -1077,7 +1271,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
                   <span>{currentLoc.name}</span>
                 </div>
                 <div className="cta-spec-line">
-                  🛠️ {currentLoc.spec} • {currentLoc.leadTime}
+                  🛠️ {currentLoc.is3DLetters ? signSpecLine : currentLoc.spec} • {currentLoc.leadTime}
                 </div>
               </div>
 
@@ -1099,6 +1293,24 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
         </div>
       </div>
     </section>
+  );
+}
+
+function Segmented({ value, onChange, options }) {
+  return (
+    <div className="segmented-control">
+      {options.map((o) => (
+        <button
+          key={o.val}
+          className={`segment-btn ${value === o.val ? 'active' : ''}`}
+          onClick={() => onChange(o.val)}
+          aria-pressed={value === o.val}
+          type="button"
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
   );
 }
 

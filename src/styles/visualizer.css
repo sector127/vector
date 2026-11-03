@@ -88,6 +88,7 @@
   flex-direction: column;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
   overflow: hidden;
+  overflow: clip; /* clip can't be scrolled by focus/scrollIntoView, hidden can */
   position: relative;
 }
 
@@ -189,77 +190,69 @@
   filter: brightness(1.0);
 }
 
-/* 3D Dimensional Facade Letters Mode */
-.screen-3d-letters-mode {
-  box-shadow: none !important;
-  background: transparent !important;
-  overflow: visible !important;
+/* Real-time 3D sign: the facade photo is a textured wall inside the WebGL scene */
+.sign3d-host {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  overflow: hidden;
+  overflow: clip;
+  background: #06080d;
 }
 
-.facade-letters-container {
-  position: relative;
+.sign3d-host .photo-night-ambience-overlay {
+  z-index: 3;
+}
+
+.sign3d-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: block;
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  user-select: none;
+  cursor: grab;
+  touch-action: pan-y;
 }
 
-/* Layer 1: Ambient Halo Light Dispersion onto Granite Wall */
-.letters-wall-wash {
+.sign3d-canvas:active {
+  cursor: grabbing;
+}
+
+.sign3d-host.is-close .sign3d-canvas {
+  touch-action: none;
+}
+
+.sign3d-status {
   position: absolute;
-  inset: -25px -40px;
-  border-radius: 50%;
-  filter: blur(24px);
-  pointer-events: none;
-  z-index: 1;
-  transition: opacity 0.4s ease;
-}
-
-/* Layer 2: True 3D Physical Extrusion & Beveled Metallic Letters */
-.letters-3d-wrapper {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transform: perspective(600px) translateZ(12px);
-}
-
-.facade-brand-title {
-  font-family: var(--font-heading);
-  font-size: clamp(0.72rem, 1.4vw, 1.15rem);
-  font-weight: 900;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  line-height: 1.05;
-  white-space: nowrap;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: var(--letter-primary-color, #ffdf78);
-  display: inline-block;
-  transition: all 0.3s ease;
-}
-
-.facade-brand-sub {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 6px 10px;
+  background: rgba(6, 8, 13, 0.72);
+  color: #e9ecef;
   font-family: var(--font-mono);
-  font-size: clamp(0.36rem, 0.58vw, 0.5rem);
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  margin-top: 3px;
+  font-size: 0.7rem;
   white-space: nowrap;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: var(--letter-sub-color, #fcd34d);
-  display: inline-block;
-  transition: all 0.3s ease;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.sign3d-hint {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  background: rgba(6, 8, 13, 0.55);
+  color: rgba(233, 236, 239, 0.9);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  pointer-events: auto;
+  cursor: help;
+  z-index: 5;
 }
 
 .screen-content-wrapper {
@@ -367,6 +360,13 @@
   align-items: center;
   gap: 6px;
   white-space: nowrap;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.stage-foot-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stage-foot-item strong {
@@ -427,6 +427,481 @@
   flex-shrink: 0;
 }
 
+/* 3D sign controls */
+.sign-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--ink-primary);
+}
+
+.sign-step-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 6px;
+  border-right: 1px solid var(--ink-primary);
+  background: var(--bg-main);
+  color: var(--ink-primary);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.sign-step-btn:last-child {
+  border-right: none;
+}
+
+.sign-step-btn span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sign-step-btn.active {
+  background: var(--ink-primary);
+  color: var(--ink-inverse);
+}
+
+.sign-step-num {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 0.65rem;
+}
+
+.sign-step-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sign-step-nav-btn {
+  padding: 8px 12px;
+  border: 1px solid var(--ink-hairline);
+  background: var(--bg-main);
+  color: var(--ink-primary);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sign-step-nav-btn.is-next {
+  border-color: var(--ink-primary);
+}
+
+.sign-color-caret {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--ink-muted);
+  transition: transform var(--trans-quick);
+}
+
+.sign-color-caret.open {
+  transform: rotate(180deg);
+}
+
+.sign-layouts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.sign-layout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 8px 6px;
+  border: 1px solid var(--ink-hairline);
+  background: var(--bg-main);
+  color: var(--ink-primary);
+  cursor: pointer;
+}
+
+.sign-layout-btn:hover {
+  border-color: var(--ink-primary);
+}
+
+.sign-layout-btn.active {
+  border-color: var(--ink-primary);
+  background: var(--ink-primary);
+  color: var(--ink-inverse);
+}
+
+/* Mini sign diagram: text blocks and a round logo */
+.sign-layout-token {
+  display: inline-grid;
+  place-items: center;
+  height: 18px;
+  padding: 0 5px;
+  border: 1px solid currentColor;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.sign-layout-token.is-logo {
+  width: 18px;
+  padding: 0;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.sign-text-field {
+  position: relative;
+  display: block;
+}
+
+.sign-text-field .swiss-input {
+  padding-left: 46px;
+}
+
+.sign-text-tag {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 2px 5px;
+  border: 1px solid var(--ink-hairline);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--ink-secondary);
+  pointer-events: none;
+}
+
+.sign-type-row {
+  display: flex;
+  gap: 6px;
+}
+
+.sign-font-select {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.sign-font-select select {
+  width: 100%;
+  height: 40px;
+  padding: 0 32px 0 12px;
+  border: 1px solid var(--ink-primary);
+  background: var(--bg-main);
+  color: var(--ink-primary);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  appearance: none;
+  cursor: pointer;
+}
+
+.sign-font-select svg {
+  position: absolute;
+  right: 10px;
+  pointer-events: none;
+  color: var(--ink-secondary);
+}
+
+.sign-size-stepper {
+  display: flex;
+  align-items: stretch;
+  height: 40px;
+  border: 1px solid var(--ink-primary);
+  background: var(--bg-main);
+  flex-shrink: 0;
+}
+
+.sign-size-stepper button {
+  width: 36px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: var(--ink-primary);
+  cursor: pointer;
+}
+
+.sign-size-stepper button:disabled {
+  color: var(--ink-hairline);
+  cursor: default;
+}
+
+.sign-size-value {
+  min-width: 64px;
+  display: grid;
+  place-items: center;
+  border-left: 1px solid var(--ink-hairline);
+  border-right: 1px solid var(--ink-hairline);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink-primary);
+}
+
+
+.sign-logo-row {
+  display: flex;
+  gap: 6px;
+}
+
+.sign-logo-upload {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px dashed var(--ink-primary);
+  background: var(--bg-subtle);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ink-primary);
+  cursor: pointer;
+}
+
+.sign-logo-upload span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sign-logo-upload:hover {
+  border-style: solid;
+}
+
+.sign-logo-clear {
+  width: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ink-primary);
+  background: var(--bg-main);
+  color: var(--ink-primary);
+  cursor: pointer;
+}
+
+.sign-hint {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1.45;
+  color: var(--ink-muted);
+}
+
+.sign-color-targets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 6px;
+}
+
+.sign-color-target {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--ink-hairline);
+  background: var(--bg-main);
+  color: var(--ink-primary);
+  text-align: left;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.sign-color-target.active {
+  border-color: var(--ink-primary);
+  box-shadow: inset 0 0 0 1px var(--ink-primary);
+}
+
+.sign-color-target-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  line-height: 1.3;
+}
+
+.sign-color-target-text strong {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.sign-color-target-text span {
+  color: var(--ink-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* RAL colour picker */
+.ral-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--ink-hairline);
+  background: var(--bg-subtle);
+}
+
+.ral-current {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ral-current-chip {
+  --swatch: #999;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  background: var(--swatch);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+.ral-picker .ral-current .ral-current-chip {
+  width: 40px;
+  height: 40px;
+}
+
+.ral-current-chip.is-metal,
+.ral-swatch.is-metal {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--swatch) 55%, #fff) 0%, var(--swatch) 40%, color-mix(in srgb, var(--swatch) 60%, #000) 75%, color-mix(in srgb, var(--swatch) 80%, #fff) 100%);
+}
+
+.ral-current-text {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-secondary);
+}
+
+.ral-current-text strong {
+  font-size: 0.85rem;
+  color: var(--ink-primary);
+}
+
+.ral-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ral-row-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.ral-row-swatches,
+.ral-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(26px, 1fr));
+  gap: 4px;
+}
+
+.ral-grid {
+  max-height: 168px;
+  overflow-y: auto;
+  padding: 2px;
+  overscroll-behavior: contain;
+}
+
+.ral-swatch {
+  --swatch: #999;
+  aspect-ratio: 1;
+  min-height: 26px;
+  background: var(--swatch);
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  transition: transform var(--trans-quick);
+}
+
+.ral-swatch:hover {
+  transform: scale(1.12);
+  position: relative;
+  z-index: 1;
+}
+
+.ral-swatch.active {
+  outline: 2px solid var(--ink-primary);
+  outline-offset: 1px;
+}
+
+.ral-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  border: 1px solid var(--ink-primary);
+  background: var(--bg-main);
+  color: var(--ink-muted);
+}
+
+.ral-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--ink-primary);
+  outline: none;
+}
+
+.ral-groups {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 3px;
+}
+
+.ral-group-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 5px 0 4px;
+  border: 1px solid var(--ink-hairline);
+  background: var(--bg-main);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--ink-secondary);
+  cursor: pointer;
+}
+
+.ral-group-btn span {
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.ral-group-btn.active {
+  border-color: var(--ink-primary);
+  color: var(--ink-primary);
+  font-weight: 700;
+}
+
+.ral-empty {
+  grid-column: 1 / -1;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+}
+
 /* Full-Width Visualizer CTA Container */
 .visualizer-cta-container {
   display: flex;
@@ -474,6 +949,15 @@
   padding: 14px 20px;
   font-size: 0.88rem;
   margin-top: 4px;
+}
+
+/* Keep the preview in view while scrolling the (long) sign controls */
+@media (min-width: 1025px) {
+  .mockup-stage-box {
+    position: sticky;
+    top: calc(var(--header-height) + 16px);
+    align-self: start;
+  }
 }
 
 @media (max-width: 1024px) {
