@@ -168,7 +168,7 @@ export function buildSignGroup(plan, opts) {
   const group = new THREE.Group();
   const bevel = Math.min(0.0025, depth * 0.08);
   const frontLit = lighting === 'front';
-  const faceGlow = frontLit ? (night ? 0.85 : 0.3) : 0;
+  const faceGlow = frontLit ? (night ? 0.55 : 0.3) : 0;
 
   let lettersZ = standoff;
   let letterDepth = depth;

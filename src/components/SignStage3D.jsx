@@ -41,8 +41,25 @@ const ORBIT_PER_PX = THREE.MathUtils.degToRad(0.2);
 const TURN_LIMIT = { yaw: THREE.MathUtils.degToRad(85), pitch: THREE.MathUtils.degToRad(40) };
 const TURN_PER_PX = THREE.MathUtils.degToRad(0.45);
 
-// Night grade for the photo texture (multiplies the photo, like the CSS night grade did)
-const PHOTO_TINT = { day: new THREE.Color(1, 1, 1), night: new THREE.Color(0.4, 0.42, 0.5) };
+// Night grade for the photo: the sky and unlit surfaces drop to a deep blue night, while warm
+// light sources already in the photo (lamps, windows, canopy downlights) keep their glow.
+const NIGHT_GRADE = /* glsl */ `
+#include <map_fragment>
+{
+  vec3 lin = diffuseColor.rgb;
+  vec3 c = sqrt(max(lin, 0.0));                      // ~sRGB for perceptual thresholds
+  float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
+  float mx = max(c.r, max(c.g, c.b));
+  float warm = smoothstep(0.02, 0.14, c.r - c.b);
+  float bright = smoothstep(0.62, 0.9, l);           // lit interiors, even when not warm
+  float lit = max(smoothstep(0.5, 0.86, mx) * warm, bright * (1.0 - smoothstep(0.0, 0.12, c.b - c.r)));
+  vec3 dark = mix(vec3(l), c, 0.5) * vec3(0.6, 0.65, 0.78);
+  dark *= mix(0.9, 1.0, smoothstep(0.15, 0.6, l));   // deepen the shadows a little
+  vec3 lights = c * mix(0.9, 1.05, smoothstep(0.6, 0.95, mx));
+  vec3 graded = mix(dark, lights, lit);
+  diffuseColor.rgb = mix(lin, graded * graded, uNight);
+}
+`;
 
 
 /**
@@ -104,7 +121,12 @@ export default function SignStage3D({
     building.rotation.order = 'YXZ';
     scene.add(building);
 
-    const photoMat = new THREE.MeshBasicMaterial({ color: PHOTO_TINT.day, toneMapped: false });
+    const photoMat = new THREE.MeshBasicMaterial({ toneMapped: false });
+    const photoNight = { value: 0 };
+    photoMat.onBeforeCompile = (shader) => {
+      shader.uniforms.uNight = photoNight;
+      shader.fragmentShader = 'uniform float uNight;\n' + shader.fragmentShader.replace('#include <map_fragment>', NIGHT_GRADE);
+    };
     const photoMesh = new THREE.Mesh(new THREE.BufferGeometry(), photoMat);
     building.add(photoMesh);
     // Shadow-only layer just in front of the photo
@@ -123,7 +145,7 @@ export default function SignStage3D({
     building.add(key, anchor);
 
     const ctx = {
-      renderer, scene, camera, hemi, key, anchor, building, photoMesh, photoMat, shadowWall, envs,
+      renderer, scene, camera, hemi, key, anchor, building, photoMesh, photoMat, photoNight, shadowWall, envs,
       spec: null, photoSrc: null, signUV: { u: 0.5, v: 0.5 }, raycaster: new THREE.Raycaster(),
       sign: null, glow: [], size: { w: 1, h: 1 }, target: 'overview', dragMode: 'orbit',
       orbit: { yaw: 0, pitch: 0 }, orbitGoal: { yaw: 0, pitch: 0 },
@@ -351,7 +373,7 @@ export default function SignStage3D({
         includeBox: false,
         blurs: [{ radius: 0.1, alpha: 0.75 }, { radius: 0.32, alpha: 0.45 }],
       });
-      const bloom = glowPlane(g, night ? 0.7 : 0.12);
+      const bloom = glowPlane(g, night ? 0.4 : 0.12);
       bloom.position.z = sign.userData.frontZ + 0.01;
       sign.add(bloom);
       ctx.glow.push(bloom);
@@ -384,7 +406,7 @@ export default function SignStage3D({
     cam.near = 0.1; cam.far = 20;
     cam.updateProjectionMatrix();
     ctx.shadowWall.material.opacity = night ? 0.5 : 0.42;
-    ctx.photoMat.color.copy(night ? PHOTO_TINT.night : PHOTO_TINT.day);
+    ctx.photoNight.value = night ? 1 : 0;
 
     ctx.render();
   }, [fonts, items, logo, letterHeightCm, logoImage, signType, depthMm, face, side, boxFinish, gloss, lighting, ledTemp, night, onMetrics, zoomed]);
@@ -411,17 +433,23 @@ export default function SignStage3D({
       ctx.render();
 
       if (night) {
-        // Same atmosphere as the .photo-night-ambience-overlay on screen
-        const rad = g.createRadialGradient(out.width * 0.35, out.height * 0.25, 0, out.width * 0.35, out.height * 0.25, out.width * 0.6);
-        rad.addColorStop(0, 'rgba(0,240,255,0.12)');
-        rad.addColorStop(1, 'rgba(0,240,255,0)');
+        // Same vignette as .sign3d-host .photo-night-ambience-overlay on screen
+        const W = out.width, H = out.height;
+        // Ellipse centred at (50%, 40%) reaching the far corners: draw a circle in y-squashed space
+        g.save();
+        g.translate(W / 2, H * 0.4);
+        g.scale(1, H / W);
+        const rad = g.createRadialGradient(0, 0, 0, 0, 0, Math.hypot(W / 2, W * 0.6));
+        rad.addColorStop(0.45, 'rgba(2,4,10,0)');
+        rad.addColorStop(1, 'rgba(2,4,10,0.2)');
         g.fillStyle = rad;
-        g.fillRect(0, 0, out.width, out.height);
-        const lin = g.createLinearGradient(0, out.height, 0, out.height * 0.65);
-        lin.addColorStop(0, 'rgba(4,7,16,0.65)');
-        lin.addColorStop(1, 'rgba(4,7,16,0)');
+        g.fillRect(-W / 2, -W * 0.4, W, W);
+        g.restore();
+        const lin = g.createLinearGradient(0, H, 0, H * 0.7);
+        lin.addColorStop(0, 'rgba(2,4,10,0.25)');
+        lin.addColorStop(1, 'rgba(2,4,10,0)');
         g.fillStyle = lin;
-        g.fillRect(0, 0, out.width, out.height);
+        g.fillRect(0, 0, W, H);
       }
       return out;
     };
