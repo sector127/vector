@@ -540,7 +540,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
   };
 
   // Transfer Custom Build Spec to Inquiry Form
-  const handleBookBillboard = () => {
+  const handleBookBillboard = async () => {
     if (selectedLoc === 'card') {
       const spec = {
         productType: 'print',
@@ -571,6 +571,15 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
       structure: t('structureEstimate', { name: currentLoc.name, standard: currentLoc.standard }),
       turnaround: currentLoc.leadTime
     };
+    if (currentLoc.is3DLetters && signStageRef.current) {
+      // The rendered sign on the facade travels with the spec and reaches Telegram as a photo
+      try {
+        const shot = await signStageRef.current.exportPreview();
+        if (shot) spec.previewImage = { ...shot, name: getVisualizerDownloadName(selectedLoc).replace(/\.png$/i, '.jpg') };
+      } catch (err) {
+        console.warn('Visualizer preview capture failed:', err);
+      }
+    }
     if (onBookBillboard) {
       onBookBillboard(spec);
     }

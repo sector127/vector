@@ -4,7 +4,11 @@
 // 3 MB raw file → ~4 MB base64, safely under Vercel's 4.5 MB request body limit
 const MAX_FILE_BASE64_LENGTH = Math.ceil((3 * 1024 * 1024 * 4) / 3) + 1024;
 
-const FIELD_LIMITS = { name: 120, company: 160, email: 160, phone: 40, city: 160, medium: 40, notes: 5000, fileName: 200 };
+// The 3D visualizer render is a compressed JPEG (see SignStage3D exportPreview)
+const MAX_PREVIEW_BASE64_LENGTH = 700_000;
+const PREVIEW_DATA_URL = /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/;
+
+const FIELD_LIMITS = { name: 120, company: 160, email: 160, phone: 40, city: 160, medium: 40, notes: 5000, fileName: 200, previewName: 200 };
 
 // Best-effort flood guard. Serverless instances are short-lived and not shared,
 // so this only stops bursts hitting one warm instance — not a substitute for a real limiter.
@@ -46,6 +50,10 @@ export default async function handler(req, res) {
     const fileName = field('fileName');
     const fileType = typeof data.fileType === 'string' ? data.fileType.slice(0, 100) : '';
     const fileData = typeof data.fileData === 'string' ? data.fileData : null;
+    const previewName = field('previewName');
+    const previewMatch = typeof data.previewData === 'string' && data.previewData.length <= MAX_PREVIEW_BASE64_LENGTH
+      ? PREVIEW_DATA_URL.exec(data.previewData)
+      : null;
 
     if (!name || (!phone && !email)) {
       return res.status(400).json({ success: false, error: 'invalid' });
@@ -94,7 +102,7 @@ export default async function handler(req, res) {
 📐 <b>პროდუქციის ტიპი:</b> <b>${escapeHtml((medium || '3D ასოები').toUpperCase())}</b>
 📝 <b>სპეციფიკაცია & შენიშვნები:</b>
 <pre>${escapeHtml(notes || 'დეტალები არ არის მითითებული')}</pre>
-${fileName ? `📎 <b>მიმაგრებული ფაილი:</b> <code>${escapeHtml(fileName)}</code>\n` : ''}━━━━━━━━━━━━━━━━━━━━━━━━━━
+${previewMatch ? '🖼 <b>3D ვიზუალიზაცია:</b> მიმაგრებულია ქვემოთ\n' : ''}${fileName ? `📎 <b>მიმაგრებული ფაილი:</b> <code>${escapeHtml(fileName)}</code>\n` : ''}━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⏰ <b>დრო:</b> ${escapeHtml(receivedAt)}
 `;
 
@@ -133,6 +141,34 @@ ${fileName ? `📎 <b>მიმაგრებული ფაილი:</b> <co
       });
     }
 
+    const messageId = result.result?.message_id;
+
+    // The visualizer render goes as a photo (inline preview in the chat), threaded under the inquiry
+    let previewSent = false;
+    if (previewMatch) {
+      try {
+        const [, imageType, base64Data] = previewMatch;
+        const photoForm = new FormData();
+        photoForm.append('chat_id', chatId);
+        photoForm.append('photo', new Blob([Buffer.from(base64Data, 'base64')], { type: `image/${imageType}` }), previewName || `visualizer.${imageType === 'jpeg' ? 'jpg' : imageType}`);
+        photoForm.append('caption', `🖼 <b>3D ვიზუალიზაცია</b>\n👤 ${escapeHtml(name)}${company ? ` • ${escapeHtml(company)}` : ''}`);
+        photoForm.append('parse_mode', 'HTML');
+        if (messageId) photoForm.append('reply_parameters', JSON.stringify({ message_id: messageId, allow_sending_without_reply: true }));
+
+        const photoRes = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+          method: 'POST',
+          body: photoForm
+        });
+        const photoResult = await photoRes.json();
+        previewSent = photoResult.ok;
+        if (!photoResult.ok) {
+          console.warn('Telegram sendPhoto warning:', photoResult);
+        }
+      } catch (photoErr) {
+        console.error('Error forwarding visualizer preview to Telegram:', photoErr);
+      }
+    }
+
     // If a physical blueprint file was attached, dispatch it via sendDocument
     let docSent = false;
     if (fileData) {
@@ -147,6 +183,7 @@ ${fileName ? `📎 <b>მიმაგრებული ფაილი:</b> <co
         docFormData.append('document', blob, effectiveFileName);
         docFormData.append('caption', `📎 <b>${escapeHtml(effectiveFileName)}</b>\n👤 ${escapeHtml(name)}${company ? ` • ${escapeHtml(company)}` : ''}`);
         docFormData.append('parse_mode', 'HTML');
+        if (messageId) docFormData.append('reply_parameters', JSON.stringify({ message_id: messageId, allow_sending_without_reply: true }));
 
         const docRes = await fetch(`https://api.telegram.org/bot${token}/sendDocument`, {
           method: 'POST',
@@ -164,7 +201,8 @@ ${fileName ? `📎 <b>მიმაგრებული ფაილი:</b> <co
 
     return res.status(200).json({
       success: true,
-      messageId: result.result?.message_id,
+      messageId,
+      previewSent,
       docSent
     });
   } catch (error) {

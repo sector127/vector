@@ -537,7 +537,7 @@ export default {
   // Machinery
   machineryTag: '05 / Facility & Tooling',
   machineryTitle: 'In-House Heavy CNC Machinery Plant',
-  machinerySub: 'No subcontractors. Our 2,500 m² facility in Didube, Tbilisi is equipped with the latest European and Japanese multi-axis CNC fabrication systems.',
+  machinerySub: 'No subcontractors. Our 2,500 m² facility in Tbilisi is equipped with the latest European and Japanese multi-axis CNC fabrication systems.',
   machineryToolingLabel: 'TOOLING',
 
   machineryList: [
@@ -598,6 +598,9 @@ export default {
   toastFileAttached: '✓ Attached: {name}',
   fileTooLarge: 'File exceeds 3 MB. Please send larger drawings to desk@vectorhub.ge or via WhatsApp.',
   removeFileBtn: 'Remove file',
+  formVisualPreview: '3D Visualization',
+  visualPreviewHint: 'The visualization image is sent with your inquiry',
+  removeVisualPreviewBtn: 'Remove visualization',
   directCommTitle: 'DIRECT COMMUNICATIONS',
   toastWaOpened: '💬 WhatsApp conversation opened with Vector Hub desk',
   toastOrderSimulated: '⚡ Inquiry received (Simulation Mode). Set TELEGRAM_BOT_TOKEN to enable live Telegram alerts.',
@@ -613,14 +616,14 @@ export default {
   whatsappLbl: 'WHATSAPP',
   emailLbl: 'EMAIL',
   addressLbl: 'PLANT & SHOWROOM LOCATION',
-  addressVal: '88 Akaki Tsereteli Avenue, Didube District, Tbilisi 0119, Georgia.',
+  addressVal: '15 Kindzmarauli Street, Tbilisi, Georgia.',
   hoursVal: '● Production: 24/7 • Showroom: Mon – Sat 09:00 – 19:00',
 
   // Footer
   footerDesc: 'Heavy-gauge architectural signage, high-definition digital billboards, and industrial print fabrication in Tbilisi, Georgia.',
   footerNavTitle: 'Navigation',
   footerDeskTitle: 'Tbilisi Desk',
-  addressValShort: 'Tsereteli Ave 88, Tbilisi',
+  addressValShort: 'Kindzmarauli St 15, Tbilisi',
   backToTop: '↑ Top of Page',
   companyLegal: 'VECTOR HUB LLC',
   companyCity: 'TBILISI, GEORGIA',

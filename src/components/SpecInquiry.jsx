@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { Phone, MessageSquare, Mail, MapPin, Send, X } from 'lucide-react';
 import { translations, getTranslation, formatTransferredNotes, formatWaMessage } from '../i18n/translations';
 import { sendInquiryNotification } from '../services/telegram';
@@ -6,6 +6,9 @@ import { PHONE_DISPLAY, PHONE_TEL, WHATSAPP_NUMBER, EMAIL } from '../config/cont
 
 // An untouched city field holds some language's default — show it in the current language instead
 const DEFAULT_CITIES = Object.values(translations).map(l => l.defaultCity);
+
+// File + visualizer preview together must stay under Vercel's 4.5 MB request body cap
+const MAX_ATTACHMENTS_BASE64_LENGTH = 4_400_000;
 
 export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
   const t = getTranslation(lang);
@@ -30,8 +33,11 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
     };
   });
   const fileInputRef = useRef(null);
+  const notesRef = useRef(null);
   const localizedForm = DEFAULT_CITIES.includes(formData.city) ? { ...formData, city: t.defaultCity } : formData;
   const [attachedFile, setAttachedFile] = useState(null);
+  // Render of the 3D visualizer that came with the spec (kept in memory only — too big for the draft)
+  const [visualPreview, setVisualPreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Sync state cleanly when transferredSpec changes
@@ -39,6 +45,7 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
     if (!transferredSpec) return;
 
     const timer = setTimeout(() => {
+      setVisualPreview(transferredSpec.previewImage || null);
       setFormData(prev => {
         const updated = {
           ...prev,
@@ -56,6 +63,14 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
 
     return () => clearTimeout(timer);
   }, [transferredSpec, lang]);
+
+  // Grow the notes field to fit its text (the transferred 3D spec runs to a dozen lines); rows=4 stays the minimum
+  useLayoutEffect(() => {
+    const el = notesRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    if (el.scrollHeight > el.clientHeight) el.style.height = `${el.scrollHeight + 2}px`;
+  }, [formData.notes]);
 
   const handleChange = (e) => {
     const updated = { ...formData, [e.target.name]: e.target.value };
@@ -112,12 +127,17 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
     setIsSubmitting(true);
 
     try {
+      // A near-limit blueprint takes priority over the preview; the notes still describe the sign
+      const fileLength = attachedFile ? attachedFile.base64.length : 0;
+      const sendPreview = visualPreview && fileLength + visualPreview.dataUrl.length <= MAX_ATTACHMENTS_BASE64_LENGTH;
       const payload = {
         ...localizedForm,
         fileAttached: attachedFile ? attachedFile.name : null,
         fileName: attachedFile ? attachedFile.name : null,
         fileType: attachedFile ? attachedFile.type : null,
-        fileData: attachedFile ? attachedFile.base64 : null
+        fileData: attachedFile ? attachedFile.base64 : null,
+        previewName: sendPreview ? visualPreview.name : null,
+        previewData: sendPreview ? visualPreview.dataUrl : null
       };
 
       const result = await sendInquiryNotification(payload);
@@ -140,6 +160,7 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
         };
         setFormData(resetForm);
         setAttachedFile(null);
+        setVisualPreview(null);
         if (fileInputRef.current) fileInputRef.current.value = '';
         try {
           localStorage.removeItem('vector_hub_inquiry_draft');
@@ -320,10 +341,31 @@ export default function SpecInquiry({ lang, transferredSpec, onShowToast }) {
               </label>
             </div>
 
+            {visualPreview && (
+              <div className="form-group-block">
+                <span className="form-label-mono">{t.formVisualPreview}</span>
+                <div className="visual-preview-pill">
+                  <img src={visualPreview.dataUrl} alt={t.formVisualPreview} className="visual-preview-thumb" />
+                  <span className="file-attached-name">{t.visualPreviewHint}</span>
+                  <button
+                    type="button"
+                    className="file-clear-btn"
+                    onClick={() => setVisualPreview(null)}
+                    title={t.removeVisualPreviewBtn}
+                    aria-label={t.removeVisualPreviewBtn}
+                    data-cursor-text="REMOVE"
+                  >
+                    <X size={13} />
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="form-group-block">
               <label className="form-label-mono" htmlFor="inquiry-notes">{t.formNotes}</label>
               <textarea
                 id="inquiry-notes"
+                ref={notesRef}
                 name="notes"
                 rows="4"
                 className="swiss-input"

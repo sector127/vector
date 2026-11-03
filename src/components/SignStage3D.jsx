@@ -48,7 +48,7 @@ const PHOTO_TINT = { day: new THREE.Color(1, 1, 1), night: new THREE.Color(0.4, 
 /**
  * Real-time 3D channel letters / lightbox on the facade photo.
  * The photo is a textured wall in the scene, so the whole facade can be seen from the side.
- * ref exposes exportPng(scale) → PNG data URL.
+ * ref exposes exportPng(scale) → PNG data URL and exportPreview() → compact JPEG for the inquiry.
  */
 export default function SignStage3D({
   ref, photo, items, logo, letterHeightCm = 20, signType, depthMm, face, side, boxFinish, gloss = 'matte',
@@ -389,9 +389,9 @@ export default function SignStage3D({
     ctx.render();
   }, [fonts, items, logo, letterHeightCm, logoImage, signType, depthMm, face, side, boxFinish, gloss, lighting, ledTemp, night, onMetrics, zoomed]);
 
-  // ---- export: one 2× WebGL frame (photo, sign and light are all in the scene) ----
-  useImperativeHandle(ref, () => ({
-    async exportPng(scale = 2) {
+  // ---- export: one WebGL frame (photo, sign and light are all in the scene) ----
+  useImperativeHandle(ref, () => {
+    const renderFrame = (scale) => {
       const ctx = ctxRef.current;
       if (!ctx) return null;
       const { w, h } = ctx.size;
@@ -423,9 +423,31 @@ export default function SignStage3D({
         g.fillStyle = lin;
         g.fillRect(0, 0, out.width, out.height);
       }
-      return out.toDataURL('image/png');
-    },
-  }), [night]);
+      return out;
+    };
+
+    return {
+      async exportPng(scale = 2) {
+        return renderFrame(scale)?.toDataURL('image/png') ?? null;
+      },
+      // Compact preview for the inquiry: JPEG at most maxWidth px wide, stepped down until it fits maxLength chars
+      async exportPreview({ maxWidth = 1600, maxLength = 600_000 } = {}) {
+        const ctx = ctxRef.current;
+        if (!ctx) return null;
+        let width = Math.min(maxWidth, ctx.size.w * 2);
+        for (let attempt = 0; attempt < 4; attempt++) {
+          const canvas = renderFrame(width / ctx.size.w);
+          if (!canvas) return null;
+          for (const quality of [0.85, 0.72, 0.6]) {
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            if (dataUrl.length <= maxLength) return { dataUrl, width: canvas.width, height: canvas.height };
+          }
+          width = Math.round(width * 0.75);
+        }
+        return null;
+      },
+    };
+  }, [night]);
 
   return (
     <div ref={hostRef} className={`sign3d-host ${zoomed ? 'is-close' : ''}`} aria-label={photo.alt} role="img">
