@@ -27,7 +27,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
   const [activeTheme, setActiveTheme] = useState('gold'); // 'gold', 'white', 'cyan', 'emerald'
   const [activePreset, setActivePreset] = useState('vector');
   const [letterDepth, setLetterDepth] = useState(60); // 30, 60, 100 mm physical extrusion
-  const [lightingType, setLightingType] = useState('back'); // 'front', 'back' (halo), 'off'
+  const [lightingType, setLightingType] = useState('front'); // 'front', 'back' (halo), 'off'
 
   // 3D sign studio (letters scene)
   const [signType, setSignType] = useState('letters'); // 'letters' | 'box'

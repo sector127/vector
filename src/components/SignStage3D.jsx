@@ -17,7 +17,7 @@ const PHOTO_BLEED = 1.6; // the wall extends past the photo (edge pixels stretch
 
 // Two framings of the same photo. In the close-up the eye sits closer, left and below the sign.
 const VIEWS = {
-  overview: { zoom: 1.45, cu: SIGN_AREA.cx, cv: 0.47, eyeX: 0, eyeY: 0, dist: PHOTO_DIST, depthBoost: 1.35 },
+  overview: { zoom: 1.15, cu: SIGN_AREA.cx, cv: 0.47, eyeX: 0, eyeY: 0, dist: PHOTO_DIST, depthBoost: 1.35 },
   close: { zoom: 2.7, cu: SIGN_AREA.cx, cv: SIGN_AREA.cy + 0.01, eyeX: -1.5, eyeY: -1.0, dist: 4.6, depthBoost: 1 },
 };
 
