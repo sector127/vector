@@ -400,7 +400,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
   <rect x="20" y="510" width="760" height="70" class="title-box"/>
   <text x="40" y="534" class="spec-text">MEDIUM: ${productType.toUpperCase()} | MATERIAL: ${material.toUpperCase()} | LIGHTING: ${lighting.toUpperCase()}</text>
   <text x="40" y="552" class="spec-text">SURFACE AREA: ${areaSqM} m² | TOOLPATH LENGTH: ${toolpathMm} mm | CONTOURS: ${contourCount} | PIERCINGS: ${piercingPoints}</text>
-  <text x="40" y="569" class="spec-text">PRICE: QUOTED AFTER ENGINEERING REVIEW | FABRICATION FACILITY: AKAKI TSERETELI AVE 88, TBILISI, GEORGIA • DATE: ${new Date().toISOString().split('T')[0]}</text>
+  <text x="40" y="569" class="spec-text">PRICE: QUOTED AFTER ENGINEERING REVIEW | FABRICATION FACILITY: 15 KINDZMARAULI ST, TBILISI, GEORGIA • DATE: ${new Date().toISOString().split('T')[0]}</text>
 </svg>`;
 
     const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
@@ -482,7 +482,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
       doc.setFontSize(8);
       doc.setTextColor(80, 90, 105);
       doc.text('ARCHITECTURAL SIGNAGE & OUTDOOR ADVERTISING ENGINEERING', 15, 25);
-      doc.text('88 Akaki Tsereteli Ave, Tbilisi • www.vectorhub.ge • desk@vectorhub.ge', 15, 28.5);
+      doc.text('15 Kindzmarauli St, Tbilisi • www.vectorhub.ge • desk@vectorhub.ge', 15, 28.5);
 
       doc.setFont('courier', 'bold');
       doc.setFontSize(9);
@@ -637,7 +637,7 @@ export default function VectorWorkbench({ lang, onTransferSpec, onShowToast }) {
       doc.setTextColor(100, 115, 130);
       doc.text('Automatically generated from the Vector Studio configurator. Dimensions and materials are indicative only.', 90, 184);
       doc.text('Final pricing, structural calculations and municipal permits are confirmed by Vector Hub engineers after a site survey.', 90, 188);
-      doc.text(`© ${new Date().getFullYear()} Vector Hub LLC. Akaki Tsereteli Ave 88, Didube District, Tbilisi, Georgia.`, 90, 192);
+      doc.text(`© ${new Date().getFullYear()} Vector Hub LLC. 15 Kindzmarauli Street, Tbilisi, Georgia.`, 90, 192);
 
       // Right: Signature Block
       doc.setDrawColor(20, 24, 33);

@@ -1,0 +1,639 @@
+import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
+import * as THREE from 'three';
+import { Move } from 'lucide-react';
+import { loadSignFonts } from './sign3d/signShapes';
+import { buildPlan, buildSignGroup, makeGlowTexture, signExtent, disposeObject, LED_COLORS } from './sign3d/signScene';
+
+// Sample facade: 1376×768, the granite panel above the door holds the sign (4.5 m wide)
+const STOCK = { w: 1376, h: 768, signU: 0.5025, signV: 0.394, widthM: 4.5 / 0.31, eyeV: 0.74, frameV: 0.47, zoom: 1.15 };
+const STANDOFF_M = 0.035;
+const PHOTO_BLEED = 1.6; // the wall extends past the photo (edge pixels stretched) so side views don't show a void
+
+/**
+ * Normalised description of the backdrop photo.
+ * photo: { src, w?, h?, widthM?, custom? } – a custom photo gets the user's wall width and a centred sign.
+ */
+function photoSpec(photo) {
+  const base = photo.custom
+    ? { w: photo.w, h: photo.h, signU: 0.5, signV: 0.42, widthM: photo.widthM || 10, eyeV: 0.75, frameV: 0.5, zoom: 1 }
+    : STOCK;
+  const heightM = base.widthM * (base.h / base.w);
+  return { ...base, heightM, dist: heightM / 2 / Math.tan(THREE.MathUtils.degToRad(21)) };
+}
+
+// Image-normalised (u, v) → wall coordinates in metres (origin at the photo centre, y up)
+const wallPoint = (spec, u, v) => new THREE.Vector3((u - 0.5) * spec.widthM, (0.5 - v) * spec.heightM, 0);
+
+// Two framings. In the close-up the eye sits closer, left and below the sign, wherever it was moved to.
+function targetView(ctx) {
+  const { spec, signUV } = ctx;
+  if (ctx.target === 'close') {
+    return { zoom: spec.custom ? 2.4 : 2.7, cu: signUV.u, cv: signUV.v + 0.01, eyeX: -1.5, eyeY: -1.0, dist: 4.6 };
+  }
+  return { zoom: spec.zoom, cu: spec.custom ? 0.5 : spec.signU, cv: spec.frameV, eyeX: 0, eyeY: 0, dist: spec.dist };
+}
+const depthBoost = (target) => (target === 'close' ? 1 : 1.35); // returns read as volume at facade distance
+
+// dragMode 'orbit': the whole facade turns, as if walking past the building (default); release straightens it
+const ORBIT_LIMIT = { yaw: THREE.MathUtils.degToRad(38), pitchUp: THREE.MathUtils.degToRad(14), pitchDown: THREE.MathUtils.degToRad(-8) };
+const ORBIT_PER_PX = THREE.MathUtils.degToRad(0.2);
+// dragMode 'turn': only the sign turns, lifted off the wall, and springs back on release
+const TURN_LIMIT = { yaw: THREE.MathUtils.degToRad(85), pitch: THREE.MathUtils.degToRad(40) };
+const TURN_PER_PX = THREE.MathUtils.degToRad(0.45);
+
+// Night grade for the photo: the sky and unlit surfaces drop to a deep blue night, while warm
+// light sources already in the photo (lamps, windows, canopy downlights) keep their glow.
+const NIGHT_GRADE = /* glsl */ `
+#include <map_fragment>
+{
+  vec3 lin = diffuseColor.rgb;
+  vec3 c = sqrt(max(lin, 0.0));                      // ~sRGB for perceptual thresholds
+  float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
+  float mx = max(c.r, max(c.g, c.b));
+  float warm = smoothstep(0.02, 0.14, c.r - c.b);
+  float bright = smoothstep(0.62, 0.9, l);           // lit interiors, even when not warm
+  float lit = max(smoothstep(0.5, 0.86, mx) * warm, bright * (1.0 - smoothstep(0.0, 0.12, c.b - c.r)));
+  vec3 dark = mix(vec3(l), c, 0.5) * vec3(0.6, 0.65, 0.78);
+  dark *= mix(0.9, 1.0, smoothstep(0.15, 0.6, l));   // deepen the shadows a little
+  vec3 lights = c * mix(0.9, 1.05, smoothstep(0.6, 0.95, mx));
+  vec3 graded = mix(dark, lights, lit);
+  diffuseColor.rgb = mix(lin, graded * graded, uNight);
+}
+`;
+
+
+/**
+ * Real-time 3D channel letters / lightbox on the facade photo.
+ * The photo is a textured wall in the scene, so the whole facade can be seen from the side.
+ * ref exposes exportPng(scale) → PNG data URL and exportPreview() → compact JPEG for the inquiry.
+ */
+export default function SignStage3D({
+  ref, photo, items, logo, letterHeightCm = 20, signType, depthMm, face, side, boxFinish, gloss = 'matte',
+  lighting, ledTemp, night, zoomed, georgianFont = 'sans', dragMode = 'orbit', labels, onMetrics,
+}) {
+  const hostRef = useRef(null);
+  const ctxRef = useRef(null);
+  const [fonts, setFonts] = useState(null);
+  const [fontError, setFontError] = useState(false);
+  const [loadedLogo, setLoadedLogo] = useState(null); // { src, img }
+
+  useEffect(() => {
+    let alive = true;
+    loadSignFonts(georgianFont)
+      .then((f) => { if (alive) { setFonts(f); setFontError(false); } })
+      .catch(() => alive && setFontError(true));
+    return () => { alive = false; };
+  }, [georgianFont]);
+
+  const logoSrc = logo?.kind === 'image' ? logo.imageSrc : null;
+  const logoImage = logoSrc && loadedLogo?.src === logoSrc ? loadedLogo.img : null;
+  useEffect(() => {
+    if (!logoSrc) return undefined;
+    let alive = true;
+    const img = new Image();
+    img.onload = () => alive && setLoadedLogo({ src: logoSrc, img });
+    img.src = logoSrc;
+    return () => { alive = false; };
+  }, [logoSrc]);
+
+  // ---- one-time renderer / scene setup ----
+  useEffect(() => {
+    const host = hostRef.current;
+    const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.NeutralToneMapping; // Khronos PBR Neutral: keeps RAL hues true (AgX turns bright reds pastel)
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setClearColor(0x06080d, 1);
+    renderer.domElement.className = 'sign3d-canvas';
+    host.prepend(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const envs = { day: makeStreetEnv(pmrem, false), night: makeStreetEnv(pmrem, true) };
+    const camera = new THREE.PerspectiveCamera();
+    const hemi = new THREE.HemisphereLight(0xdfe8ff, 0x5a5048, 1);
+    scene.add(hemi);
+
+    // The building: everything attached to the facade turns together around the sign's centre
+    const building = new THREE.Group();
+    building.rotation.order = 'YXZ';
+    scene.add(building);
+
+    const photoMat = new THREE.MeshBasicMaterial({ toneMapped: false });
+    const photoNight = { value: 0 };
+    photoMat.onBeforeCompile = (shader) => {
+      shader.uniforms.uNight = photoNight;
+      shader.fragmentShader = 'uniform float uNight;\n' + shader.fragmentShader.replace('#include <map_fragment>', NIGHT_GRADE);
+    };
+    const photoMesh = new THREE.Mesh(new THREE.BufferGeometry(), photoMat);
+    building.add(photoMesh);
+    // Shadow-only layer just in front of the photo
+    const shadowWall = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.ShadowMaterial({ opacity: 0.45 }));
+    shadowWall.receiveShadow = true;
+    building.add(shadowWall);
+
+    const key = new THREE.DirectionalLight(0xffffff, 2);
+    key.castShadow = true;
+    key.shadow.mapSize.set(2048, 2048);
+    key.shadow.bias = -0.0004;
+    key.shadow.normalBias = 0.01;
+    key.shadow.radius = 4;
+    const anchor = new THREE.Object3D();
+    key.target = anchor;
+    building.add(key, anchor);
+
+    const ctx = {
+      renderer, scene, camera, hemi, key, anchor, building, photoMesh, photoMat, photoNight, shadowWall, envs,
+      spec: null, photoSrc: null, signUV: { u: 0.5, v: 0.5 }, raycaster: new THREE.Raycaster(),
+      sign: null, glow: [], size: { w: 1, h: 1 }, target: 'overview', dragMode: 'orbit',
+      orbit: { yaw: 0, pitch: 0 }, orbitGoal: { yaw: 0, pitch: 0 },
+      turn: { yaw: 0, pitch: 0 }, turnGoal: { yaw: 0, pitch: 0 }, dragging: false, signHalf: { w: 0, h: 0 },
+      view: null, raf: 0,
+    };
+
+    const frame = () => {
+      ctx.raf = 0;
+      if (!ctx.spec) return;
+      const animating = stepView(ctx);
+      layout(ctx);
+      renderer.render(scene, camera);
+      if (animating) ctx.render();
+    };
+    ctx.render = () => { if (!ctx.raf) ctx.raf = requestAnimationFrame(frame); };
+    ctxRef.current = ctx;
+
+    const ro = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      if (!width || !height) return;
+      ctx.size = { w: width, h: height };
+      renderer.setSize(width, height, false);
+      ctx.render();
+    });
+    ro.observe(host);
+
+    // Drag on the sign moves it across the wall; drag anywhere else turns the facade
+    let drag = null;
+    const el = renderer.domElement;
+    const ndc = (e) => {
+      const r = el.getBoundingClientRect();
+      return new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    };
+    const wallUV = (e) => {
+      ctx.raycaster.setFromCamera(ndc(e), camera);
+      const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+      const p = ctx.raycaster.ray.intersectPlane(plane, new THREE.Vector3());
+      if (!p) return null;
+      return { u: p.x / ctx.spec.widthM + 0.5, v: 0.5 - p.y / ctx.spec.heightM };
+    };
+    // The whole sign rectangle (plus a margin) is grabbable, not just the letter strokes
+    const hitsSign = (e) => {
+      if (!ctx.sign || !ctx.spec) return false;
+      const at = wallUV(e);
+      if (!at) return false;
+      const c = wallPoint(ctx.spec, ctx.signUV.u, ctx.signUV.v);
+      const p = wallPoint(ctx.spec, at.u, at.v);
+      const pad = Math.max(0.12, ctx.signHalf.h * 0.5);
+      return Math.abs(p.x - c.x) <= ctx.signHalf.w + pad && Math.abs(p.y - c.y) <= ctx.signHalf.h + pad;
+    };
+    const onDown = (e) => {
+      el.setPointerCapture(e.pointerId);
+      ctx.dragging = true;
+      // Moving needs the straight view, where the wall is the z = 0 plane
+      const flat = Math.abs(ctx.orbit.yaw) < 0.01 && Math.abs(ctx.orbit.pitch) < 0.01;
+      if (ctx.dragMode === 'orbit' && flat && hitsSign(e)) {
+        const at = wallUV(e);
+        if (at) {
+          drag = { mode: 'move', du: ctx.signUV.u - at.u, dv: ctx.signUV.v - at.v };
+          el.style.cursor = 'grabbing';
+          return;
+        }
+      }
+      const g = ctx.dragMode === 'turn' ? ctx.turnGoal : ctx.orbitGoal;
+      drag = { mode: ctx.dragMode, x: e.clientX, y: e.clientY, yaw: g.yaw, pitch: g.pitch };
+    };
+    const onMove = (e) => {
+      if (!drag) {
+        el.style.cursor = hitsSign(e) ? 'move' : '';
+        return;
+      }
+      if (drag.mode === 'move') {
+        const at = wallUV(e);
+        if (!at) return;
+        ctx.signUV = { u: THREE.MathUtils.clamp(at.u + drag.du, 0.02, 0.98), v: THREE.MathUtils.clamp(at.v + drag.dv, 0.02, 0.98) };
+        placeBuilding(ctx);
+        ctx.render();
+        return;
+      }
+      const dx = e.clientX - drag.x;
+      const dy = e.clientY - drag.y;
+      if (drag.mode === 'turn') {
+        ctx.turnGoal.yaw = THREE.MathUtils.clamp(drag.yaw + dx * TURN_PER_PX, -TURN_LIMIT.yaw, TURN_LIMIT.yaw);
+        ctx.turnGoal.pitch = THREE.MathUtils.clamp(drag.pitch + dy * TURN_PER_PX, -TURN_LIMIT.pitch, TURN_LIMIT.pitch);
+      } else {
+        ctx.orbitGoal.yaw = THREE.MathUtils.clamp(drag.yaw + dx * ORBIT_PER_PX, -ORBIT_LIMIT.yaw, ORBIT_LIMIT.yaw);
+        ctx.orbitGoal.pitch = THREE.MathUtils.clamp(drag.pitch + dy * ORBIT_PER_PX, ORBIT_LIMIT.pitchDown, ORBIT_LIMIT.pitchUp);
+      }
+      ctx.render();
+    };
+    const onUp = () => {
+      drag = null;
+      ctx.dragging = false;
+      el.style.cursor = '';
+      // Letting go always eases back to the straight view (the photo's own angle)
+      ctx.turnGoal = { yaw: 0, pitch: 0 };
+      ctx.orbitGoal = { yaw: 0, pitch: 0 };
+      ctx.render();
+    };
+    el.addEventListener('pointerdown', onDown);
+    el.addEventListener('pointermove', onMove);
+    el.addEventListener('pointerup', onUp);
+    el.addEventListener('pointercancel', onUp);
+
+    return () => {
+      ro.disconnect();
+      cancelAnimationFrame(ctx.raf);
+      el.removeEventListener('pointerdown', onDown);
+      el.removeEventListener('pointermove', onMove);
+      el.removeEventListener('pointerup', onUp);
+      el.removeEventListener('pointercancel', onUp);
+      if (ctx.sign) disposeObject(ctx.sign);
+      disposeObject(photoMesh);
+      disposeObject(shadowWall);
+      envs.day.dispose();
+      envs.night.dispose();
+      pmrem.dispose();
+      renderer.dispose();
+      el.remove();
+      ctxRef.current = null;
+    };
+  }, []);
+
+  // ---- backdrop photo: wall size, texture and default sign spot ----
+  const photoKey = `${photo.src}|${photo.widthM || ''}`;
+  useEffect(() => {
+    const ctx = ctxRef.current;
+    if (!ctx) return;
+    const spec = photoSpec(photo);
+    const srcChanged = ctx.photoSrc !== photo.src;
+    ctx.spec = spec;
+    if (srcChanged) {
+      ctx.photoSrc = photo.src;
+      ctx.signUV = { u: spec.signU, v: spec.signV };
+      const src = photo.src;
+      new THREE.TextureLoader().load(src, (tex) => {
+        if (ctx.photoSrc !== src) { tex.dispose(); return; }
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.anisotropy = ctx.renderer.capabilities.getMaxAnisotropy();
+        ctx.photoMat.map?.dispose();
+        ctx.photoMat.map = tex;
+        ctx.photoMat.needsUpdate = true;
+        ctx.render();
+      });
+    }
+    // Wall planes sized to the photo in metres (plus bleed)
+    const geo = new THREE.PlaneGeometry(spec.widthM * PHOTO_BLEED, spec.heightM * PHOTO_BLEED);
+    const uv = geo.attributes.uv;
+    for (let i = 0; i < uv.count; i++) {
+      uv.setXY(i, (uv.getX(i) - 0.5) * PHOTO_BLEED + 0.5, (uv.getY(i) - 0.5) * PHOTO_BLEED + 0.5);
+    }
+    ctx.photoMesh.geometry.dispose();
+    ctx.photoMesh.geometry = geo;
+    ctx.shadowWall.geometry.dispose();
+    ctx.shadowWall.geometry = geo.clone();
+    placeBuilding(ctx);
+    if (srcChanged) ctx.view = { ...targetView(ctx) }; // jump, don't animate, to a new photo
+    ctx.render();
+    // photo is described completely by photoKey
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [photoKey]);
+
+  useEffect(() => {
+    const ctx = ctxRef.current;
+    if (!ctx) return;
+    ctx.dragMode = dragMode;
+    ctx.turnGoal = { yaw: 0, pitch: 0 };
+    ctx.render();
+  }, [dragMode]);
+
+  // ---- framing: overview ↔ close-up ----
+  useEffect(() => {
+    const ctx = ctxRef.current;
+    if (!ctx) return;
+    ctx.target = zoomed ? 'close' : 'overview';
+    ctx.render();
+  }, [zoomed]);
+
+  // ---- rebuild the sign whenever its design changes (items/logo are memoised by the parent) ----
+  useEffect(() => {
+    const ctx = ctxRef.current;
+    if (!ctx || !fonts) return;
+    const { building } = ctx;
+
+    if (ctx.sign) { building.remove(ctx.sign); disposeObject(ctx.sign); ctx.sign = null; }
+    ctx.glow = [];
+
+    const logoSpec = logo
+      ? { ...logo, image: logo.kind === 'image' ? logoImage : null, kind: logo.kind === 'image' && !logoImage ? 'default' : logo.kind }
+      : null;
+    const plan = buildPlan(fonts, { items, logo: logoSpec });
+    if (!plan) { ctx.render(); return; }
+
+    // Physical scale from the letter height the customer orders
+    const ext = signExtent(plan, signType);
+    const s = (letterHeightCm / 100) / plan.capH;
+    onMetrics?.({ w: ext.x * s, h: ext.y * s, letterH: plan.capH * s });
+
+    // Returns are drawn a little deeper in the overview so they still read at that distance
+    const depth = (depthMm / 1000) * depthBoost(ctx.target);
+    const ledHex = LED_COLORS[ledTemp] || LED_COLORS[3000];
+    const sign = buildSignGroup(plan, {
+      s, depth, standoff: lighting === 'back' ? STANDOFF_M * 1.4 : STANDOFF_M * 0.35,
+      signType, face, side, boxFinish, lighting, ledHex, night, gloss,
+    });
+    sign.rotation.order = 'YXZ';
+    ctx.signHalf = { w: (ext.x * s) / 2, h: (ext.y * s) / 2 };
+
+    // Light added onto the photo: halo washes the stone, bloom haloes lit faces
+    if (lighting === 'back') {
+      const g = makeGlowTexture(plan, s, signType, {
+        color: ledHex,
+        blurs: [{ radius: 0.045, alpha: 1 }, { radius: 0.15, alpha: 0.9 }, { radius: 0.42, alpha: 0.55 }],
+      });
+      const halo = glowPlane(g, night ? 1 : 0.6);
+      halo.position.z = 0.004;
+      sign.add(halo);
+      ctx.glow.push(halo);
+    }
+    if (lighting === 'front') {
+      const glowHex = '#' + new THREE.Color(face.hex).lerp(new THREE.Color(ledHex), 0.15).getHexString();
+      const g = makeGlowTexture(plan, s, signType, {
+        color: glowHex,
+        includeBox: false,
+        blurs: [{ radius: 0.1, alpha: 0.75 }, { radius: 0.32, alpha: 0.45 }],
+      });
+      const bloom = glowPlane(g, night ? 0.4 : 0.12);
+      bloom.position.z = sign.userData.frontZ + 0.01;
+      sign.add(bloom);
+      ctx.glow.push(bloom);
+    }
+    building.add(sign);
+    ctx.sign = sign;
+    applyTurn(ctx);
+
+    // Lighting rig (attached to the building): evening sky, or night with only the canopy downlight
+    const { hemi, key, anchor, renderer, scene } = ctx;
+    anchor.position.set(0, 0, 0);
+    const span = Math.max(ext.x, ext.y) * s;
+    if (night) {
+      hemi.color.set(0x8fa3c8); hemi.groundColor.set(0x1a1612); hemi.intensity = 0.14;
+      key.color.set(0xffd6a0); key.intensity = 1.2;
+      key.position.set(0.2, 2.2, 1.3);
+      scene.environment = ctx.envs.night;
+      renderer.toneMappingExposure = 1.1;
+    } else {
+      hemi.color.set(0xe6eeff); hemi.groundColor.set(0x6b5f55); hemi.intensity = 0.9;
+      key.color.set(0xfff1df); key.intensity = 2.1;
+      key.position.set(-1.6, 3.4, 3.2);
+      scene.environment = ctx.envs.day;
+      renderer.toneMappingExposure = 1.15;
+    }
+    scene.environmentIntensity = 1;
+    const cam = key.shadow.camera;
+    cam.left = cam.bottom = -(span * 0.8 + 0.6);
+    cam.right = cam.top = span * 0.8 + 0.6;
+    cam.near = 0.1; cam.far = 20;
+    cam.updateProjectionMatrix();
+    ctx.shadowWall.material.opacity = night ? 0.5 : 0.42;
+    ctx.photoNight.value = night ? 1 : 0;
+
+    ctx.render();
+  }, [fonts, items, logo, letterHeightCm, logoImage, signType, depthMm, face, side, boxFinish, gloss, lighting, ledTemp, night, onMetrics, zoomed]);
+
+  // ---- export: one WebGL frame (photo, sign and light are all in the scene) ----
+  useImperativeHandle(ref, () => {
+    const renderFrame = (scale) => {
+      const ctx = ctxRef.current;
+      if (!ctx) return null;
+      const { w, h } = ctx.size;
+      const out = document.createElement('canvas');
+      out.width = Math.round(w * scale);
+      out.height = Math.round(h * scale);
+      const g = out.getContext('2d');
+
+      const prevRatio = ctx.renderer.getPixelRatio();
+      ctx.renderer.setPixelRatio(scale);
+      ctx.renderer.setSize(w, h, false);
+      layout(ctx);
+      ctx.renderer.render(ctx.scene, ctx.camera);
+      g.drawImage(ctx.renderer.domElement, 0, 0, out.width, out.height);
+      ctx.renderer.setPixelRatio(prevRatio);
+      ctx.renderer.setSize(w, h, false);
+      ctx.render();
+
+      if (night) {
+        // Same vignette as .sign3d-host .photo-night-ambience-overlay on screen
+        const W = out.width, H = out.height;
+        // Ellipse centred at (50%, 40%) reaching the far corners: draw a circle in y-squashed space
+        g.save();
+        g.translate(W / 2, H * 0.4);
+        g.scale(1, H / W);
+        const rad = g.createRadialGradient(0, 0, 0, 0, 0, Math.hypot(W / 2, W * 0.6));
+        rad.addColorStop(0.45, 'rgba(2,4,10,0)');
+        rad.addColorStop(1, 'rgba(2,4,10,0.2)');
+        g.fillStyle = rad;
+        g.fillRect(-W / 2, -W * 0.4, W, W);
+        g.restore();
+        const lin = g.createLinearGradient(0, H, 0, H * 0.7);
+        lin.addColorStop(0, 'rgba(2,4,10,0.25)');
+        lin.addColorStop(1, 'rgba(2,4,10,0)');
+        g.fillStyle = lin;
+        g.fillRect(0, 0, W, H);
+      }
+      return out;
+    };
+
+    return {
+      async exportPng(scale = 2) {
+        return renderFrame(scale)?.toDataURL('image/png') ?? null;
+      },
+      // Compact preview for the inquiry: JPEG at most maxWidth px wide, stepped down until it fits maxLength chars
+      async exportPreview({ maxWidth = 1600, maxLength = 600_000 } = {}) {
+        const ctx = ctxRef.current;
+        if (!ctx) return null;
+        let width = Math.min(maxWidth, ctx.size.w * 2);
+        for (let attempt = 0; attempt < 4; attempt++) {
+          const canvas = renderFrame(width / ctx.size.w);
+          if (!canvas) return null;
+          for (const quality of [0.85, 0.72, 0.6]) {
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            if (dataUrl.length <= maxLength) return { dataUrl, width: canvas.width, height: canvas.height };
+          }
+          width = Math.round(width * 0.75);
+        }
+        return null;
+      },
+    };
+  }, [night]);
+
+  return (
+    <div ref={hostRef} className={`sign3d-host ${zoomed ? 'is-close' : ''}`} aria-label={photo.alt} role="img">
+      {/* WebGL canvas is inserted first */}
+      {night && <div className="photo-night-ambience-overlay" />}
+      {!fonts && !fontError && <div className="sign3d-status">{labels?.loading}</div>}
+      {fontError && <div className="sign3d-status">{labels?.error}</div>}
+      {fonts && (
+        <div className="sign3d-hint" title={labels?.dragHint}>
+          <Move size={12} />
+          <span>{labels?.dragShort}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---------- view & projection ----------
+
+// 'turn' mode: rotates the sign about its centre and pulls it off the wall along the line of sight
+function applyTurn(ctx) {
+  if (!ctx.sign) return;
+  const { yaw, pitch } = ctx.turn;
+  ctx.sign.rotation.set(pitch, yaw, 0);
+  const lift = ctx.signHalf.w * Math.abs(Math.sin(yaw)) + ctx.signHalf.h * Math.abs(Math.sin(pitch));
+  const z = lift > 0.001 ? lift + 0.04 : 0;
+  const eyeLocal = ctx.eye ? ctx.building.worldToLocal(ctx.eye.clone()) : new THREE.Vector3(0, 0, ctx.spec.dist);
+  const t = z / Math.max(eyeLocal.z, 0.1);
+  ctx.sign.position.set(eyeLocal.x * t, eyeLocal.y * t, z);
+  // Wall light only exists while the sign sits on the wall
+  const fade = THREE.MathUtils.clamp(1 - Math.max(Math.abs(yaw), Math.abs(pitch)) / 0.2, 0, 1);
+  for (const g of ctx.glow) g.material.opacity = g.userData.opacity * fade;
+}
+
+// Eases framing, orbit and turn toward their targets; returns true while still moving
+function stepView(ctx) {
+  let moving = false;
+  const ease = (cur, goal, keys, k) => {
+    for (const key of keys) {
+      const d = goal[key] - cur[key];
+      if (Math.abs(d) > 1e-4) { cur[key] += d * k; moving = true; } else cur[key] = goal[key];
+    }
+  };
+  ease(ctx.turn, ctx.turnGoal, ['yaw', 'pitch'], ctx.dragging ? 0.35 : 0.12);
+  ease(ctx.orbit, ctx.orbitGoal, ['yaw', 'pitch'], ctx.dragging ? 0.3 : 0.12);
+  if (!ctx.view) ctx.view = { ...targetView(ctx) };
+  ease(ctx.view, targetView(ctx), ['zoom', 'cu', 'cv', 'eyeX', 'eyeY', 'dist'], 0.16);
+  ctx.building.rotation.set(ctx.orbit.pitch, ctx.orbit.yaw, 0);
+  applyTurn(ctx);
+  return moving;
+}
+
+// Part of the photo on screen, in image-normalised units (object-fit: cover, then zoom)
+function visibleRect(ctx) {
+  const { w, h } = ctx.size;
+  const aspect = w / h;
+  const imgAspect = ctx.spec.w / ctx.spec.h;
+  const wN = (aspect > imgAspect ? 1 : aspect / imgAspect) / ctx.view.zoom;
+  const hN = (aspect > imgAspect ? imgAspect / aspect : 1) / ctx.view.zoom;
+  const cu = THREE.MathUtils.clamp(ctx.view.cu, wN / 2, 1 - wN / 2);
+  const cv = THREE.MathUtils.clamp(ctx.view.cv, hN / 2, 1 - hN / 2);
+  return { u0: cu - wN / 2, v0: cv - hN / 2, wN, hN };
+}
+
+function eye(ctx) {
+  const { spec } = ctx;
+  const c = wallPoint(spec, ctx.signUV.u, ctx.signUV.v);
+  const v = ctx.view;
+  // Overview eye is the photographer's; the close-up eye is placed relative to the sign
+  const closeZoom = spec.custom ? 2.4 : 2.7;
+  const blend = THREE.MathUtils.clamp((v.zoom - spec.zoom) / (closeZoom - spec.zoom), 0, 1);
+  const baseX = THREE.MathUtils.lerp(0, c.x, blend);
+  const baseY = THREE.MathUtils.lerp((0.5 - spec.eyeV) * spec.heightM, c.y, blend);
+  return new THREE.Vector3(baseX + v.eyeX, baseY + v.eyeY, v.dist);
+}
+
+// Off-axis camera at the eye: with no orbit the textured wall fills the frame exactly like the photo crop
+function layout(ctx) {
+  const r = visibleRect(ctx);
+  const { widthM, heightM } = ctx.spec;
+  const x0 = (r.u0 - 0.5) * widthM;
+  const x1 = (r.u0 + r.wN - 0.5) * widthM;
+  const yTop = (0.5 - r.v0) * heightM;
+  const yBot = (0.5 - r.v0 - r.hN) * heightM;
+  const e = eye(ctx);
+  ctx.eye = e;
+
+  const { camera } = ctx;
+  const near = 0.05;
+  const k = near / e.z;
+  camera.position.copy(e);
+  camera.rotation.set(0, 0, 0);
+  camera.updateMatrixWorld();
+  camera.projectionMatrix.makePerspective((x0 - e.x) * k, (x1 - e.x) * k, (yTop - e.y) * k, (yBot - e.y) * k, near, e.z + 40);
+  camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
+}
+
+// Pivot the building on the sign: the photo moves the other way so the wall stays where it is
+function placeBuilding(ctx) {
+  const c = wallPoint(ctx.spec, ctx.signUV.u, ctx.signUV.v);
+  ctx.building.position.copy(c);
+  ctx.photoMesh.position.set(-c.x, -c.y, 0);
+  ctx.shadowWall.position.set(-c.x, -c.y, 0.002);
+}
+
+function glowPlane({ canvas, width, height }, opacity) {
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const mesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(width, height),
+    new THREE.MeshBasicMaterial({
+      map: tex, transparent: true, opacity, depthWrite: false, toneMapped: false,
+      blending: THREE.AdditiveBlending, // light adds onto the photo, like LEDs on stone
+    })
+  );
+  mesh.userData.opacity = opacity;
+  mesh.userData.noPick = true; // light, not something to grab
+  return mesh;
+}
+
+// Reflections for metal: an evening street (sky, facades, pavement), not a white studio
+function makeStreetEnv(pmrem, night) {
+  const scene = new THREE.Scene();
+  const geo = new THREE.SphereGeometry(10, 48, 24);
+  const top = new THREE.Color(night ? 0x26324a : 0xc9d4e8);
+  const horizon = new THREE.Color(night ? 0x4a3f34 : 0xb3aba0);
+  const ground = new THREE.Color(night ? 0x14110e : 0x4d463e);
+  const colors = [];
+  const pos = geo.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    const y = pos.getY(i) / 10;
+    const c = y > 0 ? horizon.clone().lerp(top, Math.pow(y, 0.6)) : horizon.clone().lerp(ground, Math.pow(-y, 0.5));
+    colors.push(c.r, c.g, c.b);
+  }
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+  scene.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide })));
+
+  // A soft light source above and in front: the sky by day, the canopy strip by night
+  const panel = new THREE.Mesh(
+    new THREE.PlaneGeometry(night ? 8 : 12, night ? 1.4 : 4),
+    new THREE.MeshBasicMaterial({ color: new THREE.Color(night ? 0xffcf96 : 0xfff3e2).multiplyScalar(night ? 3 : 2.6), side: THREE.DoubleSide })
+  );
+  panel.position.set(-1, 6, 5);
+  panel.lookAt(0, 0, 0);
+  scene.add(panel);
+
+  // The street behind the viewer: what a flat letter face actually mirrors
+  const street = new THREE.Mesh(
+    new THREE.PlaneGeometry(22, 6),
+    new THREE.MeshBasicMaterial({ color: new THREE.Color(night ? 0x8a6a48 : 0xe8d6bb).multiplyScalar(night ? 0.9 : 1.35), side: THREE.DoubleSide })
+  );
+  street.position.set(0, 0.6, 8);
+  street.lookAt(0, 0.6, 0);
+  scene.add(street);
+
+  const tex = pmrem.fromScene(scene, 0.03).texture;
+  geo.dispose();
+  panel.geometry.dispose();
+  street.geometry.dispose();
+  return tex;
+}
