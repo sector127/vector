@@ -4,7 +4,7 @@ import { getTranslation } from '../i18n/translations';
 import { CARD_STUDIO_ENABLED } from '../config/features';
 import RalColorPicker from './RalColorPicker';
 import { ralColor, metalFinish, finishLabel } from '../data/finishes';
-import { SIGN_LAYOUTS, DEFAULT_SIGN_TEXTS, SIGN_FONTS, LETTER_HEIGHT, slotLang } from '../data/signLayouts';
+import { SIGN_LAYOUTS, DEFAULT_SIGN_TEXTS, SIGN_FONTS, LETTER_HEIGHT, BOX_SIZE, BOX_RADIUS, slotLang } from '../data/signLayouts';
 
 // Loaded on demand so the card studio costs nothing while it is switched off
 const CardStage3D = lazy(() => import('./CardStage3D'));
@@ -34,6 +34,8 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
   const [signLayout, setSignLayout] = useState('ka_logo_en'); // see SIGN_LAYOUTS
   const [signTexts, setSignTexts] = useState(DEFAULT_SIGN_TEXTS);
   const [letterHeightCm, setLetterHeightCm] = useState(LETTER_HEIGHT.default); // physical letter height, cm
+  const [boxSizeCm, setBoxSizeCm] = useState(null); // { w, h } set by hand; null = the lightbox fits the text
+  const [boxRadiusCm, setBoxRadiusCm] = useState(BOX_RADIUS.default); // lightbox corner radius, cm
   const [customPhoto, setCustomPhoto] = useState(null); // { src, w, h, name } – the customer's own facade
   const [wallWidthM, setWallWidthM] = useState(10); // how wide the customer's photo is, in metres
   const facadeInputRef = useRef(null);
@@ -386,8 +388,6 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
     .map((sl) => (sl === 'logo' ? `[${ts.logo}${logoFile ? `: ${logoFile.name}` : ''}]` : signTexts[sl]))
     .filter(Boolean)
     .join(' · ');
-  const clampHeight = (v) => Math.min(LETTER_HEIGHT.max, Math.max(LETTER_HEIGHT.min, Math.round(v)));
-  const stepHeight = (dir) => setLetterHeightCm((v) => clampHeight(v + dir * LETTER_HEIGHT.step));
 
   // The customer's facade: downscaled in the browser (nothing is uploaded) so the texture stays light
   const handleFacadeUpload = (file) => {
@@ -408,6 +408,11 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
   };
   const lightingLabel = { front: ts.lightFront, back: ts.lightBack, off: ts.lightOff }[lightingType];
   const usesPaint = [faceFinish, sideFinish, ...(signType === 'box' ? [boxFinish] : [])].some((f) => !f.metal);
+  // The box starts at its fitted size; the first manual change pins both sides
+  const boxShown = boxSizeCm || (signMetrics && { w: Math.round(signMetrics.w * 100), h: Math.round(signMetrics.h * 100) });
+  // A radius can't exceed half the short side, so a smaller box shows the radius it really has
+  const boxRadiusMax = boxShown ? Math.floor(Math.min(boxShown.w, boxShown.h) / 2) : 0;
+  const boxRadiusShown = Math.min(boxRadiusCm, boxRadiusMax);
   const signSpecLine = [
     signType === 'box' ? ts.typeBox : ts.typeLetters,
     ...(layoutHasKa ? [`${ts.fontShort}: ${SIGN_FONTS.find((f) => f.id === georgianFont)?.full} (Mtavruli)`] : []),
@@ -415,7 +420,7 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
     ...(customPhoto ? [`${ts.facadeOwn}: ${customPhoto.name}`] : []),
     `${ts.face}: ${finishLabel(faceFinish)}`,
     `${ts.sides}: ${finishLabel(sideFinish)}`,
-    ...(signType === 'box' ? [`${ts.box}: ${finishLabel(boxFinish)}`] : []),
+    ...(signType === 'box' ? [`${ts.box}: ${finishLabel(boxFinish)}`, `${ts.boxRadius} ${boxRadiusShown} cm`] : []),
     ...(usesPaint ? [paintGloss === 'gloss' ? ts.gloss : ts.matte] : []),
     `${letterDepth}mm`,
     lightingType === 'off' ? lightingLabel : `${lightingLabel} ${ledTemp}K`,
@@ -434,7 +439,9 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
   };
 
   const colorValue = { face: faceFinish, side: sideFinish, box: boxFinish }[colorTarget] || faceFinish;
-  const signSizeLabel = signMetrics ? `≈ ${signMetrics.w.toFixed(2)} × ${signMetrics.h.toFixed(2)} m` : '—';
+  const boxSizeIsExact = signType === 'box' && boxSizeCm;
+  const signSizeLabel = signMetrics ? `${boxSizeIsExact ? '' : '≈ '}${signMetrics.w.toFixed(2)} × ${signMetrics.h.toFixed(2)} m` : '—';
+  const setBoxSide = (side, v) => setBoxSizeCm({ ...boxShown, [side]: v });
   const setColorValue = (f) => {
     if (colorTarget === 'face') {
       setFaceFinish(f);
@@ -720,6 +727,8 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
                         items={signItems}
                         logo={signLogo}
                         letterHeightCm={letterHeightCm}
+                        boxSizeCm={signType === 'box' ? boxSizeCm : null}
+                        boxRadiusCm={boxRadiusCm}
                         signType={signType}
                         depthMm={letterDepth}
                         face={faceFinish}
@@ -1033,41 +1042,20 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
                         );
                       })}
 
-                      {/* Font and size, right under the text */}
-                      <div className="sign-type-row">
-                        {layoutHasKa && (
-                          <label className="sign-font-select">
-                            <select value={georgianFont} onChange={(e) => setGeorgianFont(e.target.value)} aria-label={ts.fontShort}>
-                              {SIGN_FONTS.map((f) => <option key={f.id} value={f.id}>{f.label}</option>)}
-                            </select>
-                            <ChevronDown size={13} aria-hidden="true" />
-                          </label>
-                        )}
-                        <div className="sign-size-stepper" role="group" aria-label={ts.letterHeight}>
-                          <button type="button" onClick={() => stepHeight(-1)} disabled={letterHeightCm <= LETTER_HEIGHT.min} aria-label={ts.smaller}>
-                            <Minus size={13} />
-                          </button>
-                          <label className="sign-size-value" title={ts.letterHeight}>
-                            <input
-                              type="number"
-                              inputMode="numeric"
-                              min={LETTER_HEIGHT.min}
-                              max={LETTER_HEIGHT.max}
-                              step={LETTER_HEIGHT.step}
-                              value={letterHeightCm}
-                              onChange={(e) => e.target.value && setLetterHeightCm(clampHeight(Number(e.target.value)))}
-                              aria-label={`${ts.letterHeight}, ${ts.cm}`}
-                            />
-                            <span>{ts.cm}</span>
-                          </label>
-                          <button type="button" onClick={() => stepHeight(1)} disabled={letterHeightCm >= LETTER_HEIGHT.max} aria-label={ts.bigger}>
-                            <Plus size={13} />
-                          </button>
-                        </div>
-                      </div>
-                      <span className="sign-hint">
-                        {ts.signSize}: {signSizeLabel}{layoutHasKa ? ` • ${ts.fontHint}` : ''}
-                      </span>
+                      {/* Font, right under the text */}
+                      {layoutHasKa && (
+                        <>
+                          <div className="sign-type-row">
+                            <label className="sign-font-select">
+                              <select value={georgianFont} onChange={(e) => setGeorgianFont(e.target.value)} aria-label={ts.fontShort}>
+                                {SIGN_FONTS.map((f) => <option key={f.id} value={f.id}>{f.label}</option>)}
+                              </select>
+                              <ChevronDown size={13} aria-hidden="true" />
+                            </label>
+                          </div>
+                          <span className="sign-hint">{ts.fontHint}</span>
+                        </>
+                      )}
                     </div>
 
                     {layoutHasLogo && (
@@ -1116,6 +1104,38 @@ export default function BillboardMockup({ lang, onBookBillboard, onShowToast }) 
                         }}
                         options={[{ val: 'letters', label: ts.typeLetters }, { val: 'box', label: ts.typeBox }]}
                       />
+                    </div>
+
+                    {/* Physical size: letters always, lightbox sides when there is a box */}
+                    <div className="control-block">
+                      <div className="control-title">
+                        <span>{ts.sizeTitle}</span>
+                        {signType === 'box' && boxSizeCm && (
+                          <button type="button" className="sign-size-fit" onClick={() => setBoxSizeCm(null)}>{ts.boxFit}</button>
+                        )}
+                      </div>
+                      <div className="sign-size-rows">
+                        <SizeStepper
+                          label={ts.letterHeight}
+                          value={letterHeightCm}
+                          min={LETTER_HEIGHT.min}
+                          max={LETTER_HEIGHT.max}
+                          step={LETTER_HEIGHT.step}
+                          onChange={setLetterHeightCm}
+                          ts={ts}
+                        />
+                        {signType === 'box' && boxShown && (
+                          <>
+                            <SizeStepper label={ts.boxLength} value={boxShown.w} min={BOX_SIZE.w.min} max={BOX_SIZE.w.max} step={BOX_SIZE.step} onChange={(v) => setBoxSide('w', v)} ts={ts} />
+                            <SizeStepper label={ts.boxWidth} value={boxShown.h} min={BOX_SIZE.h.min} max={BOX_SIZE.h.max} step={BOX_SIZE.step} onChange={(v) => setBoxSide('h', v)} ts={ts} />
+                            <SizeStepper label={ts.boxRadius} value={boxRadiusShown} min={BOX_RADIUS.min} max={boxRadiusMax} step={BOX_RADIUS.step} onChange={setBoxRadiusCm} ts={ts} />
+                          </>
+                        )}
+                      </div>
+                      <span className="sign-hint">{ts.signSize}: {signSizeLabel}</span>
+                      {signType === 'box' && signMetrics?.overflow && (
+                        <span className="sign-hint sign-hint-warn" role="status">{ts.boxOverflow}</span>
+                      )}
                     </div>
 
                     {/* Colours: compact chips, the RAL catalogue opens on demand */}
@@ -1397,6 +1417,49 @@ function Segmented({ value, onChange, options }) {
           {o.label}
         </button>
       ))}
+    </div>
+  );
+}
+
+// Labelled − value + control. Typing only applies in-range values; blur settles anything else.
+function SizeStepper({ label, value, min, max, step, onChange, ts }) {
+  const [draft, setDraft] = useState(null);
+  const clamp = (v) => Math.min(max, Math.max(min, Math.round(v)));
+  const inRange = (v) => Number.isFinite(v) && v >= min && v <= max;
+
+  return (
+    <div className="sign-size-row">
+      <span className="sign-size-label">{label}</span>
+      <div className="sign-size-stepper" role="group" aria-label={label}>
+        <button type="button" onClick={() => onChange(clamp(value - step))} disabled={value <= min} aria-label={`${label}: ${ts.smaller}`}>
+          <Minus size={13} />
+        </button>
+        <label className="sign-size-value" title={label}>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={min}
+            max={max}
+            step={step}
+            value={draft ?? value}
+            onChange={(e) => {
+              setDraft(e.target.value);
+              const n = Number(e.target.value);
+              if (e.target.value && inRange(n)) onChange(Math.round(n));
+            }}
+            onBlur={() => {
+              if (draft) onChange(clamp(Number(draft)));
+              setDraft(null);
+            }}
+            onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
+            aria-label={`${label}, ${ts.cm}`}
+          />
+          <span>{ts.cm}</span>
+        </label>
+        <button type="button" onClick={() => onChange(clamp(value + step))} disabled={value >= max} aria-label={`${label}: ${ts.bigger}`}>
+          <Plus size={13} />
+        </button>
+      </div>
     </div>
   );
 }

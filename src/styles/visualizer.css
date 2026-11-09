@@ -589,6 +589,42 @@
   gap: 6px;
 }
 
+.sign-size-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sign-size-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.sign-size-label {
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ink-primary);
+}
+
+.sign-size-fit {
+  padding: 0;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--ink-primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.sign-hint-warn {
+  color: #b3261e;
+}
+
 .sign-font-select {
   position: relative;
   flex: 1;

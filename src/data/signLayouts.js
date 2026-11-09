@@ -27,4 +27,10 @@ export const SIGN_FONTS = [
 ];
 
 // Physical letter height in cm (cap height of the letters)
-export const LETTER_HEIGHT = { default: 20, min: 5, max: 150, step: 5 };
+export const LETTER_HEIGHT = { default: 20, min: 5, max: 150, step: 1 };
+
+// Physical lightbox size in cm, used once the customer sets it by hand
+export const BOX_SIZE = { w: { min: 20, max: 2000 }, h: { min: 10, max: 500 }, step: 5 };
+
+// Lightbox corner radius in cm; the upper limit is half of the box's short side
+export const BOX_RADIUS = { default: 4, min: 0, step: 1 };
