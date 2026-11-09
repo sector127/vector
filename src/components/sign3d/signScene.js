@@ -89,9 +89,17 @@ function planBounds(parts) {
 }
 
 export function signExtent(plan, signType) {
+  if (signType === 'box' && plan.boxSize) return plan.boxSize.clone(); // size set by the customer
   const size = plan.box.getSize(new THREE.Vector2());
   if (signType === 'box') size.addScalar(BOX_PAD * 2);
   return size;
+}
+
+// Corner radius in layout units. Never exactly 0 or half the short side: the outline
+// would get duplicate points, which breaks the bevel.
+function boxCorner(plan, ext) {
+  const limit = Math.min(ext.x, ext.y) / 2;
+  return Math.min(Math.max(plan.boxRadius ?? limit * 0.16, 0.002), limit * 0.98);
 }
 
 // ---------- materials ----------
@@ -177,7 +185,7 @@ export function buildSignGroup(plan, opts) {
     const ext = signExtent(plan, 'box');
     const boxDepth = depth + 0.06;
     const geo = new THREE.ExtrudeGeometry(
-      roundedRectShape(ext.x * s, ext.y * s, Math.min(ext.x, ext.y) * s * 0.08),
+      roundedRectShape(ext.x * s, ext.y * s, boxCorner(plan, ext) * s),
       { depth: boxDepth - bevel * 2, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 3, curveSegments: 10 }
     );
     // A translucent face only glows in its own colour, so dark RAL boxes stay dark
@@ -301,7 +309,7 @@ export function makeGlowTexture(plan, s, signType, { blurs, color, includeBox = 
   const toPx = (p) => (x, y) => [cw / 2 + (x * p.sx + p.dx) * px, ch / 2 - (y * p.sy + p.dy) * px];
 
   if (signType === 'box' && includeBox) {
-    const r = roundedRectShape(ext.x, ext.y, Math.min(ext.x, ext.y) * 0.08);
+    const r = roundedRectShape(ext.x, ext.y, boxCorner(plan, ext));
     drawShapes(mctx, [r], toPx({ sx: 1, sy: 1, dx: 0, dy: 0 }));
   } else {
     for (const p of plan.parts) {

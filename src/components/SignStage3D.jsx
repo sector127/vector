@@ -68,7 +68,7 @@ const NIGHT_GRADE = /* glsl */ `
  * ref exposes exportPng(scale) → PNG data URL and exportPreview() → compact JPEG for the inquiry.
  */
 export default function SignStage3D({
-  ref, photo, items, logo, letterHeightCm = 20, signType, depthMm, face, side, boxFinish, gloss = 'matte',
+  ref, photo, items, logo, letterHeightCm = 20, boxSizeCm = null, boxRadiusCm = 4, signType, depthMm, face, side, boxFinish, gloss = 'matte',
   lighting, ledTemp, night, zoomed, georgianFont = 'sans', dragMode = 'orbit', labels, onMetrics,
 }) {
   const hostRef = useRef(null);
@@ -341,9 +341,15 @@ export default function SignStage3D({
     if (!plan) { ctx.render(); return; }
 
     // Physical scale from the letter height the customer orders
-    const ext = signExtent(plan, signType);
     const s = (letterHeightCm / 100) / plan.capH;
-    onMetrics?.({ w: ext.x * s, h: ext.y * s, letterH: plan.capH * s });
+    if (boxSizeCm) plan.boxSize = new THREE.Vector2(boxSizeCm.w / 100 / s, boxSizeCm.h / 100 / s);
+    plan.boxRadius = boxRadiusCm / 100 / s;
+    const ext = signExtent(plan, signType);
+    const content = plan.box.getSize(new THREE.Vector2());
+    onMetrics?.({
+      w: ext.x * s, h: ext.y * s, letterH: plan.capH * s,
+      overflow: signType === 'box' && (content.x > ext.x || content.y > ext.y),
+    });
 
     // Returns are drawn a little deeper in the overview so they still read at that distance
     const depth = (depthMm / 1000) * depthBoost(ctx.target);
@@ -409,7 +415,7 @@ export default function SignStage3D({
     ctx.photoNight.value = night ? 1 : 0;
 
     ctx.render();
-  }, [fonts, items, logo, letterHeightCm, logoImage, signType, depthMm, face, side, boxFinish, gloss, lighting, ledTemp, night, onMetrics, zoomed]);
+  }, [fonts, items, logo, letterHeightCm, boxSizeCm, boxRadiusCm, logoImage, signType, depthMm, face, side, boxFinish, gloss, lighting, ledTemp, night, onMetrics, zoomed]);
 
   // ---- export: one WebGL frame (photo, sign and light are all in the scene) ----
   useImperativeHandle(ref, () => {
